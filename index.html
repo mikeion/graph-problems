@@ -6,114 +6,107 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#0d1117;color:#c9d1d9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-header{background:#161b22;border-bottom:1px solid #30363d;padding:10px 20px;flex-shrink:0;}
-.hdr-top{display:flex;align-items:baseline;gap:12px;}
-h1{font-size:14px;font-weight:600;color:#7ee787;}
+header{background:#161b22;border-bottom:1px solid #30363d;padding:9px 20px;flex-shrink:0;}
+h1{font-size:13px;font-weight:600;color:#7ee787;display:inline;margin-right:10px;}
 .hdr-q{font-size:11px;color:#8b949e;}
-.hdr-q strong{color:#ffa657;}
-.hdr-stats{font-size:10px;color:#484f58;margin-top:3px;}
-.hdr-stats span{margin-right:14px;}
-/* two-column layout */
+.hdr-q em{color:#ffa657;font-style:normal;font-weight:600;}
+
 .content{display:flex;flex:1;overflow:hidden;}
-/* Left: graph view */
-.graph-col{width:420px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px;border-right:1px solid #21262d;}
-#graph-svg{border-radius:4px;}
-.od-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;}
-.od-chip{display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:10px;font-family:monospace;background:#161b22;border:1px solid #21262d;}
-.od-dot{width:7px;height:7px;border-radius:50%;}
-.od-val{font-weight:600;}
-.od-val.heavy{color:#ffa657;}
-.od-val.light{color:#555e6b;}
-.nav-row{display:flex;gap:6px;width:100%;}
-.nbtn{flex:1;background:#21262d;border:1px solid #30363d;color:#8b949e;padding:5px;border-radius:4px;cursor:pointer;font-size:10px;transition:all .12s;}
-.nbtn:hover{border-color:#58a6ff;color:#c9d1d9;}
-.class-info{font-size:10px;color:#484f58;text-align:center;line-height:1.5;}
-.class-info strong{color:#8b949e;}
-/* Right: generator picker */
-.gen-col{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:14px;gap:12px;}
-/* meter */
-.meter{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#161b22;border:1px solid #30363d;border-radius:8px;}
-.meter-num{font-size:48px;font-weight:700;font-family:monospace;line-height:1;transition:color .2s;}
-.meter-info{flex:1;}
-.meter-label{font-size:13px;color:#8b949e;margin-bottom:4px;}
-.meter-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;}
-.meter-badge.ok{background:#1a2e1a;color:#7ee787;border:1px solid #2ea043;}
-.meter-badge.warn{background:#1c1d10;color:#b8a000;border:1px solid #3d3d00;}
-.meter-sub{font-size:10px;color:#484f58;margin-top:4px;}
-.meter-actions{display:flex;gap:4px;flex-wrap:wrap;}
-.mact{padding:4px 10px;font-size:10px;border-radius:4px;border:1px solid #30363d;background:#21262d;color:#8b949e;cursor:pointer;transition:all .12s;}
+
+/* Left panel */
+.graph-col{width:340px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-right:1px solid #21262d;}
+.graph-note{font-size:9px;color:#484f58;text-align:center;line-height:1.6;max-width:280px;}
+.graph-note strong{color:#8b949e;}
+
+/* Right panel */
+.main-col{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:14px 16px;gap:11px;}
+
+/* Context strip */
+.context{font-size:10px;color:#484f58;line-height:1.7;padding:8px 12px;background:#161b22;border:1px solid #21262d;border-radius:6px;}
+.context strong{color:#8b949e;}
+.context .hl{color:#c9d1d9;}
+
+/* Metric */
+.metric{display:flex;align-items:center;gap:14px;padding:12px 16px;background:#161b22;border:1px solid #30363d;border-radius:8px;}
+.metric-num{font-size:50px;font-weight:700;font-family:monospace;line-height:1;min-width:72px;transition:color .25s;}
+.num-far{color:#ff7b72;}
+.num-close{color:#ffa657;}
+.num-good{color:#7ee787;}
+.metric-right{flex:1;}
+.metric-label{font-size:12px;color:#8b949e;margin-bottom:3px;}
+.metric-label strong{color:#c9d1d9;}
+.metric-status{font-size:11px;color:#8b949e;margin-bottom:9px;}
+.metric-actions{display:flex;gap:5px;flex-wrap:wrap;}
+.mact{padding:5px 11px;font-size:10px;border-radius:4px;border:1px solid #30363d;background:#0d1117;color:#8b949e;cursor:pointer;transition:all .12s;}
 .mact:hover{border-color:#58a6ff;color:#c9d1d9;}
-.mact.hi{border-color:#238636;color:#7ee787;}
-/* cycle grid area */
-.grids{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;}
+.mact.hi{border-color:#2ea043;color:#7ee787;}
+
+/* Grids */
+.grids{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
 .grid-section{background:#161b22;border:1px solid #21262d;border-radius:6px;padding:10px 12px;}
 .grid-section h3{font-size:10px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;}
-/* C4 3×3 grid with row/col labels */
-.c4-table{display:grid;grid-template-columns:36px repeat(3,1fr);gap:3px;}
+
+.c4-table{display:grid;grid-template-columns:38px repeat(3,1fr);gap:3px;}
 .c4-ax{font-size:9px;color:#484f58;text-align:center;padding:3px 2px;display:flex;align-items:center;justify-content:center;}
 .c4-row-ax{font-size:9px;color:#484f58;text-align:right;padding-right:6px;display:flex;align-items:center;justify-content:flex-end;}
-.cyc-cell{padding:7px 4px;border-radius:4px;border:1px solid #21262d;cursor:pointer;font-size:9px;font-family:monospace;text-align:center;line-height:1.4;transition:all .15s;background:#0d1117;color:#484f58;user-select:none;}
+.cyc-cell{padding:9px 4px;border-radius:4px;border:1px solid #21262d;cursor:pointer;font-size:9px;font-family:monospace;text-align:center;line-height:1.5;transition:all .15s;background:#0d1117;color:#484f58;user-select:none;}
 .cyc-cell:hover{border-color:#58a6ff;color:#8b949e;}
 .cyc-cell.on{background:#0d1a0d;border-color:#2ea043;color:#7ee787;}
 .cyc-cell.on.hex{background:#0a0d1a;border-color:#1565c0;color:#79c0ff;}
-.cyc-cell.dim{opacity:.35;}
-/* hex row */
+
 .hex-row{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;}
-/* finding box */
-.finding{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:10px 14px;font-size:11px;line-height:1.7;color:#484f58;}
+
+.finding{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px 14px;font-size:11px;line-height:1.8;color:#484f58;}
 .finding strong{color:#8b949e;}
-.finding .answer{color:#ffa657;font-weight:600;}
+.finding .key{color:#ffa657;font-weight:600;}
 </style>
 </head>
 <body>
 <header>
-  <div class="hdr-top">
-    <h1>K(3,3) Circuit Generators</h1>
-    <span class="hdr-q">If only <strong>specific circuits</strong> are allowed to be reversed, how many do you need to reach any orientation reachable by arbitrary reversals?</span>
-  </div>
-  <div class="hdr-stats">
-    <span id="stat-tcos">— TCOs</span>
-    <span id="stat-classes">— equivalence classes</span>
-    <span id="stat-note" style="color:#ffa657"></span>
-  </div>
+  <h1>K(3,3) Circuit Generators</h1>
+  <span class="hdr-q">If you can only reverse <em>specific circuits</em>, how many do you need to navigate between any two reachable orientations?</span>
 </header>
 
 <div class="content">
 
-  <!-- Left: K(3,3) current orientation -->
+  <!-- Left: torus diagram -->
   <div class="graph-col">
-    <svg id="graph-svg" width="380" height="340"></svg>
-    <div class="od-row" id="od-row"></div>
-    <div class="class-info" id="class-info"></div>
-    <div class="nav-row">
-      <button class="nbtn" onclick="randomTCO()">⚄ Random orientation</button>
-      <button class="nbtn" onclick="nextInComp()">Next in class →</button>
+    <svg id="graph-svg" width="310" height="220"></svg>
+    <div class="graph-note">
+      <strong>K(3,3) on the torus</strong> — 6 vertices, 9 edges, 3 hexagonal faces.<br>
+      Green = left vertices · Blue = right vertices<br>
+      Hover a cycle below to see its edges light up.
     </div>
   </div>
 
-  <!-- Right: Generator picker -->
-  <div class="gen-col">
+  <!-- Right: the generator question -->
+  <div class="main-col">
 
-    <!-- Component meter -->
-    <div class="meter">
-      <div class="meter-num" id="meter-num">—</div>
-      <div class="meter-info">
-        <div class="meter-label">equivalence classes reachable</div>
-        <span class="meter-badge" id="meter-badge">—</span>
-        <div class="meter-sub" id="meter-sub">Select circuits below to include them as allowed moves</div>
-      </div>
-      <div class="meter-actions">
-        <button class="mact" onclick="genAll()">All 15</button>
-        <button class="mact" onclick="genNone()">None</button>
-        <button class="mact hi" onclick="genMinimal()">▶ Show minimal set</button>
+    <div class="context">
+      <strong>Setup:</strong> K(3,3) has <span class="hl">102 totally cyclic orientations</span> (every edge lies in a directed cycle).
+      Reversing all edges of any directed circuit takes you to another TCO.
+      By the out-degree invariant, all TCOs split into exactly <span class="hl">20 equivalence classes</span> — no reversal can move between classes.
+      <br><strong>Question:</strong> what's the smallest set of specific circuits that still lets you reach every orientation reachable by arbitrary reversals?
+    </div>
+
+    <div class="metric">
+      <div class="metric-num num-far" id="metric-num">102</div>
+      <div class="metric-right">
+        <div class="metric-label">groups &nbsp;→&nbsp; <strong>target: 20</strong></div>
+        <div class="metric-status" id="metric-status">No circuits selected — each TCO is isolated. Add circuits below to merge them.</div>
+        <div class="metric-actions">
+          <button class="mact" onclick="genNone()">None</button>
+          <button class="mact" onclick="genTry4()" title="Cycle rank of K(3,3) is 4 — does it work?">Try 4 (cycle rank)</button>
+          <button class="mact hi" onclick="genMinimal()">Minimal set (5)</button>
+          <button class="mact" onclick="genAll()">All 15</button>
+        </div>
       </div>
     </div>
 
     <div class="grids">
 
-      <!-- C4 cycles -->
       <div class="grid-section">
-        <h3>4-cycles (C₄) — 9 total, indexed by which 2 left × 2 right vertices</h3>
+        <h3>4-cycles (C₄) — 9 total</h3>
         <div class="c4-table" id="c4-table">
           <div></div>
           <div class="c4-ax">R₀R₁</div>
@@ -122,19 +115,17 @@ h1{font-size:14px;font-weight:600;color:#7ee787;}
         </div>
       </div>
 
-      <!-- C6 hexagons -->
       <div class="grid-section">
-        <h3>6-cycles (C₆) — 6 total (⬡ = torus face cycles)</h3>
+        <h3>6-cycles (C₆) — 6 total &nbsp;&nbsp;⬡ = torus face</h3>
         <div class="hex-row" id="hex-row"></div>
       </div>
 
-      <!-- Finding -->
       <div class="finding">
-        <strong>Cycle rank of K(3,3):</strong> E − V + 1 = 9 − 6 + 1 = <strong>4</strong><br>
-        <strong>For planar graphs:</strong> 4 cycles always suffice (= cycle rank)<br>
-        <span class="answer">For K(3,3): minimum is 5 — one more than the cycle rank</span><br>
-        All 9 minimal sets use <strong>only C₄ cycles</strong> — never the hexagonal faces<br>
-        <strong>There are exactly 9 minimal sets</strong> (one per column of the C₄ grid above)
+        <strong>Cycle rank of K(3,3):</strong> E − V + 1 = 9 − 6 + 1 = <strong>4</strong> &nbsp;(like a spanning set for the cycle space)<br>
+        <strong>Planar graphs:</strong> 4 specific circuits always suffice<br>
+        <span class="key">K(3,3): the minimum is 5 — one more than the cycle rank</span><br>
+        All 9 minimal generating sets use <strong>only C₄ cycles</strong> — the hexagonal torus faces never appear.<br>
+        <strong>There are exactly 9 minimal sets</strong>, one for each column of the C₄ grid above.
       </div>
 
     </div>
@@ -144,47 +135,35 @@ h1{font-size:14px;font-weight:600;color:#7ee787;}
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-// ── core constants ────────────────────────────────────────────
+// ── constants ─────────────────────────────────────────────────
 const EDGES=[[0,3],[0,4],[0,5],[1,3],[1,4],[1,5],[2,3],[2,4],[2,5]];
 const NV=6;
 const EIDX={};
 EDGES.forEach(([u,v],k)=>{EIDX[`${u},${v}`]=k;EIDX[`${v},${u}`]=k;});
 const FACES=[[0,3,2,4,1,5],[3,0,4,2,5,1],[4,0,5,2,3,1]];
 const NODE_LABELS=['L₀','L₁','L₂','R₀','R₁','R₂'];
-const CYCLE_C=['#f0883e','#7ee787','#58a6ff','#d2a8ff','#ffa657','#ff7b72','#a5d6ff','#ffd700'];
 
-// Bipartite node positions
-const NP={0:{x:100,y:80},1:{x:100,y:200},2:{x:100,y:320},3:{x:280,y:80},4:{x:280,y:200},5:{x:280,y:320}};
+// Torus layout: 3×2 checkerboard grid
+//   L₀  R₀  L₁        v0 v3 v1
+//   R₁  L₂  R₂        v4 v2 v5
+// Two long diagonals (v0-v5, v1-v4) cross at center — topologically fine on torus.
+const NP={
+  0:{x:40, y:40},   // L₀  top-left
+  3:{x:155,y:40},   // R₀  top-center
+  1:{x:270,y:40},   // L₁  top-right
+  4:{x:40, y:180},  // R₁  bottom-left
+  2:{x:155,y:180},  // L₂  bottom-center
+  5:{x:270,y:180}   // R₂  bottom-right
+};
 
-// ── graph math ────────────────────────────────────────────────
-function adj(o){
-  const a=Array.from({length:NV},()=>[]);
-  EDGES.forEach(([u,v],k)=>(o>>k)&1?a[v].push(u):a[u].push(v));
-  return a;
-}
-function reach(a,s,d){
-  if(s===d)return true;
-  const vis=new Set([s]),q=[s];
-  while(q.length){const n=q.shift();for(const nb of a[n]){if(nb===d)return true;if(!vis.has(nb)){vis.add(nb);q.push(nb);}}}
-  return false;
-}
-function isTCO(o){
-  const a=adj(o);
-  for(let k=0;k<9;k++){const[u,v]=EDGES[k],[s,d]=(o>>k)&1?[v,u]:[u,v];if(!reach(a,d,s))return false;}
-  return true;
-}
-function outDeg(o){const d=new Array(NV).fill(0);EDGES.forEach(([u,v],k)=>(o>>k)&1?d[v]++:d[u]++);return d;}
+// ── math ──────────────────────────────────────────────────────
+function adj(o){const a=Array.from({length:NV},()=>[]);EDGES.forEach(([u,v],k)=>(o>>k)&1?a[v].push(u):a[u].push(v));return a;}
+function reach(a,s,d){if(s===d)return true;const vis=new Set([s]),q=[s];while(q.length){const n=q.shift();for(const nb of a[n]){if(nb===d)return true;if(!vis.has(nb)){vis.add(nb);q.push(nb);}}}return false;}
+function isTCO(o){const a=adj(o);for(let k=0;k<9;k++){const[u,v]=EDGES[k],[s,d]=(o>>k)&1?[v,u]:[u,v];if(!reach(a,d,s))return false;}return true;}
 function cycleMask(verts){let m=0,n=verts.length;for(let i=0;i<n;i++)m|=1<<EIDX[`${verts[i]},${verts[(i+1)%n]}`];return m;}
-function edgeGoes(u,v,o){const k=EIDX[`${u},${v}`],bit=(o>>k)&1;return(u<v&&bit===0)||(u>v&&bit===1);}
-function isFaceDir(face,o){const n=face.length;return face.every((_,i)=>edgeGoes(face[i],face[(i+1)%n],o))||face.every((_,i)=>edgeGoes(face[(i+1)%n],face[i],o));}
 function findCycles(o){
   const a=adj(o),found=[],seen=new Set();
-  function dfs(st,cur,path,vis){
-    for(const nb of a[cur]){
-      if(nb===st&&path.length>1){const k=JSON.stringify(path);if(!seen.has(k)){seen.add(k);found.push([...path]);}}
-      else if(!vis.has(nb)&&nb>st){vis.add(nb);path.push(nb);dfs(st,nb,path,vis);path.pop();vis.delete(nb);}
-    }
-  }
+  function dfs(st,cur,path,vis){for(const nb of a[cur]){if(nb===st&&path.length>1){const k=JSON.stringify(path);if(!seen.has(k)){seen.add(k);found.push([...path]);}}else if(!vis.has(nb)&&nb>st){vis.add(nb);path.push(nb);dfs(st,nb,path,vis);path.pop();vis.delete(nb);}}}
   for(let s=0;s<NV;s++) dfs(s,s,[s],new Set([s]));
   return found;
 }
@@ -199,149 +178,113 @@ for(const o of TCOs) for(const c of findCycles(o)){const m=cycleMask(c);if(!allC
 const LEFT_PAIRS=[[0,1],[0,2],[1,2]];
 const RIGHT_PAIRS=[[3,4],[3,5],[4,5]];
 const C4_GRID=LEFT_PAIRS.map(lp=>RIGHT_PAIRS.map(rp=>{
-  for(const[m,c]of allCycleMasks)
-    if(c.length===4&&lp.every(v=>c.includes(v))&&rp.every(v=>c.includes(v)))return m;
+  for(const[m,c]of allCycleMasks)if(c.length===4&&lp.every(v=>c.includes(v))&&rp.every(v=>c.includes(v)))return m;
   return null;
 }));
 const HEX_MASKS=[...allCycleMasks.keys()].filter(m=>allCycleMasks.get(m).length===6);
 const FACE_MASK_SET=new Set(FACES.map(f=>cycleMask(f)));
 
-function buildFlipNbrs(){
-  const nbrs={};TCOs.forEach(o=>{nbrs[o]=new Set();});
-  TCOs.forEach(o=>{for(const c of findCycles(o)){const m=cycleMask(c),nb=o^m;if(tcoSet.has(nb)&&nb!==o){nbrs[o].add(nb);nbrs[nb].add(o);}}});
-  return nbrs;
-}
 function buildCustomNbrs(sel){
   const allowed=new Set(sel),nbrs={};
   for(const o of TCOs) nbrs[o]=new Set();
   for(const o of TCOs) for(const c of findCycles(o)){const m=cycleMask(c);if(allowed.has(m)){const nb=o^m;if(tcoSet.has(nb)&&nb!==o){nbrs[o].add(nb);nbrs[nb].add(o);}}}
   return nbrs;
 }
-function bfsComp(nbrs,s){const vis=new Set([s]),q=[s];while(q.length){const n=q.shift();for(const nb of nbrs[n])if(!vis.has(nb)){vis.add(nb);q.push(nb);}}return vis;}
-function getComps(nbrs){
-  const visited=new Set(),comps=[],tc={};
-  for(const o of TCOs){if(visited.has(o))continue;const comp=[...bfsComp(nbrs,o)];comp.forEach(n=>{visited.add(n);tc[n]=comps.length;});comps.push(comp);}
-  comps.sort((a,b)=>b.length-a.length);comps.forEach((c,i)=>c.forEach(o=>tc[o]=i));
-  return{comps,tc};
+function countComps(nbrs){
+  const vis=new Set();let c=0;
+  for(const o of TCOs){if(!vis.has(o)){c++;const q=[o];vis.add(o);while(q.length){const n=q.shift();for(const nb of nbrs[n])if(!vis.has(nb)){vis.add(nb);q.push(nb);}}}}
+  return c;
 }
-function countComps(nbrs){const vis=new Set();let c=0;for(const o of TCOs){if(!vis.has(o)){c++;const q=[o];vis.add(o);while(q.length){const n=q.shift();for(const nb of nbrs[n])if(!vis.has(nb)){vis.add(nb);q.push(nb);}}}}return c;}
 
-const allNbrs=buildFlipNbrs();
-const{comps:allComps,tc:allTC}=getComps(allNbrs);
+// ── state ─────────────────────────────────────────────────────
+let customSel=new Set();
+let genNbrs=buildCustomNbrs([]);
 
-// ── SVG setup ─────────────────────────────────────────────────
+// ── SVG: torus layout ─────────────────────────────────────────
 const svg=d3.select('#graph-svg');
-const defs=svg.append('defs');
-function mkArrow(id,col){
-  defs.append('marker').attr('id',id).attr('viewBox','0 -5 10 10').attr('refX',10).attr('refY',0)
-    .attr('markerWidth',7).attr('markerHeight',7).attr('orient','auto')
-    .append('path').attr('d','M0,-5L10,0L0,5Z').attr('fill',col);
-}
-mkArrow('ar-def','#404850');
-mkArrow('ar-dim','#21262d');
-CYCLE_C.forEach((c,i)=>mkArrow(`ar-${i}`,c));
 
-svg.append('text').attr('x',100).attr('y',30).attr('text-anchor','middle').attr('fill','#3fb950').attr('font-size',10).text('Left');
-svg.append('text').attr('x',280).attr('y',30).attr('text-anchor','middle').attr('fill','#79c0ff').attr('font-size',10).text('Right');
+// Fundamental domain border
+svg.append('rect').attr('x',22).attr('y',22).attr('width',266).attr('height',176)
+  .attr('fill','none').attr('stroke','#1e2530').attr('stroke-width',1).attr('rx',3);
 
-function ctrlPt(k){
-  const[u,v]=EDGES[k],{x:x1,y:y1}=NP[u],{x:x2,y:y2}=NP[v];
-  const off=(u-(v-3))*70,mx=(x1+x2)/2,my=(y1+y2)/2;
-  const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
-  return{cx:mx+off*(-dy/len),cy:my+off*(dx/len)};
+// Torus identification arrows on border (small chevrons indicating wrap)
+// Left/right sides identify, top/bottom identify
+function addWrapMark(x,y,dir){
+  const marks=svg.append('g').attr('transform',`translate(${x},${y})`);
+  if(dir==='h'){// horizontal wrap (top/bottom)
+    marks.append('line').attr('x1',-4).attr('y1',0).attr('x2',0).attr('y2',-4).attr('stroke','#2a3540').attr('stroke-width',1);
+    marks.append('line').attr('x1',-4).attr('y1',0).attr('x2',0).attr('y2',4).attr('stroke','#2a3540').attr('stroke-width',1);
+  } else {// vertical wrap (left/right)
+    marks.append('line').attr('x1',0).attr('y1',-4).attr('x2',4).attr('y2',0).attr('stroke','#2a3540').attr('stroke-width',1);
+    marks.append('line').attr('x1',0).attr('y1',4).attr('x2',4).attr('y2',0).attr('stroke','#2a3540').attr('stroke-width',1);
+  }
 }
-function epath(k,o,sh=18){
-  const[u,v]=EDGES[k],rev=(o>>k)&1,{cx,cy}=ctrlPt(k);
-  let x1,y1,x2,y2;
-  if(!rev){({x:x1,y:y1}=NP[u]);({x:x2,y:y2}=NP[v]);}else{({x:x1,y:y1}=NP[v]);({x:x2,y:y2}=NP[u]);}
-  const tx=x2-cx,ty=y2-cy,tl=Math.sqrt(tx*tx+ty*ty);
-  const xe=x2-sh*tx/tl,ye=y2-sh*ty/tl;
-  const sx=cx-x1,sy=cy-y1,sl=Math.sqrt(sx*sx+sy*sy);
-  return`M${sl>0?x1+5*sx/sl:x1},${sl>0?y1+5*sy/sl:y1}Q${cx},${cy},${xe},${ye}`;
-}
+addWrapMark(155,22,'v'); addWrapMark(155,198,'v'); // top/bottom center
+addWrapMark(22,110,'h'); addWrapMark(288,110,'h'); // left/right center
 
+// Edges
 const edgeG=svg.append('g');
-const edgeSel=edgeG.selectAll('path').data(d3.range(9)).join('path').attr('fill','none').attr('stroke-width',2);
+const defs=svg.append('defs');
+defs.append('marker').attr('id','ar-def').attr('viewBox','0 -4 8 8').attr('refX',8).attr('refY',0)
+  .attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto')
+  .append('path').attr('d','M0,-4L8,0L0,4Z').attr('fill','#404850');
+defs.append('marker').attr('id','ar-hl').attr('viewBox','0 -4 8 8').attr('refX',8).attr('refY',0)
+  .attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto')
+  .append('path').attr('d','M0,-4L8,0L0,4Z').attr('fill','#ffa657');
+
+function edgeLine(k){
+  const[u,v]=EDGES[k],{x:x1,y:y1}=NP[u],{x:x2,y:y2}=NP[v];
+  const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+  const R=14; // vertex radius clearance
+  return{x1:x1+R*dx/len,y1:y1+R*dy/len,x2:x2-R*dx/len,y2:y2-R*dy/len};
+}
+
+const edgeSel=edgeG.selectAll('line').data(d3.range(9)).join('line')
+  .attr('x1',k=>edgeLine(k).x1).attr('y1',k=>edgeLine(k).y1)
+  .attr('x2',k=>edgeLine(k).x2).attr('y2',k=>edgeLine(k).y2)
+  .attr('stroke','#252e38').attr('stroke-width',1.5);
+
+// Nodes
 const nodeG=svg.append('g');
 nodeG.selectAll('circle').data(d3.range(NV)).join('circle')
-  .attr('cx',d=>NP[d].x).attr('cy',d=>NP[d].y).attr('r',16)
+  .attr('cx',d=>NP[d].x).attr('cy',d=>NP[d].y).attr('r',13)
   .attr('fill','#0d1117').attr('stroke',d=>d<3?'#3fb950':'#79c0ff').attr('stroke-width',1.5);
-nodeG.selectAll('.nl').data(d3.range(NV)).join('text').attr('class','nl')
+nodeG.selectAll('text').data(d3.range(NV)).join('text')
   .attr('x',d=>NP[d].x).attr('y',d=>NP[d].y+1).attr('text-anchor','middle').attr('dominant-baseline','middle')
-  .attr('font-size',9).attr('font-family','monospace').attr('fill',d=>d<3?'#3fb950':'#79c0ff').attr('pointer-events','none')
+  .attr('font-size',8).attr('font-family','monospace').attr('fill',d=>d<3?'#3fb950':'#79c0ff').attr('pointer-events','none')
   .text(d=>NODE_LABELS[d]);
-const odBadges=nodeG.selectAll('.odb').data(d3.range(NV)).join('text').attr('class','odb')
-  .attr('x',d=>NP[d].x).attr('y',d=>NP[d].y+28).attr('text-anchor','middle')
-  .attr('font-size',8).attr('font-family','monospace').attr('pointer-events','none');
 
-// ── generator state ───────────────────────────────────────────
-let customSel=new Set([...allCycleMasks.keys()]);
-let genNbrs=buildCustomNbrs([...customSel]);
-let curO=TCOs[0],compIdx=0;
+// Crossing note at center
+svg.append('text').attr('x',155).attr('y',113).attr('text-anchor','middle')
+  .attr('font-size',7).attr('fill','#2a3540').text('(torus)');
 
-// edge → is it in any selected cycle?
-function edgeInSel(k){
-  for(const[m,c]of allCycleMasks){
-    if(!customSel.has(m))continue;
-    if(c.some((_,i)=>{const u=c[i],v=c[(i+1)%c.length];return EIDX[`${u},${v}`]===k;}))return true;
-  }
-  return false;
-}
-
-function render(o,hlMask){
-  // Edges
-  const edgeCol=new Array(9).fill(null),markerIds=new Array(9).fill(null);
-  if(hlMask){
-    for(let k=0;k<9;k++) if((hlMask>>k)&1){edgeCol[k]='#ffa657';markerIds[k]='ar-4';}
-  }
+function renderGraph(hlMask){
   edgeSel
-    .attr('d',k=>epath(k,o))
-    .attr('stroke',k=>{if(edgeCol[k])return edgeCol[k];return edgeInSel(k)?'#384048':'#1c2128';})
-    .attr('stroke-width',k=>edgeCol[k]?2.8:1.8)
-    .attr('marker-end',k=>`url(#${markerIds[k]||(edgeInSel(k)?'ar-def':'ar-dim')})`);
-
-  // Out-degree
-  const od=outDeg(o);
-  odBadges.attr('fill',d=>od[d]===2?'#ffa657':'#555e6b').text(d=>`→${od[d]}`);
-  nodeG.selectAll('circle')
-    .attr('stroke-width',d=>od[d]===2?2.5:1.5)
-    .attr('stroke',d=>{const b=d<3?'#3fb950':'#79c0ff';return od[d]===2?b:d<3?'#1f6b30':'#1f4f7a';});
-
-  // Out-degree chips row
-  const row=document.getElementById('od-row');
-  row.innerHTML='';
-  for(let i=0;i<NV;i++){
-    const div=document.createElement('div');div.className='od-chip';
-    const col=i<3?'#3fb950':'#79c0ff';
-    div.innerHTML=`<div class="od-dot" style="background:${col}"></div><span style="color:#8b949e">${NODE_LABELS[i]}</span><span class="od-val ${od[i]===2?'heavy':'light'}">→${od[i]}</span>`;
-    row.appendChild(div);
-  }
-
-  // Class info
-  const ci=allTC[o],comp=allComps[ci];
-  const nhl=od.slice(0,3).filter(x=>x===2).length;
-  document.getElementById('class-info').innerHTML=
-    `<strong>Class ${ci+1}/20</strong> · size ${comp.length} · `+
-    `heavy: ${od.map((v,i)=>v===2?NODE_LABELS[i]:'').filter(Boolean).join(', ')}`;
+    .attr('stroke',k=>hlMask&&(hlMask>>k)&1?'#ffa657':'#252e38')
+    .attr('stroke-width',k=>hlMask&&(hlMask>>k)&1?2.5:1.5);
 }
 
+// ── meter ─────────────────────────────────────────────────────
 function updateMeter(){
-  const nc=countComps(genNbrs);
-  const n=customSel.size;
-  const el=document.getElementById('meter-num');
+  const nc=countComps(genNbrs),n=customSel.size;
+  const el=document.getElementById('metric-num');
   el.textContent=nc;
-  el.style.color=nc===20?'#7ee787':nc<60?'#ffa657':'#ff7b72';
-  document.getElementById('meter-badge').textContent=nc===20?`Generating set (${n} cycles)`:`${nc} of 20 — not enough`;
-  document.getElementById('meter-badge').className='meter-badge '+(nc===20?'ok':'warn');
-  if(nc===20&&n<=5) document.getElementById('meter-badge').textContent=`Minimal! (${n} cycles)`;
-  document.getElementById('meter-sub').textContent=
-    nc===20?`All 20 equivalence classes are reachable with these ${n} cycle${n===1?'':'s'}.`
-           :`With these ${n} cycle${n===1?'':'s'}, the TCOs split into ${nc} groups — some classes are fragmented.`;
-  document.getElementById('stat-note').textContent=
-    nc===20?`${n} cycles → generates all`:`${n} selected → ${nc} groups (target: 20)`;
+  el.className='metric-num '+(nc===20?'num-good':nc<=40?'num-close':'num-far');
+  const st=document.getElementById('metric-status');
+  if(nc===20){
+    st.style.color='#7ee787';
+    st.textContent=n<=5?`Minimal! ${n} circuits suffice to reach all 20 equivalence classes.`
+                      :`Generating set — all 20 classes reachable with ${n} circuits.`;
+  } else if(n===0){
+    st.style.color='#484f58';
+    st.textContent=`No circuits selected — each of the 102 TCOs is isolated. Add circuits to merge them.`;
+  } else {
+    st.style.color='#8b949e';
+    st.textContent=`${n} circuit${n===1?'':'s'} → ${nc} groups. Need to reach 20. ${nc>20?'Try adding more.':''}`;
+  }
 }
 
-// ── build C4 grid ─────────────────────────────────────────────
+// ── grid ──────────────────────────────────────────────────────
 function buildGrid(){
   const tbl=document.getElementById('c4-table');
   const rowLabels=['L₀L₁','L₀L₂','L₁L₂'];
@@ -349,71 +292,50 @@ function buildGrid(){
     const ax=document.createElement('div');ax.className='c4-row-ax';ax.textContent=rowLabels[r];tbl.appendChild(ax);
     RIGHT_PAIRS.forEach((rp,c)=>{
       const m=C4_GRID[r][c];
-      const cyc=allCycleMasks.get(m);
       const cell=document.createElement('div');
-      cell.className='cyc-cell on';cell.dataset.mask=m;
-      const lLabel=lp.map(v=>['0','1','2'][v]).join('');
-      const rLabel=rp.map(v=>['0','1','2'][v-3]).join('');
-      cell.innerHTML=`L${lLabel}<br>R${rLabel}`;
-      cell.title='C₄: '+cycLabel(cyc);
-      cell.onclick=()=>{
-        customSel.has(m)?customSel.delete(m):customSel.add(m);
-        cell.classList.toggle('on',customSel.has(m));
-        onSelChange();
-      };
-      cell.onmouseenter=()=>render(curO,m);
-      cell.onmouseleave=()=>render(curO,null);
+      cell.className='cyc-cell';cell.dataset.mask=m;
+      cell.innerHTML=`${rowLabels[r]}<br>R${rp.map(v=>v-3).join('')}`;
+      cell.title='C₄: '+allCycleMasks.get(m).map(v=>NODE_LABELS[v]).join('–');
+      cell.onclick=()=>{customSel.has(m)?customSel.delete(m):customSel.add(m);cell.classList.toggle('on',customSel.has(m));onSel();};
+      cell.onmouseenter=()=>renderGraph(m);
+      cell.onmouseleave=()=>renderGraph(null);
       tbl.appendChild(cell);
     });
   });
 
   const hexRow=document.getElementById('hex-row');
-  HEX_MASKS.forEach((m,i)=>{
-    const cyc=allCycleMasks.get(m);
+  HEX_MASKS.forEach(m=>{
     const isFace=FACE_MASK_SET.has(m);
     const cell=document.createElement('div');
-    cell.className='cyc-cell on hex';cell.dataset.mask=m;
-    cell.innerHTML=isFace?'⬡<br>torus':'C₆';
-    cell.title=(isFace?'[Torus face] ':'')+cycLabel(cyc);
-    cell.onclick=()=>{
-      customSel.has(m)?customSel.delete(m):customSel.add(m);
-      cell.classList.toggle('on',customSel.has(m));
-      onSelChange();
-    };
-    cell.onmouseenter=()=>render(curO,m);
-    cell.onmouseleave=()=>render(curO,null);
+    cell.className='cyc-cell hex';cell.dataset.mask=m;
+    cell.innerHTML=isFace?'⬡<br>face':'C₆';
+    cell.title=(isFace?'[torus face] ':'')+allCycleMasks.get(m).map(v=>NODE_LABELS[v]).join('–');
+    cell.onclick=()=>{customSel.has(m)?customSel.delete(m):customSel.add(m);cell.classList.toggle('on',customSel.has(m));onSel();};
+    cell.onmouseenter=()=>renderGraph(m);
+    cell.onmouseleave=()=>renderGraph(null);
     hexRow.appendChild(cell);
   });
 }
-function cycLabel(c){return c.map(v=>NODE_LABELS[v]).join('→')+'→'+NODE_LABELS[c[0]];}
 
-function onSelChange(){
-  genNbrs=buildCustomNbrs([...customSel]);
-  updateMeter();
-  render(curO,null);
+function onSel(){genNbrs=buildCustomNbrs([...customSel]);updateMeter();}
+function genNone(){customSel=new Set();document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.remove('on'));onSel();}
+function genAll(){customSel=new Set([...allCycleMasks.keys()]);document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.add('on'));onSel();}
+function genTry4(){
+  // Top-left 2×2 of the C₄ grid: a natural choice of 4 cycles
+  const ms=[C4_GRID[0][0],C4_GRID[0][1],C4_GRID[1][0],C4_GRID[1][1]];
+  customSel=new Set(ms);
+  document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.toggle('on',customSel.has(+c.dataset.mask)));
+  onSel();
 }
-
-function genAll(){customSel=new Set([...allCycleMasks.keys()]);document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.add('on'));onSelChange();}
-function genNone(){customSel=new Set();document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.remove('on'));onSelChange();}
 function genMinimal(){
-  // Minimal set #1: 2×2 top-left block + bottom-right corner
   const ms=[C4_GRID[0][0],C4_GRID[0][1],C4_GRID[1][0],C4_GRID[1][1],C4_GRID[2][2]];
   customSel=new Set(ms);
   document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.toggle('on',customSel.has(+c.dataset.mask)));
-  onSelChange();
+  onSel();
 }
 
-// ── navigation ────────────────────────────────────────────────
-function navigate(o){curO=o;compIdx=allComps[allTC[o]].indexOf(o);render(o,null);}
-function randomTCO(){navigate(TCOs[Math.floor(Math.random()*TCOs.length)]);}
-function nextInComp(){const comp=allComps[allTC[curO]];compIdx=(compIdx+1)%comp.length;navigate(comp[compIdx]);}
-
-// ── init ──────────────────────────────────────────────────────
-document.getElementById('stat-tcos').textContent=`${TCOs.length} TCOs`;
-document.getElementById('stat-classes').textContent=`${allComps.length} equivalence classes`;
 buildGrid();
 updateMeter();
-navigate(TCOs[0]);
 </script>
 </body>
 </html>
