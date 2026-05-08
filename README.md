@@ -103,9 +103,11 @@ The reversal operation studied here is an instance of what Gioan (2007) calls a 
 
 ## Open Questions
 
-**Is R₁₀ the obstruction?** The natural conjecture: minimum generator size = cycle rank if and only if the graph's cycle matroid contains no R₁₀ minor. K(3,3) is the canonical case where the cycle matroid is the R₁₀ exceptional component in Seymour's decomposition. If the conjecture holds, this result would connect the cycle reversing system directly to Seymour decomposition — and explain why the failure shows up here and not for planar graphs.
+**Is bipartiteness the condition?** K(3,3) (non-planar, bipartite) exceeds cycle rank; K₅ (non-planar, not bipartite) meets it. The refined conjecture: minimum > cycle rank iff G is non-planar and bipartite — equivalently, iff G contains K(3,3) as a minor but not K₅. The next test cases are non-planar non-bipartite graphs like the Petersen graph.
 
-**Does K₅ also need 5?** K₅ is the other canonical non-planar graph. Its cycle rank is E−V+1 = 10−5+1 = 6. Does it also exceed the cycle rank by 1, or by more? Checking K₅ would test whether the gap is always exactly 1 for Seymour-exceptional graphs.
+**K₅ needs exactly the cycle rank.** K₅ has cycle rank 6, and exhaustive search (all C(37,6) = 2,324,784 subsets checked) finds exactly **5 minimal generating sets, each of size 6 = cycle rank**. The 5 sets have a clean structure: each consists of the 6 triangles (C₃ cycles) passing through a single vertex — one set per vertex of K₅. Since K₅ has 5 vertices, there are 5 such sets. The triangles through any vertex span the full cycle space (there are exactly cycle rank = 6 of them), so the cycle rank bound is tight.
+
+**Refined conjecture:** Minimum > cycle rank iff G is **non-planar and bipartite**. K(3,3) is bipartite (girth 4, no triangles) — no triangle-based cycle basis exists, so the bound fails. K₅ is non-planar but not bipartite — triangles through any vertex give a natural basis, so the bound holds. Planar graphs always satisfy the bound regardless of bipartiteness.
 
 **Why only C₄ cycles in minimal sets?** The 9 minimal generating sets use only 4-cycles — the hexagonal torus face cycles never appear. The exhaustive search confirms this but doesn't explain it. There's likely a structural reason tied to the bipartite geometry or the torus embedding.
 
