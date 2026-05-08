@@ -109,6 +109,7 @@ h1{font-size:14px;font-weight:600;color:#7ee787;white-space:nowrap;}
         <div class="sr"><span class="sl">Class #</span><span class="sv" id="s-comp">—</span></div>
         <div class="sr"><span class="sl">Class size</span><span class="sv" id="s-csize">—</span></div>
         <div class="sr"><span class="sl">Directed cycles</span><span class="sv" id="s-ncycles">—</span></div>
+        <div style="font-size:10px;color:#484f58;margin:6px 0 2px;">Other orientations in this class (hover to see connecting cycle):</div>
         <div class="comp-nodes" id="comp-nodes"></div>
       </div>
 
@@ -426,13 +427,25 @@ function render(o, hl) {
   document.getElementById('s-csize').textContent=comp.length;
   document.getElementById('s-ncycles').textContent=cycs.length;
 
-  // Comp nodes
+  // Comp nodes — labeled "State N", tooltip shows connecting cycle
   const cn=document.getElementById('comp-nodes');
   cn.innerHTML='';
-  comp.forEach(n=>{
+  comp.forEach((n,idx)=>{
     const b=document.createElement('span');
     b.className='cn'+(n===o?' cur':'');
-    b.textContent=n;
+    b.textContent=`S${idx+1}`;
+    if(n===o){
+      b.title=`State ${idx+1} of ${comp.length} — current`;
+    } else {
+      const diffMask=o^n;
+      const connecting=findCycles(o).find(c=>cycleMask(c)===diffMask);
+      if(connecting){
+        const arrow=connecting.map(v=>NODE_LABELS[v]).join('→')+'→'+NODE_LABELS[connecting[0]];
+        b.title=`State ${idx+1} of ${comp.length}\nReach by reversing: ${arrow}`;
+      } else {
+        b.title=`State ${idx+1} of ${comp.length}`;
+      }
+    }
     b.onclick=()=>navigate(n);
     cn.appendChild(b);
   });
