@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>K(3,3) Circuit Generators</title>
+<title>Circuit Generators: When Does Cycle Rank Suffice?</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#0d1117;color:#c9d1d9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
@@ -61,12 +61,20 @@ h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
 .finding{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:9px 13px;font-size:10px;line-height:1.8;color:#484f58;}
 .finding strong{color:#8b949e;}
 .finding .key{color:#ffa657;font-weight:600;}
+
+.compare{width:100%;border-collapse:collapse;font-size:10px;margin-top:10px;}
+.compare th{font-size:9px;font-weight:600;color:#6e7681;text-transform:uppercase;letter-spacing:.5px;padding:4px 8px;border-bottom:1px solid #21262d;text-align:left;}
+.compare td{padding:4px 8px;border-bottom:1px solid #161b22;color:#8b949e;}
+.compare td.good{color:#7ee787;}
+.compare td.warn{color:#ffa657;}
+.compare td.dim{color:#484f58;}
+.compare tr.active td{color:#c9d1d9;}
 </style>
 </head>
 <body>
 <header>
-  <h1>K(3,3) Circuit Generators</h1>
-  <span class="hdr-q">If only <em>specific circuits</em> can be reversed, how many do you need to reach any orientation reachable by arbitrary reversals?</span>
+  <h1>Circuit Generators</h1>
+  <span class="hdr-q">For planar graphs, <em>cycle rank</em> circuits always suffice. Does that bound hold for non-planar graphs?</span>
 </header>
 
 <div class="content">
@@ -85,8 +93,9 @@ h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
   <div class="main-col">
 
     <div class="question-box">
-      K(3,3) has <strong>102 totally cyclic orientations</strong> (every edge lies in a directed cycle). Reversing any directed circuit gives another TCO. An out-degree invariant locks TCOs into <strong>20 permanent equivalence classes</strong> — no reversal can cross between classes.<br>
-      <span class="q">The cycle rank of K(3,3) is E−V+1 = 4. For planar graphs, a cycle basis of E−V+1 circuits always suffices — any flip decomposes into basis flips, and fewer leaves directions unreachable. Does the same bound hold here?</span>
+      For any graph, the <strong>cycle rank</strong> E−V+1 is the dimension of the cycle space. For planar graphs, a cycle basis of that size always suffices to generate all reachable moves. For non-planar graphs — does the bound still hold?<br><br>
+      <strong>K₅</strong> (non-planar, not bipartite): minimum = cycle rank = 6. The 6 triangles through any vertex form a minimal generating set — one per vertex, 5 sets total.<br>
+      <span class="q"><strong>K(3,3)</strong> (non-planar, bipartite, no triangles): explore below. The cycle rank is 4 — is that enough?</span>
     </div>
 
     <div class="metric">
@@ -137,7 +146,15 @@ h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
         </span>
         Verified in <a href="https://github.com/mikeion/graph-problems/blob/main/k33_flip_graph.py" target="_blank" style="color:#58a6ff">k33_flip_graph.py</a> —
         <a href="proof.html" style="color:#58a6ff">view annotated proof output</a> or run it locally to reproduce.<br><br>
-        <strong>Prior work:</strong> This is the <em>cycle reversing system</em> on TCOs of K(3,3) studied by Gioan (2007). The 20 classes correspond to indegree sequences (Proposition 4.10); their count equals the Tutte polynomial t(K₃₃; 0, 1) = 20 (Corollary 4.11). The minimum generator question — answered here — is new.
+        <strong>Prior work:</strong> This is the <em>cycle reversing system</em> on TCOs of K(3,3) studied by Gioan (2007). The 20 classes correspond to indegree sequences (Proposition 4.10); their count equals the Tutte polynomial t(K₃₃; 0, 1) = 20 (Corollary 4.11). The minimum generator question — answered here — is new.<br><br>
+        <strong>Across graphs:</strong>
+        <table class="compare">
+          <tr><th>Graph</th><th>Planar</th><th>Bipartite</th><th>Cycle rank</th><th>Minimum</th><th>Result</th></tr>
+          <tr><td class="dim">Planar graphs</td><td class="good">✓</td><td class="dim">—</td><td class="dim">E−V+1</td><td class="dim">= rank</td><td class="good">holds</td></tr>
+          <tr><td class="dim">K₅</td><td class="warn">✗</td><td class="warn">✗</td><td class="dim">6</td><td class="dim">6</td><td class="good">holds</td></tr>
+          <tr class="active"><td><strong>K(3,3)</strong></td><td class="warn">✗</td><td class="good">✓</td><td class="dim">4</td><td class="warn">5</td><td class="warn">fails ← you are here</td></tr>
+        </table>
+        <span style="font-size:9px;color:#484f58;">Conjecture: minimum &gt; cycle rank iff non-planar AND bipartite.</span>
       </div>
 
     </div>
