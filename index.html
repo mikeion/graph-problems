@@ -85,20 +85,19 @@ h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
   <div class="main-col">
 
     <div class="question-box">
-      K(3,3) has <strong>102 totally cyclic orientations</strong> (TCOs) — every edge lies in a directed cycle. Reversing any directed circuit gives another TCO. By the out-degree invariant, TCOs are locked into <strong>20 equivalence classes</strong> that no reversal can cross.<br>
-      <span class="q">Can you always navigate within a class using just 4 specific circuits?</span>
-      (The cycle rank of K(3,3) is E − V + 1 = <strong>4</strong>. For planar graphs, 4 always works.)
+      K(3,3) has <strong>102 totally cyclic orientations</strong> (every edge lies in a directed cycle). Reversing any directed circuit gives another TCO. An out-degree invariant locks TCOs into <strong>20 permanent equivalence classes</strong> — no reversal can cross between classes.<br>
+      <span class="q">For planar graphs, the cycle rank (E−V+1 = 4) circuits always suffice to navigate within each class. Does 4 work for K(3,3)?</span>
     </div>
 
     <div class="metric">
-      <div class="metric-num num-far" id="metric-num">102</div>
+      <div class="metric-num num-far" id="metric-num">—</div>
       <div class="metric-right">
-        <div class="metric-label">groups &nbsp;—&nbsp; <strong>goal: 20</strong></div>
-        <div class="metric-status" id="metric-status">Select circuits below, or start with the button →</div>
+        <div class="metric-label">groups out of 20 &nbsp;(<strong id="metric-n">0</strong> circuits selected)</div>
+        <div class="metric-status" id="metric-status"></div>
         <div class="metric-actions">
           <button class="mact" onclick="genNone()">None</button>
-          <button class="mact primary" onclick="genTry4()">Try 4 (cycle rank)</button>
-          <button class="mact success" onclick="genMinimal()">Minimal set (5)</button>
+          <button class="mact primary" onclick="genTry4()">Try 4 circuits (cycle rank)</button>
+          <button class="mact" onclick="genMinimal()">Show minimal set (5)</button>
           <button class="mact" onclick="genAll()">All 15</button>
         </div>
       </div>
@@ -275,16 +274,23 @@ function updateMeter(){
   const el=document.getElementById('metric-num');
   el.textContent=nc;
   el.className='metric-num '+(nc===20?'num-good':nc<=50?'num-close':'num-far');
+  document.getElementById('metric-n').textContent=n;
   const st=document.getElementById('metric-status');
-  if(nc===20){
-    st.style.color='#7ee787';
-    st.textContent=n<=5?`Minimal generating set — ${n} circuits suffice.`:`Generating set found — all 20 classes reachable with ${n} circuits.`;
-  } else if(n===0){
+  if(n===0){
     st.style.color='#484f58';
-    st.textContent=`No circuits selected. Click "Try 4 (cycle rank)" →`;
+    st.textContent=`No circuits selected. Click "Try 4 circuits" to start — that's the cycle rank.`;
+  } else if(nc===20 && n<=5){
+    st.style.color='#7ee787';
+    st.textContent=`Minimal generating set — ${n} circuits preserve all 20 equivalence classes.`;
+  } else if(nc===20){
+    st.style.color='#7ee787';
+    st.textContent=`Generating set: ${n} circuits preserve all 20 classes.`;
+  } else if(n===4){
+    st.style.color='#ffa657';
+    st.textContent=`4 circuits → ${nc} groups (need 20). The cycle rank isn't enough for K(3,3). Try adding one more.`;
   } else {
     st.style.color='#8b949e';
-    st.textContent=`${n} circuit${n===1?'':'s'} → ${nc} groups. Some classes are fragmented. Need exactly 20.`;
+    st.textContent=`${n} circuit${n===1?'':'s'} → ${nc} groups. Some TCOs in the same class can no longer reach each other.`;
   }
 }
 
@@ -339,7 +345,7 @@ function genMinimal(){
 }
 
 buildGrid();
-updateMeter();
+genTry4(); // Start with 4 circuits selected — shows the failure state immediately
 </script>
 </body>
 </html>
