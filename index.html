@@ -6,57 +6,59 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#0d1117;color:#c9d1d9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-header{background:#161b22;border-bottom:1px solid #30363d;padding:9px 20px;flex-shrink:0;}
-h1{font-size:13px;font-weight:600;color:#7ee787;display:inline;margin-right:10px;}
+header{background:#161b22;border-bottom:1px solid #30363d;padding:8px 18px;flex-shrink:0;display:flex;align-items:baseline;gap:10px;}
+h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
 .hdr-q{font-size:11px;color:#8b949e;}
 .hdr-q em{color:#ffa657;font-style:normal;font-weight:600;}
 
 .content{display:flex;flex:1;overflow:hidden;}
 
-/* Left panel */
-.graph-col{width:340px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-right:1px solid #21262d;}
-.graph-note{font-size:9px;color:#484f58;text-align:center;line-height:1.6;max-width:280px;}
-.graph-note strong{color:#8b949e;}
+/* ── Left: graph ── */
+.graph-col{width:320px;flex-shrink:0;border-right:1px solid #21262d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px;}
+.graph-caption{font-size:9px;color:#484f58;text-align:center;line-height:1.6;}
+.graph-caption strong{color:#8b949e;}
 
-/* Right panel */
-.main-col{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:14px 16px;gap:11px;}
+/* ── Right: question ── */
+.main-col{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:14px 16px;gap:10px;}
 
-/* Context strip */
-.context{font-size:10px;color:#484f58;line-height:1.7;padding:8px 12px;background:#161b22;border:1px solid #21262d;border-radius:6px;}
-.context strong{color:#8b949e;}
-.context .hl{color:#c9d1d9;}
+/* Callout: the question */
+.question-box{padding:10px 14px;background:#161b22;border:1px solid #30363d;border-radius:6px;font-size:11px;line-height:1.7;color:#8b949e;}
+.question-box .q{color:#ffa657;font-weight:600;}
 
 /* Metric */
-.metric{display:flex;align-items:center;gap:14px;padding:12px 16px;background:#161b22;border:1px solid #30363d;border-radius:8px;}
-.metric-num{font-size:50px;font-weight:700;font-family:monospace;line-height:1;min-width:72px;transition:color .25s;}
+.metric{display:flex;align-items:center;gap:14px;padding:11px 16px;background:#161b22;border:1px solid #30363d;border-radius:8px;}
+.metric-num{font-size:48px;font-weight:700;font-family:monospace;line-height:1;min-width:70px;transition:color .25s;}
 .num-far{color:#ff7b72;}
 .num-close{color:#ffa657;}
 .num-good{color:#7ee787;}
 .metric-right{flex:1;}
-.metric-label{font-size:12px;color:#8b949e;margin-bottom:3px;}
+.metric-label{font-size:11px;color:#8b949e;margin-bottom:6px;}
 .metric-label strong{color:#c9d1d9;}
-.metric-status{font-size:11px;color:#8b949e;margin-bottom:9px;}
+.metric-status{font-size:10px;color:#484f58;margin-bottom:9px;min-height:14px;}
 .metric-actions{display:flex;gap:5px;flex-wrap:wrap;}
-.mact{padding:5px 11px;font-size:10px;border-radius:4px;border:1px solid #30363d;background:#0d1117;color:#8b949e;cursor:pointer;transition:all .12s;}
+.mact{padding:5px 12px;font-size:10px;border-radius:4px;border:1px solid #30363d;background:#0d1117;color:#8b949e;cursor:pointer;transition:all .12s;}
 .mact:hover{border-color:#58a6ff;color:#c9d1d9;}
-.mact.hi{border-color:#2ea043;color:#7ee787;}
+.mact.primary{border-color:#ffa657;color:#ffa657;}
+.mact.primary:hover{background:#1a1200;color:#ffb87a;}
+.mact.success{border-color:#2ea043;color:#7ee787;}
+.mact.success:hover{background:#0d1a0d;}
 
 /* Grids */
-.grids{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
-.grid-section{background:#161b22;border:1px solid #21262d;border-radius:6px;padding:10px 12px;}
-.grid-section h3{font-size:10px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;}
+.grids{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:9px;}
+.grid-section{background:#161b22;border:1px solid #21262d;border-radius:6px;padding:9px 12px;}
+.grid-section h3{font-size:9px;font-weight:600;color:#6e7681;text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
 
 .c4-table{display:grid;grid-template-columns:38px repeat(3,1fr);gap:3px;}
 .c4-ax{font-size:9px;color:#484f58;text-align:center;padding:3px 2px;display:flex;align-items:center;justify-content:center;}
 .c4-row-ax{font-size:9px;color:#484f58;text-align:right;padding-right:6px;display:flex;align-items:center;justify-content:flex-end;}
-.cyc-cell{padding:9px 4px;border-radius:4px;border:1px solid #21262d;cursor:pointer;font-size:9px;font-family:monospace;text-align:center;line-height:1.5;transition:all .15s;background:#0d1117;color:#484f58;user-select:none;}
+.cyc-cell{padding:8px 4px;border-radius:4px;border:1px solid #21262d;cursor:pointer;font-size:9px;font-family:monospace;text-align:center;line-height:1.5;transition:all .15s;background:#0d1117;color:#484f58;user-select:none;}
 .cyc-cell:hover{border-color:#58a6ff;color:#8b949e;}
 .cyc-cell.on{background:#0d1a0d;border-color:#2ea043;color:#7ee787;}
 .cyc-cell.on.hex{background:#0a0d1a;border-color:#1565c0;color:#79c0ff;}
 
 .hex-row{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;}
 
-.finding{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px 14px;font-size:11px;line-height:1.8;color:#484f58;}
+.finding{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:9px 13px;font-size:10px;line-height:1.8;color:#484f58;}
 .finding strong{color:#8b949e;}
 .finding .key{color:#ffa657;font-weight:600;}
 </style>
@@ -64,40 +66,39 @@ h1{font-size:13px;font-weight:600;color:#7ee787;display:inline;margin-right:10px
 <body>
 <header>
   <h1>K(3,3) Circuit Generators</h1>
-  <span class="hdr-q">If you can only reverse <em>specific circuits</em>, how many do you need to navigate between any two reachable orientations?</span>
+  <span class="hdr-q">If only <em>specific circuits</em> can be reversed, how many do you need to reach any orientation reachable by arbitrary reversals?</span>
 </header>
 
 <div class="content">
 
-  <!-- Left: torus diagram -->
+  <!-- Left: K(3,3) on the torus -->
   <div class="graph-col">
-    <svg id="graph-svg" width="310" height="220"></svg>
-    <div class="graph-note">
-      <strong>K(3,3) on the torus</strong> — 6 vertices, 9 edges, 3 hexagonal faces.<br>
+    <svg id="graph-svg" width="290" height="215"></svg>
+    <div class="graph-caption">
+      <strong>K(3,3) on the torus</strong> — one directed orientation shown.<br>
       Green = left vertices · Blue = right vertices<br>
-      Hover a cycle below to see its edges light up.
+      Hover any cycle cell to highlight its edges.
     </div>
   </div>
 
-  <!-- Right: the generator question -->
+  <!-- Right -->
   <div class="main-col">
 
-    <div class="context">
-      <strong>Setup:</strong> K(3,3) has <span class="hl">102 totally cyclic orientations</span> (every edge lies in a directed cycle).
-      Reversing all edges of any directed circuit takes you to another TCO.
-      By the out-degree invariant, all TCOs split into exactly <span class="hl">20 equivalence classes</span> — no reversal can move between classes.
-      <br><strong>Question:</strong> what's the smallest set of specific circuits that still lets you reach every orientation reachable by arbitrary reversals?
+    <div class="question-box">
+      K(3,3) has <strong>102 totally cyclic orientations</strong> (TCOs) — every edge lies in a directed cycle. Reversing any directed circuit gives another TCO. By the out-degree invariant, TCOs are locked into <strong>20 equivalence classes</strong> that no reversal can cross.<br>
+      <span class="q">Can you always navigate within a class using just 4 specific circuits?</span>
+      (The cycle rank of K(3,3) is E − V + 1 = <strong>4</strong>. For planar graphs, 4 always works.)
     </div>
 
     <div class="metric">
       <div class="metric-num num-far" id="metric-num">102</div>
       <div class="metric-right">
-        <div class="metric-label">groups &nbsp;→&nbsp; <strong>target: 20</strong></div>
-        <div class="metric-status" id="metric-status">No circuits selected — each TCO is isolated. Add circuits below to merge them.</div>
+        <div class="metric-label">groups &nbsp;—&nbsp; <strong>goal: 20</strong></div>
+        <div class="metric-status" id="metric-status">Select circuits below, or start with the button →</div>
         <div class="metric-actions">
           <button class="mact" onclick="genNone()">None</button>
-          <button class="mact" onclick="genTry4()" title="Cycle rank of K(3,3) is 4 — does it work?">Try 4 (cycle rank)</button>
-          <button class="mact hi" onclick="genMinimal()">Minimal set (5)</button>
+          <button class="mact primary" onclick="genTry4()">Try 4 (cycle rank)</button>
+          <button class="mact success" onclick="genMinimal()">Minimal set (5)</button>
           <button class="mact" onclick="genAll()">All 15</button>
         </div>
       </div>
@@ -106,7 +107,7 @@ h1{font-size:13px;font-weight:600;color:#7ee787;display:inline;margin-right:10px
     <div class="grids">
 
       <div class="grid-section">
-        <h3>4-cycles (C₄) — 9 total</h3>
+        <h3>4-cycles (C₄) — 9 total, indexed by which pair of left × right vertices they use</h3>
         <div class="c4-table" id="c4-table">
           <div></div>
           <div class="c4-ax">R₀R₁</div>
@@ -116,16 +117,15 @@ h1{font-size:13px;font-weight:600;color:#7ee787;display:inline;margin-right:10px
       </div>
 
       <div class="grid-section">
-        <h3>6-cycles (C₆) — 6 total &nbsp;&nbsp;⬡ = torus face</h3>
+        <h3>6-cycles (C₆) — 6 total &nbsp;&nbsp; ⬡ = torus face</h3>
         <div class="hex-row" id="hex-row"></div>
       </div>
 
       <div class="finding">
-        <strong>Cycle rank of K(3,3):</strong> E − V + 1 = 9 − 6 + 1 = <strong>4</strong> &nbsp;(like a spanning set for the cycle space)<br>
-        <strong>Planar graphs:</strong> 4 specific circuits always suffice<br>
-        <span class="key">K(3,3): the minimum is 5 — one more than the cycle rank</span><br>
+        <strong>Cycle rank = 4.</strong> &nbsp;For planar graphs: 4 specific circuits always suffice.<br>
+        <span class="key">For K(3,3): the minimum is 5 — one more than the cycle rank.</span><br>
         All 9 minimal generating sets use <strong>only C₄ cycles</strong> — the hexagonal torus faces never appear.<br>
-        <strong>There are exactly 9 minimal sets</strong>, one for each column of the C₄ grid above.
+        <strong>There are exactly 9 minimal sets</strong>, one per column of the C₄ grid above.
       </div>
 
     </div>
@@ -143,17 +143,18 @@ EDGES.forEach(([u,v],k)=>{EIDX[`${u},${v}`]=k;EIDX[`${v},${u}`]=k;});
 const FACES=[[0,3,2,4,1,5],[3,0,4,2,5,1],[4,0,5,2,3,1]];
 const NODE_LABELS=['L₀','L₁','L₂','R₀','R₁','R₂'];
 
-// Torus layout: 3×2 checkerboard grid
-//   L₀  R₀  L₁        v0 v3 v1
-//   R₁  L₂  R₂        v4 v2 v5
-// Two long diagonals (v0-v5, v1-v4) cross at center — topologically fine on torus.
+// Torus layout — 3×2 checkerboard:
+//   L₀  R₀  L₁      (top row)
+//   R₁  L₂  R₂      (bottom row)
+// Edges 2 and 4 are the long crossing diagonals (L₀–R₂ and L₁–R₁);
+// they cross at the center but are non-adjacent on the torus.
 const NP={
-  0:{x:40, y:40},   // L₀  top-left
-  3:{x:155,y:40},   // R₀  top-center
-  1:{x:270,y:40},   // L₁  top-right
-  4:{x:40, y:180},  // R₁  bottom-left
-  2:{x:155,y:180},  // L₂  bottom-center
-  5:{x:270,y:180}   // R₂  bottom-right
+  0:{x:35, y:35},   // L₀
+  3:{x:148,y:35},   // R₀
+  1:{x:260,y:35},   // L₁
+  4:{x:35, y:178},  // R₁
+  2:{x:148,y:178},  // L₂
+  5:{x:260,y:178}   // R₂
 };
 
 // ── math ──────────────────────────────────────────────────────
@@ -196,53 +197,40 @@ function countComps(nbrs){
   return c;
 }
 
-// ── state ─────────────────────────────────────────────────────
+// ── generator state ───────────────────────────────────────────
 let customSel=new Set();
 let genNbrs=buildCustomNbrs([]);
+
+// Fixed reference orientation for the graph (the first TCO found)
+const refO=TCOs[0];
 
 // ── SVG: torus layout ─────────────────────────────────────────
 const svg=d3.select('#graph-svg');
 
-// Fundamental domain border
-svg.append('rect').attr('x',22).attr('y',22).attr('width',266).attr('height',176)
-  .attr('fill','none').attr('stroke','#1e2530').attr('stroke-width',1).attr('rx',3);
-
-// Torus identification arrows on border (small chevrons indicating wrap)
-// Left/right sides identify, top/bottom identify
-function addWrapMark(x,y,dir){
-  const marks=svg.append('g').attr('transform',`translate(${x},${y})`);
-  if(dir==='h'){// horizontal wrap (top/bottom)
-    marks.append('line').attr('x1',-4).attr('y1',0).attr('x2',0).attr('y2',-4).attr('stroke','#2a3540').attr('stroke-width',1);
-    marks.append('line').attr('x1',-4).attr('y1',0).attr('x2',0).attr('y2',4).attr('stroke','#2a3540').attr('stroke-width',1);
-  } else {// vertical wrap (left/right)
-    marks.append('line').attr('x1',0).attr('y1',-4).attr('x2',4).attr('y2',0).attr('stroke','#2a3540').attr('stroke-width',1);
-    marks.append('line').attr('x1',0).attr('y1',4).attr('x2',4).attr('y2',0).attr('stroke','#2a3540').attr('stroke-width',1);
-  }
-}
-addWrapMark(155,22,'v'); addWrapMark(155,198,'v'); // top/bottom center
-addWrapMark(22,110,'h'); addWrapMark(288,110,'h'); // left/right center
-
-// Edges
-const edgeG=svg.append('g');
+// Arrow markers
 const defs=svg.append('defs');
-defs.append('marker').attr('id','ar-def').attr('viewBox','0 -4 8 8').attr('refX',8).attr('refY',0)
+defs.append('marker').attr('id','ar-dim').attr('viewBox','0 -4 9 8').attr('refX',9).attr('refY',0)
   .attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto')
-  .append('path').attr('d','M0,-4L8,0L0,4Z').attr('fill','#404850');
-defs.append('marker').attr('id','ar-hl').attr('viewBox','0 -4 8 8').attr('refX',8).attr('refY',0)
+  .append('path').attr('d','M0,-4L9,0L0,4Z').attr('fill','#3a4450');
+defs.append('marker').attr('id','ar-hl').attr('viewBox','0 -4 9 8').attr('refX',9).attr('refY',0)
   .attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto')
-  .append('path').attr('d','M0,-4L8,0L0,4Z').attr('fill','#ffa657');
+  .append('path').attr('d','M0,-4L9,0L0,4Z').attr('fill','#ffa657');
 
-function edgeLine(k){
-  const[u,v]=EDGES[k],{x:x1,y:y1}=NP[u],{x:x2,y:y2}=NP[v];
+// Fundamental domain border
+svg.append('rect').attr('x',18).attr('y',18).attr('width',253).attr('height',177)
+  .attr('fill','none').attr('stroke','#1e2530').attr('stroke-width',1).attr('rx',2);
+
+// Edges — drawn as directed lines based on refO
+function edgeCoords(k){
+  const[u,v]=EDGES[k],rev=(refO>>k)&1;
+  const[s,d]=rev?[v,u]:[u,v];
+  const{x:x1,y:y1}=NP[s],{x:x2,y:y2}=NP[d];
   const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
-  const R=14; // vertex radius clearance
-  return{x1:x1+R*dx/len,y1:y1+R*dy/len,x2:x2-R*dx/len,y2:y2-R*dy/len};
+  return{x1:x1+13*dx/len,y1:y1+13*dy/len,x2:x2-20*dx/len,y2:y2-20*dy/len};
 }
 
-const edgeSel=edgeG.selectAll('line').data(d3.range(9)).join('line')
-  .attr('x1',k=>edgeLine(k).x1).attr('y1',k=>edgeLine(k).y1)
-  .attr('x2',k=>edgeLine(k).x2).attr('y2',k=>edgeLine(k).y2)
-  .attr('stroke','#252e38').attr('stroke-width',1.5);
+const edgeG=svg.append('g');
+const edgeSel=edgeG.selectAll('line').data(d3.range(9)).join('line');
 
 // Nodes
 const nodeG=svg.append('g');
@@ -250,37 +238,42 @@ nodeG.selectAll('circle').data(d3.range(NV)).join('circle')
   .attr('cx',d=>NP[d].x).attr('cy',d=>NP[d].y).attr('r',13)
   .attr('fill','#0d1117').attr('stroke',d=>d<3?'#3fb950':'#79c0ff').attr('stroke-width',1.5);
 nodeG.selectAll('text').data(d3.range(NV)).join('text')
-  .attr('x',d=>NP[d].x).attr('y',d=>NP[d].y+1).attr('text-anchor','middle').attr('dominant-baseline','middle')
-  .attr('font-size',8).attr('font-family','monospace').attr('fill',d=>d<3?'#3fb950':'#79c0ff').attr('pointer-events','none')
+  .attr('x',d=>NP[d].x).attr('y',d=>NP[d].y+1)
+  .attr('text-anchor','middle').attr('dominant-baseline','middle')
+  .attr('font-size',8).attr('font-family','monospace')
+  .attr('fill',d=>d<3?'#3fb950':'#79c0ff').attr('pointer-events','none')
   .text(d=>NODE_LABELS[d]);
 
-// Crossing note at center
-svg.append('text').attr('x',155).attr('y',113).attr('text-anchor','middle')
-  .attr('font-size',7).attr('fill','#2a3540').text('(torus)');
-
 function renderGraph(hlMask){
+  const c=k=>hlMask&&(hlMask>>k)&1;
   edgeSel
-    .attr('stroke',k=>hlMask&&(hlMask>>k)&1?'#ffa657':'#252e38')
-    .attr('stroke-width',k=>hlMask&&(hlMask>>k)&1?2.5:1.5);
+    .each(function(k){
+      const{x1,y1,x2,y2}=edgeCoords(k);
+      d3.select(this).attr('x1',x1).attr('y1',y1).attr('x2',x2).attr('y2',y2);
+    })
+    .attr('stroke',k=>c(k)?'#ffa657':'#3a4450')
+    .attr('stroke-width',k=>c(k)?2.5:1.5)
+    .attr('marker-end',k=>`url(#${c(k)?'ar-hl':'ar-dim'})`)
+    .attr('fill','none');
 }
+renderGraph(null);
 
 // ── meter ─────────────────────────────────────────────────────
 function updateMeter(){
   const nc=countComps(genNbrs),n=customSel.size;
   const el=document.getElementById('metric-num');
   el.textContent=nc;
-  el.className='metric-num '+(nc===20?'num-good':nc<=40?'num-close':'num-far');
+  el.className='metric-num '+(nc===20?'num-good':nc<=50?'num-close':'num-far');
   const st=document.getElementById('metric-status');
   if(nc===20){
     st.style.color='#7ee787';
-    st.textContent=n<=5?`Minimal! ${n} circuits suffice to reach all 20 equivalence classes.`
-                      :`Generating set — all 20 classes reachable with ${n} circuits.`;
+    st.textContent=n<=5?`Minimal generating set — ${n} circuits suffice.`:`Generating set found — all 20 classes reachable with ${n} circuits.`;
   } else if(n===0){
     st.style.color='#484f58';
-    st.textContent=`No circuits selected — each of the 102 TCOs is isolated. Add circuits to merge them.`;
+    st.textContent=`No circuits selected. Click "Try 4 (cycle rank)" →`;
   } else {
     st.style.color='#8b949e';
-    st.textContent=`${n} circuit${n===1?'':'s'} → ${nc} groups. Need to reach 20. ${nc>20?'Try adding more.':''}`;
+    st.textContent=`${n} circuit${n===1?'':'s'} → ${nc} groups. Some classes are fragmented. Need exactly 20.`;
   }
 }
 
@@ -321,7 +314,7 @@ function onSel(){genNbrs=buildCustomNbrs([...customSel]);updateMeter();}
 function genNone(){customSel=new Set();document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.remove('on'));onSel();}
 function genAll(){customSel=new Set([...allCycleMasks.keys()]);document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.add('on'));onSel();}
 function genTry4(){
-  // Top-left 2×2 of the C₄ grid: a natural choice of 4 cycles
+  // The top-left 2×2 of the C₄ grid: a natural first attempt at 4 cycles
   const ms=[C4_GRID[0][0],C4_GRID[0][1],C4_GRID[1][0],C4_GRID[1][1]];
   customSel=new Set(ms);
   document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.toggle('on',customSel.has(+c.dataset.mask)));
