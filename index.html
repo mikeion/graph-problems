@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>K(3,3) Flip Graph — Cycle Reversal Explorer</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0d1117;color:#c9d1d9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+header{background:#161b22;border-bottom:1px solid #30363d;padding:10px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+h1{font-size:14px;font-weight:600;color:#7ee787;white-space:nowrap;}
+.mode-toggle{display:flex;gap:0;border:1px solid #30363d;border-radius:5px;overflow:hidden;margin-left:12px;}
+.mode-btn{padding:5px 12px;font-size:11px;cursor:pointer;background:#21262d;color:#8b949e;border:none;transition:all .15s;}
+.mode-btn.active{background:#238636;color:#fff;}
+.hdr-right{margin-left:auto;display:flex;gap:16px;font-size:11px;color:#8b949e;}
+.hdr-right strong{color:#c9d1d9;}
+/* layout */
+.content{display:flex;flex:1;overflow:hidden;}
+.graph-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;}
+#graph-svg{border-radius:6px;}
+/* insight bar below graph */
+.insight-bar{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:10px 16px;max-width:680px;width:100%;font-size:12px;line-height:1.6;color:#8b949e;}
+.insight-bar strong{color:#e6edf3;}
+.insight-bar code{background:#21262d;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px;color:#79c0ff;}
+/* side panel */
+.side{width:300px;background:#161b22;border-left:1px solid #30363d;display:flex;flex-direction:column;overflow:hidden;}
+.side-scroll{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
+.sec{border:1px solid #21262d;border-radius:6px;padding:10px 12px;}
+.sec h3{font-size:10px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
+/* out-degree grid */
+.deg-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.deg-cell{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:4px;background:#0d1117;font-size:11px;font-family:monospace;}
+.deg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.deg-label{color:#8b949e;flex:1;}
+.deg-val{font-weight:600;}
+.deg-val.high{color:#ffa657;}
+.deg-val.low{color:#8b949e;}
+/* class map */
+.class-map{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
+.class-box{width:22px;height:22px;border-radius:3px;cursor:pointer;border:1px solid transparent;transition:all .12s;position:relative;display:flex;align-items:center;justify-content:center;font-size:8px;color:rgba(255,255,255,.6);}
+.class-box:hover{border-color:#fff;transform:scale(1.15);}
+.class-box.current{border-color:#fff!important;box-shadow:0 0 6px rgba(255,255,255,.4);}
+.class-legend{display:flex;gap:8px;margin-top:6px;font-size:10px;color:#8b949e;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:3px;}
+.leg-dot{width:8px;height:8px;border-radius:2px;}
+/* stat row */
+.sr{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
+.sl{color:#8b949e;}.sv{font-family:monospace;}
+/* cycles */
+.cyc-item{display:flex;align-items:center;gap:6px;padding:5px 7px;border-radius:4px;margin-bottom:4px;cursor:pointer;border:1px solid #21262d;transition:border-color .12s,background .12s;font-size:11px;}
+.cyc-item:hover{background:#1c2128;}
+.cyc-item.hl{background:#1c2128;}
+.cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.clabel{flex:1;font-family:monospace;font-size:10.5px;line-height:1.4;}
+.cmeta{font-size:9.5px;color:#8b949e;}
+.cbtn{background:#21262d;border:1px solid #30363d;color:#8b949e;padding:2px 7px;border-radius:3px;cursor:pointer;font-size:11px;transition:all .12s;flex-shrink:0;}
+.cbtn:hover{background:#238636;border-color:#2ea043;color:#fff;}
+.cbtn:disabled{opacity:.35;cursor:default;}
+.cbtn:disabled:hover{background:#21262d;border-color:#30363d;color:#8b949e;}
+/* comp nodes */
+.comp-nodes{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px;}
+.cn{padding:2px 7px;border-radius:3px;font-size:10px;font-family:monospace;cursor:pointer;border:1px solid #30363d;background:#21262d;color:#8b949e;transition:all .12s;}
+.cn:hover{border-color:#58a6ff;color:#58a6ff;}
+.cn.cur{border-color:#7ee787;color:#7ee787;background:#1a2e1a;font-weight:600;}
+/* nav */
+.nav{display:flex;gap:6px;padding:10px 12px;border-top:1px solid #21262d;flex-shrink:0;}
+.nbtn{flex:1;background:#21262d;border:1px solid #30363d;color:#c9d1d9;padding:6px;border-radius:4px;cursor:pointer;font-size:11px;transition:all .12s;}
+.nbtn:hover{background:#30363d;border-color:#58a6ff;color:#58a6ff;}
+.empty{font-size:11px;color:#484f58;font-style:italic;}
+.tag{display:inline-block;padding:1px 6px;border-radius:10px;font-size:10px;font-family:monospace;background:#21262d;border:1px solid #30363d;}
+/* alert for face mode */
+.face-alert{background:#1c1d10;border:1px solid #3d3d00;border-radius:4px;padding:6px 8px;font-size:10.5px;color:#b8a000;margin-bottom:6px;line-height:1.5;}
+</style>
+</head>
+<body>
+<header>
+  <h1>K(3,3) Cycle Reversal Explorer</h1>
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="btn-all" onclick="setMode('all')">All directed cycles</button>
+    <button class="mode-btn" id="btn-face" onclick="setMode('face')">Torus face cycles only</button>
+  </div>
+  <div class="hdr-right">
+    <span><strong id="hdr-tcos">—</strong> TCOs</span>
+    <span><strong id="hdr-comps">—</strong> classes</span>
+    <span id="hdr-info" style="color:#8b949e"></span>
+  </div>
+</header>
+
+<div class="content">
+  <div class="graph-area">
+    <svg id="graph-svg" width="660" height="450"></svg>
+    <div class="insight-bar" id="insight-bar">Loading…</div>
+  </div>
+
+  <div class="side">
+    <div class="side-scroll">
+
+      <!-- Out-degree display -->
+      <div class="sec">
+        <h3>Vertex Out-Degrees <span class="tag" style="color:#ffa657">invariant</span></h3>
+        <div class="deg-grid" id="deg-grid"></div>
+        <div style="font-size:10px;color:#484f58;margin-top:6px;">
+          Reversing any cycle never changes these counts — they uniquely identify the equivalence class.
+        </div>
+      </div>
+
+      <!-- Equivalence class -->
+      <div class="sec">
+        <h3>Equivalence Class</h3>
+        <div class="sr"><span class="sl">Class #</span><span class="sv" id="s-comp">—</span></div>
+        <div class="sr"><span class="sl">Class size</span><span class="sv" id="s-csize">—</span></div>
+        <div class="sr"><span class="sl">Directed cycles</span><span class="sv" id="s-ncycles">—</span></div>
+        <div class="comp-nodes" id="comp-nodes"></div>
+      </div>
+
+      <!-- 20-class map -->
+      <div class="sec">
+        <h3>All 20 Classes  <span class="tag">C(6,3) = 20</span></h3>
+        <div class="class-map" id="class-map"></div>
+        <div class="class-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:#388e3c"></div> 3 heavy on Left</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#1565c0"></div> 3 heavy on Right</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#5c6bc0"></div> mixed split</div>
+        </div>
+      </div>
+
+      <!-- Cycles list -->
+      <div class="sec">
+        <h3 id="cyc-header">Directed Cycles</h3>
+        <div id="cycles-list"></div>
+      </div>
+
+    </div>
+    <div class="nav">
+      <button class="nbtn" onclick="randomTCO()">⚄ Random</button>
+      <button class="nbtn" onclick="nextInComp()">Next in class →</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+// ── constants ────────────────────────────────────────────────
+const EDGES = [[0,3],[0,4],[0,5],[1,3],[1,4],[1,5],[2,3],[2,4],[2,5]];
+const NV = 6;
+const EIDX = {};
+EDGES.forEach(([u,v],k) => { EIDX[`${u},${v}`] = k; EIDX[`${v},${u}`] = k; });
+
+// Torus face cycles of K(3,3) (from rotation system, see k33_flip_graph.py)
+const FACES = [
+  [0,3,2,4,1,5],  // Face 1
+  [3,0,4,2,5,1],  // Face 2
+  [4,0,5,2,3,1],  // Face 3
+];
+
+const CYCLE_C = ['#f0883e','#7ee787','#58a6ff','#d2a8ff','#ffa657','#ff7b72','#a5d6ff','#ffd700'];
+const NODE_LABELS = ['L₀','L₁','L₂','R₀','R₁','R₂'];
+const NP = {0:{x:185,y:85},1:{x:185,y:225},2:{x:185,y:365},3:{x:475,y:85},4:{x:475,y:225},5:{x:475,y:365}};
+
+// ── graph math ───────────────────────────────────────────────
+function adj(o) {
+  const a = Array.from({length:NV},()=>[]);
+  EDGES.forEach(([u,v],k) => (o>>k)&1 ? a[v].push(u) : a[u].push(v));
+  return a;
+}
+function reach(a,s,d) {
+  if(s===d) return true;
+  const vis=new Set([s]),q=[s];
+  while(q.length){const n=q.shift();for(const nb of a[n]){if(nb===d) return true;if(!vis.has(nb)){vis.add(nb);q.push(nb);}}}
+  return false;
+}
+function isTCO(o) {
+  const a=adj(o);
+  for(let k=0;k<9;k++){const[u,v]=EDGES[k],[s,d]=(o>>k)&1?[v,u]:[u,v];if(!reach(a,d,s)) return false;}
+  return true;
+}
+function outDeg(o) {
+  const d=new Array(NV).fill(0);
+  EDGES.forEach(([u,v],k) => (o>>k)&1 ? d[v]++ : d[u]++);
+  return d;
+}
+function edgeGoes(u,v,o) {
+  const k=EIDX[`${u},${v}`],bit=(o>>k)&1;
+  return (u<v&&bit===0)||(u>v&&bit===1);
+}
+function isFaceDirected(face,o) {
+  const n=face.length;
+  const fwd=face.every((_,i)=>edgeGoes(face[i],face[(i+1)%n],o));
+  const bwd=face.every((_,i)=>edgeGoes(face[(i+1)%n],face[i],o));
+  return fwd||bwd;
+}
+function cycleMask(verts) {
+  let m=0,n=verts.length;
+  for(let i=0;i<n;i++) m|=1<<EIDX[`${verts[i]},${verts[(i+1)%n]}`];
+  return m;
+}
+function findCycles(o) {
+  const a=adj(o),found=[],seen=new Set();
+  function dfs(st,cur,path,vis){
+    for(const nb of a[cur]){
+      if(nb===st&&path.length>1){const k=JSON.stringify(path);if(!seen.has(k)){seen.add(k);found.push([...path]);}}
+      else if(!vis.has(nb)&&nb>st){vis.add(nb);path.push(nb);dfs(st,nb,path,vis);path.pop();vis.delete(nb);}
+    }
+  }
+  for(let s=0;s<NV;s++) dfs(s,s,[s],new Set([s]));
+  return found;
+}
+function faceCycles(o) {
+  return FACES.filter(f=>isFaceDirected(f,o));
+}
+function bfsComp(nbrs, start) {
+  const vis=new Set([start]),q=[start];
+  while(q.length){const n=q.shift();for(const nb of nbrs[n])if(!vis.has(nb)){vis.add(nb);q.push(nb);}}
+  return vis;
+}
+
+// ── precompute ───────────────────────────────────────────────
+const TCOs=[], tcoSet=new Set();
+for(let o=0;o<512;o++) if(isTCO(o)){TCOs.push(o);tcoSet.add(o);}
+
+// Precompute out-degree signature for each TCO and class map
+function outKey(o) { return outDeg(o).join(','); }
+
+// Build both flip graphs
+function buildFlipNbrs(faceOnly) {
+  const nbrs={};
+  TCOs.forEach(o=>{nbrs[o]=new Set();});
+  TCOs.forEach(o=>{
+    const masks = faceOnly
+      ? FACES.filter(f=>isFaceDirected(f,o)).map(f=>cycleMask(f))
+      : findCycles(o).map(c=>cycleMask(c));
+    for(const m of masks){
+      const nb=o^m;
+      if(tcoSet.has(nb)&&nb!==o){nbrs[o].add(nb);nbrs[nb].add(o);}
+    }
+  });
+  return nbrs;
+}
+
+const allNbrs = buildFlipNbrs(false);
+const faceNbrs = buildFlipNbrs(true);
+
+// Connected components for a neighbor map
+function getComps(nbrs) {
+  const visited=new Set(), comps=[], tcoComp={};
+  for(const o of TCOs){
+    if(visited.has(o)) continue;
+    const comp=[...bfsComp(nbrs,o)];
+    comp.forEach(n=>{visited.add(n);tcoComp[n]=comps.length;});
+    comps.push(comp);
+  }
+  comps.sort((a,b)=>b.length-a.length);
+  comps.forEach((c,i)=>c.forEach(o=>tcoComp[o]=i));
+  return {comps, tcoComp};
+}
+
+const {comps:allComps, tcoComp:allTcoComp} = getComps(allNbrs);
+const {comps:faceComps, tcoComp:faceTcoComp} = getComps(faceNbrs);
+
+// Map each all-cycle class to its out-degree signature
+const classOuts = allComps.map(c => outDeg(c[0]));  // [comp_idx] -> out-degree array
+
+// Sort allComps by how many heavy (out=2) vertices are on left
+function nHeavyLeft(ci) { return classOuts[ci].slice(0,3).filter(x=>x===2).length; }
+
+// ── D3 setup ────────────────────────────────────────────────
+const svg = d3.select('#graph-svg');
+const defs = svg.append('defs');
+
+function mkArrow(id,col) {
+  defs.append('marker').attr('id',id)
+    .attr('viewBox','0 -5 10 10').attr('refX',10).attr('refY',0)
+    .attr('markerWidth',7).attr('markerHeight',7).attr('orient','auto')
+    .append('path').attr('d','M0,-5L10,0L0,5Z').attr('fill',col);
+}
+mkArrow('ar-def','#404850');
+mkArrow('ar-face','#58a6ff');  // face cycle color
+CYCLE_C.forEach((c,i)=>mkArrow(`ar-${i}`,c));
+
+// Column labels
+svg.append('text').attr('x',185).attr('y',22).attr('text-anchor','middle')
+   .attr('fill','#3fb950').attr('font-size',11).text('Left (L)');
+svg.append('text').attr('x',475).attr('y',22).attr('text-anchor','middle')
+   .attr('fill','#79c0ff').attr('font-size',11).text('Right (R)');
+
+// Edge paths
+function ctrlPt(k) {
+  const[u,v]=EDGES[k],{x:x1,y:y1}=NP[u],{x:x2,y:y2}=NP[v];
+  const off=(u-(v-3))*85,mx=(x1+x2)/2,my=(y1+y2)/2;
+  const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+  return{cx:mx+off*(-dy/len),cy:my+off*(dx/len)};
+}
+function epath(k,o,shorten=20) {
+  const[u,v]=EDGES[k],rev=(o>>k)&1,{cx,cy}=ctrlPt(k);
+  let x1,y1,x2,y2;
+  if(!rev){({x:x1,y:y1}=NP[u]);({x:x2,y:y2}=NP[v]);}
+  else{({x:x1,y:y1}=NP[v]);({x:x2,y:y2}=NP[u]);}
+  const tx=x2-cx,ty=y2-cy,tl=Math.sqrt(tx*tx+ty*ty);
+  const xe=x2-shorten*tx/tl,ye=y2-shorten*ty/tl;
+  const sx=cx-x1,sy=cy-y1,sl=Math.sqrt(sx*sx+sy*sy);
+  const xs=sl>0?x1+6*sx/sl:x1,ys=sl>0?y1+6*sy/sl:y1;
+  return`M${xs},${ys}Q${cx},${cy},${xe},${ye}`;
+}
+
+const edgeG = svg.append('g');
+const edgeSel = edgeG.selectAll('path').data(d3.range(9)).join('path')
+  .attr('fill','none').attr('stroke-width',2);
+
+// Nodes (drawn last, on top)
+const nodeG = svg.append('g');
+nodeG.selectAll('circle').data(d3.range(NV)).join('circle')
+  .attr('cx',d=>NP[d].x).attr('cy',d=>NP[d].y).attr('r',18)
+  .attr('fill','#161b22').attr('stroke',d=>d<3?'#3fb950':'#79c0ff').attr('stroke-width',2);
+
+// Node label
+nodeG.selectAll('.nlabel').data(d3.range(NV)).join('text').attr('class','nlabel')
+  .attr('x',d=>NP[d].x).attr('y',d=>NP[d].y+1)
+  .attr('text-anchor','middle').attr('dominant-baseline','middle')
+  .attr('font-size',10).attr('font-family','monospace')
+  .attr('fill',d=>d<3?'#3fb950':'#79c0ff').attr('pointer-events','none')
+  .text(d=>NODE_LABELS[d]);
+
+// Out-degree badge (small number below node)
+const odBadges = nodeG.selectAll('.odbadge').data(d3.range(NV)).join('text').attr('class','odbadge')
+  .attr('x',d=>NP[d].x).attr('y',d=>NP[d].y+30)
+  .attr('text-anchor','middle').attr('font-size',9).attr('font-family','monospace')
+  .attr('pointer-events','none');
+
+// ── state ────────────────────────────────────────────────────
+let curO = TCOs[0], hlIdx = null, compNavIdx = 0, mode = 'all';
+
+function curNbrs() { return mode==='all' ? allNbrs : faceNbrs; }
+function curComps() { return mode==='all' ? allComps : faceComps; }
+function curTcoComp() { return mode==='all' ? allTcoComp : faceTcoComp; }
+
+function curCycles(o) {
+  return mode==='all' ? findCycles(o) : FACES.filter(f=>isFaceDirected(f,o));
+}
+
+// ── class map ────────────────────────────────────────────────
+function buildClassMap() {
+  const map = document.getElementById('class-map');
+  map.innerHTML = '';
+  // Sort allComps by nHeavyLeft descending, then by specific assignment for stability
+  const sorted = allComps.map((_,i)=>i).sort((a,b)=>{
+    const d=nHeavyLeft(b)-nHeavyLeft(a);
+    return d!==0?d:a-b;
+  });
+  sorted.forEach(ci=>{
+    const nhl=nHeavyLeft(ci);
+    // Color gradient: green (3L) → indigo (2L1R) → purple (1L2R) → blue (0L3R)
+    const colors=['#1565c0','#5c6bc0','#4e5ba0','#388e3c'];
+    const baseColor=colors[3-nhl];
+    const box=document.createElement('div');
+    box.className='class-box';
+    box.style.background=baseColor;
+    box.title=`Class #${ci} (size ${allComps[ci].length})\nOut=2: ${classOuts[ci].map((v,i)=>v===2?NODE_LABELS[i]:'').filter(Boolean).join(', ')}`;
+    box.dataset.ci=ci;
+    box.textContent=allComps[ci].length;
+    box.onclick=()=>navigate(allComps[ci][0]);
+    map.appendChild(box);
+  });
+}
+buildClassMap();
+
+function updateClassMap() {
+  const ci = allTcoComp[curO];
+  document.querySelectorAll('.class-box').forEach(b=>{
+    b.classList.toggle('current', +b.dataset.ci===ci);
+  });
+}
+
+// ── render ───────────────────────────────────────────────────
+function render(o, hl) {
+  curO = o;
+  const cycs = curCycles(o);
+  const nbrs = curNbrs();
+  const comps = curComps();
+  const tcoComp = curTcoComp();
+
+  // Edge colors
+  const edgeCol = new Array(9).fill(null);
+  const markerIds = new Array(9).fill('ar-def');
+  if(hl!==null && hl<cycs.length) {
+    const cyc=cycs[hl], n=cyc.length;
+    for(let i=0;i<n;i++) {
+      const u=cyc[i],v=cyc[(i+1)%n];
+      edgeCol[EIDX[`${u},${v}`]]=CYCLE_C[hl%CYCLE_C.length];
+      markerIds[EIDX[`${u},${v}`]]=`ar-${hl%CYCLE_C.length}`;
+    }
+  }
+  edgeSel
+    .attr('d',k=>epath(k,o))
+    .attr('stroke',k=>edgeCol[k]||'#384048')
+    .attr('stroke-width',k=>edgeCol[k]?2.8:1.8)
+    .attr('marker-end',k=>`url(#${markerIds[k]})`);
+
+  // Out-degree badges
+  const od = outDeg(o);
+  odBadges.attr('fill',d=>od[d]===2?'#ffa657':'#555e6b')
+    .text(d=>`→${od[d]}`);
+
+  // Node stroke width based on out-degree
+  nodeG.selectAll('circle')
+    .attr('stroke-width', d => od[d]===2 ? 2.8 : 1.5)
+    .attr('stroke', d => {
+      const base = d<3?'#3fb950':'#79c0ff';
+      return od[d]===2 ? base : d<3?'#1f6b30':'#1f4f7a';
+    });
+
+  // Side panel: out-degrees
+  const dg = document.getElementById('deg-grid');
+  dg.innerHTML = '';
+  for(let i=0;i<NV;i++) {
+    const el=document.createElement('div');
+    el.className='deg-cell';
+    const col=i<3?'#3fb950':'#79c0ff';
+    el.innerHTML=`<div class="deg-dot" style="background:${col}"></div>
+      <span class="deg-label">${NODE_LABELS[i]}</span>
+      <span class="deg-val ${od[i]===2?'high':'low'}">→${od[i]}</span>`;
+    dg.appendChild(el);
+  }
+
+  // Side panel: class info
+  const ci=tcoComp[o], comp=comps[ci];
+  document.getElementById('s-comp').textContent=`#${ci}`;
+  document.getElementById('s-csize').textContent=comp.length;
+  document.getElementById('s-ncycles').textContent=cycs.length;
+
+  // Comp nodes
+  const cn=document.getElementById('comp-nodes');
+  cn.innerHTML='';
+  comp.forEach(n=>{
+    const b=document.createElement('span');
+    b.className='cn'+(n===o?' cur':'');
+    b.textContent=n;
+    b.onclick=()=>navigate(n);
+    cn.appendChild(b);
+  });
+
+  // Class map highlight
+  updateClassMap();
+
+  // Cycles list
+  const cl=document.getElementById('cycles-list');
+  cl.innerHTML='';
+
+  if(mode==='face') {
+    const avail=FACES.filter(f=>isFaceDirected(f,o));
+    const missing=3-avail.length;
+    if(missing>0) {
+      const alert=document.createElement('div');
+      alert.className='face-alert';
+      alert.textContent=`${missing} of 3 torus face${missing>1?'s are':' is'} not directed — no move available on ${missing>1?'them':'it'}.`;
+      cl.appendChild(alert);
+    }
+    if(!avail.length) {
+      const p=document.createElement('p');
+      p.className='empty';p.textContent='No face cycles available. This TCO is stuck in face-only mode.';
+      cl.appendChild(p);return;
+    }
+  } else if(!cycs.length) {
+    cl.innerHTML='<p class="empty">No directed cycles.</p>';return;
+  }
+
+  cycs.forEach((c,i)=>{
+    const col=CYCLE_C[i%CYCLE_C.length];
+    const label=c.map(v=>NODE_LABELS[v]).join('→')+'→'+NODE_LABELS[c[0]];
+    const nb=o^cycleMask(c);
+    const isValid=tcoSet.has(nb);
+    const div=document.createElement('div');
+    div.className='cyc-item'+(i===hl?' hl':'');
+    div.style.borderColor=i===hl?col:'';
+    div.innerHTML=`<div class="cdot" style="background:${col}"></div>
+      <div class="clabel">${label}<br>
+        <span class="cmeta">len ${c.length}${!isValid?' · reversal exits TCO set':''}</span></div>
+      <button class="cbtn" ${!isValid||!tcoSet.has(nb)?'disabled':''} onclick="event.stopPropagation();navigate(${nb})">↺</button>`;
+    div.onclick=()=>{ hlIdx=(hlIdx===i?null:i); render(o,hlIdx); };
+    cl.appendChild(div);
+  });
+
+  // Insight bar
+  updateInsight(o, cycs, comp, ci);
+}
+
+function updateInsight(o, cycs, comp, ci) {
+  const od = outDeg(o);
+  const nhl = od.slice(0,3).filter(x=>x===2).length;
+  const nhr = od.slice(3).filter(x=>x===2).length;
+  const heavy = d3.range(NV).filter(i=>od[i]===2).map(i=>NODE_LABELS[i]).join(', ');
+
+  let modeNote = '';
+  if(mode==='face') {
+    const nAvail = FACES.filter(f=>isFaceDirected(f,o)).length;
+    modeNote = ` In face-only mode, <strong>${nAvail}/3</strong> torus faces are directed (reversible) here.
+      <strong>${faceComps.length} classes</strong> total — 60 of 102 TCOs are completely stuck with no face moves.`;
+  } else {
+    modeNote = ` All ${cycs.length} directed cycles are reversible. Every reversal lands in another TCO.
+      <strong>20 classes</strong> in total — one per out-degree assignment.`;
+  }
+
+  document.getElementById('insight-bar').innerHTML =
+    `<strong>Out=2 vertices:</strong> ${heavy} &nbsp;·&nbsp;
+     <strong>Split:</strong> ${nhl}L + ${nhr}R
+     ${(nhl===3||nhr===3)?'<span style="color:#ffa657">(all one side → size-6 class)</span>':'<span style="color:#8b949e">(mixed → size-5 class)</span>'}
+     &nbsp;·&nbsp; <strong>Class size:</strong> ${comp.length} TCOs
+     <br>${modeNote}`;
+}
+
+function navigate(o) {
+  hlIdx=null;
+  compNavIdx=curComps()[curTcoComp()[o]].indexOf(o);
+  render(o,null);
+}
+function randomTCO() { navigate(TCOs[Math.floor(Math.random()*TCOs.length)]); }
+function nextInComp() {
+  const comp=curComps()[curTcoComp()[curO]];
+  compNavIdx=(compNavIdx+1)%comp.length;
+  navigate(comp[compNavIdx]);
+}
+function setMode(m) {
+  mode=m;
+  document.getElementById('btn-all').classList.toggle('active',m==='all');
+  document.getElementById('btn-face').classList.toggle('active',m==='face');
+  const info=m==='face'
+    ? '80 classes (60 stuck)'
+    : '20 classes · out-deg invariant';
+  document.getElementById('hdr-info').textContent=info;
+  document.getElementById('cyc-header').textContent =
+    m==='face' ? 'Torus Face Cycles (directed)' : 'Directed Cycles';
+  navigate(curO);
+}
+
+// Header stats
+document.getElementById('hdr-tcos').textContent=TCOs.length;
+document.getElementById('hdr-comps').textContent=allComps.length;
+document.getElementById('hdr-info').textContent='20 classes · out-deg invariant';
+
+navigate(TCOs[0]);
+</script>
+</body>
+</html>
