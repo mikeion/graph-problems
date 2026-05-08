@@ -36,7 +36,34 @@ The 102 TCOs split into **20 equivalence classes** under cycle reversal, determi
 
 Additional findings:
 - All 9 minimal generating sets use **only C₄ cycles** (4-cycles) — the hexagonal torus face cycles never appear in a minimal set
-- There are exactly **9 minimal generating sets**, one for each column of the C₄ grid (indexed by which pair of right vertices the cycle uses)
+- There are exactly **9 minimal generating sets**
+
+### The 9 Minimal Sets
+
+Label the 9 four-cycles by which left pair and right pair of vertices they use:
+
+```
+         R₀R₁   R₀R₂   R₁R₂
+L₀L₁  [  a  ] [  b  ] [  c  ]
+L₀L₂  [  d  ] [  e  ] [  f  ]
+L₁L₂  [  g  ] [  h  ] [  i  ]
+```
+
+The 9 minimal generating sets (each is 5 of the 9 four-cycles):
+
+| Set | Circuits |
+|-----|----------|
+| 1 | a b d e i |
+| 2 | c d e g h |
+| 3 | a c d f h |
+| 4 | b d f g i |
+| 5 | b c d h i |
+| 6 | a c e g i |
+| 7 | a e f h i |
+| 8 | b c e f g |
+| 9 | a b f g h |
+
+Every possible set of 4 circuits fails; these 9 sets of 5 are the only ones that work. Verified by checking all C(15, k) subsets for k = 1 to 5 in [`k33_flip_graph.py`](k33_flip_graph.py).
 
 ### Why the Classes Exist
 
