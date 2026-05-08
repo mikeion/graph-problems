@@ -2,285 +2,182 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>K(3,3) Flip Graph — Cycle Reversal Explorer</title>
+<title>K(3,3) Circuit Generators</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#0d1117;color:#c9d1d9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-header{background:#161b22;border-bottom:1px solid #30363d;padding:10px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
-h1{font-size:14px;font-weight:600;color:#7ee787;white-space:nowrap;}
-.mode-toggle{display:flex;gap:0;border:1px solid #30363d;border-radius:5px;overflow:hidden;margin-left:12px;}
-.mode-btn{padding:5px 12px;font-size:11px;cursor:pointer;background:#21262d;color:#8b949e;border:none;transition:all .15s;}
-.mode-btn.active{background:#238636;color:#fff;}
-.hdr-right{margin-left:auto;display:flex;gap:16px;font-size:11px;color:#8b949e;}
-.hdr-right strong{color:#c9d1d9;}
-/* layout */
+header{background:#161b22;border-bottom:1px solid #30363d;padding:10px 20px;flex-shrink:0;}
+.hdr-top{display:flex;align-items:baseline;gap:12px;}
+h1{font-size:14px;font-weight:600;color:#7ee787;}
+.hdr-q{font-size:11px;color:#8b949e;}
+.hdr-q strong{color:#ffa657;}
+.hdr-stats{font-size:10px;color:#484f58;margin-top:3px;}
+.hdr-stats span{margin-right:14px;}
+/* two-column layout */
 .content{display:flex;flex:1;overflow:hidden;}
-.graph-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;}
-#graph-svg{border-radius:6px;}
-/* insight bar below graph */
-.insight-bar{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:10px 16px;max-width:680px;width:100%;font-size:12px;line-height:1.6;color:#8b949e;}
-.insight-bar strong{color:#e6edf3;}
-.insight-bar code{background:#21262d;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px;color:#79c0ff;}
-/* side panel */
-.side{width:300px;background:#161b22;border-left:1px solid #30363d;display:flex;flex-direction:column;overflow:hidden;}
-.side-scroll{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
-.sec{border:1px solid #21262d;border-radius:6px;padding:10px 12px;}
-.sec h3{font-size:10px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
-/* out-degree grid */
-.deg-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
-.deg-cell{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:4px;background:#0d1117;font-size:11px;font-family:monospace;}
-.deg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.deg-label{color:#8b949e;flex:1;}
-.deg-val{font-weight:600;}
-.deg-val.high{color:#ffa657;}
-.deg-val.low{color:#8b949e;}
-/* class map */
-.class-map{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
-.class-box{width:22px;height:22px;border-radius:3px;cursor:pointer;border:1px solid transparent;transition:all .12s;position:relative;display:flex;align-items:center;justify-content:center;font-size:8px;color:rgba(255,255,255,.6);}
-.class-box:hover{border-color:#fff;transform:scale(1.15);}
-.class-box.current{border-color:#fff!important;box-shadow:0 0 6px rgba(255,255,255,.4);}
-.class-legend{display:flex;gap:8px;margin-top:6px;font-size:10px;color:#8b949e;flex-wrap:wrap;}
-.leg-item{display:flex;align-items:center;gap:3px;}
-.leg-dot{width:8px;height:8px;border-radius:2px;}
-/* stat row */
-.sr{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
-.sl{color:#8b949e;}.sv{font-family:monospace;}
-/* cycles */
-.cyc-item{display:flex;align-items:center;gap:6px;padding:5px 7px;border-radius:4px;margin-bottom:4px;cursor:pointer;border:1px solid #21262d;transition:border-color .12s,background .12s;font-size:11px;}
-.cyc-item:hover{background:#1c2128;}
-.cyc-item.hl{background:#1c2128;}
-.cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.clabel{flex:1;font-family:monospace;font-size:10.5px;line-height:1.4;}
-.cmeta{font-size:9.5px;color:#8b949e;}
-.cbtn{background:#21262d;border:1px solid #30363d;color:#8b949e;padding:2px 7px;border-radius:3px;cursor:pointer;font-size:11px;transition:all .12s;flex-shrink:0;}
-.cbtn:hover{background:#238636;border-color:#2ea043;color:#fff;}
-.cbtn:disabled{opacity:.35;cursor:default;}
-.cbtn:disabled:hover{background:#21262d;border-color:#30363d;color:#8b949e;}
-/* comp nodes */
-.comp-nodes{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px;}
-.cn{padding:2px 7px;border-radius:3px;font-size:10px;font-family:monospace;cursor:pointer;border:1px solid #30363d;background:#21262d;color:#8b949e;transition:all .12s;}
-.cn:hover{border-color:#58a6ff;color:#58a6ff;}
-.cn.cur{border-color:#7ee787;color:#7ee787;background:#1a2e1a;font-weight:600;}
-/* nav */
-.nav{display:flex;gap:6px;padding:10px 12px;border-top:1px solid #21262d;flex-shrink:0;}
-.nbtn{flex:1;background:#21262d;border:1px solid #30363d;color:#c9d1d9;padding:6px;border-radius:4px;cursor:pointer;font-size:11px;transition:all .12s;}
-.nbtn:hover{background:#30363d;border-color:#58a6ff;color:#58a6ff;}
-.empty{font-size:11px;color:#484f58;font-style:italic;}
-.tag{display:inline-block;padding:1px 6px;border-radius:10px;font-size:10px;font-family:monospace;background:#21262d;border:1px solid #30363d;}
-/* alert for face mode */
-.face-alert{background:#1c1d10;border:1px solid #3d3d00;border-radius:4px;padding:6px 8px;font-size:10.5px;color:#b8a000;margin-bottom:6px;line-height:1.5;}
-/* generator explorer */
-.gen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:6px 0;}
-.gen-cell{padding:5px 4px;border-radius:4px;border:1px solid #30363d;cursor:pointer;font-size:9.5px;font-family:monospace;text-align:center;line-height:1.3;transition:all .15s;background:#0d1117;color:#8b949e;user-select:none;}
-.gen-cell:hover{border-color:#58a6ff;}
-.gen-cell.on{background:#1a2e1a;border-color:#2ea043;color:#7ee787;}
-.gen-cell.on.hex{background:#1a1f30;border-color:#1565c0;color:#79c0ff;}
-.gen-hdr{font-size:9px;color:#484f58;text-align:center;margin:2px 0;}
-.gen-axis{font-size:9px;color:#484f58;text-align:center;padding:3px 0;}
-.comp-meter{display:flex;align-items:center;gap:8px;padding:8px;border-radius:6px;margin-bottom:6px;border:1px solid #30363d;background:#0d1117;}
-.comp-num{font-size:26px;font-weight:700;font-family:monospace;min-width:36px;text-align:center;}
-.comp-label{font-size:10px;color:#8b949e;line-height:1.4;}
-.comp-label strong{display:block;font-size:12px;}
-.gen-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;margin-top:4px;}
-.gen-badge.success{background:#1a2e1a;color:#7ee787;border:1px solid #2ea043;}
-.gen-badge.warn{background:#1c1d10;color:#b8a000;border:1px solid #3d3d00;}
-.gen-badge.error{background:#1c0a0a;color:#ff7b72;border:1px solid #5a1a1a;}
-.gen-actions{display:flex;gap:4px;margin-bottom:6px;}
-.gen-act{flex:1;padding:4px 6px;font-size:10px;border-radius:4px;border:1px solid #30363d;background:#21262d;color:#8b949e;cursor:pointer;transition:all .12s;}
-.gen-act:hover{border-color:#58a6ff;color:#c9d1d9;}
-.gen-act.hi{background:#21262d;border-color:#238636;color:#7ee787;}
+/* Left: graph view */
+.graph-col{width:420px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px;border-right:1px solid #21262d;}
+#graph-svg{border-radius:4px;}
+.od-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;}
+.od-chip{display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:10px;font-family:monospace;background:#161b22;border:1px solid #21262d;}
+.od-dot{width:7px;height:7px;border-radius:50%;}
+.od-val{font-weight:600;}
+.od-val.heavy{color:#ffa657;}
+.od-val.light{color:#555e6b;}
+.nav-row{display:flex;gap:6px;width:100%;}
+.nbtn{flex:1;background:#21262d;border:1px solid #30363d;color:#8b949e;padding:5px;border-radius:4px;cursor:pointer;font-size:10px;transition:all .12s;}
+.nbtn:hover{border-color:#58a6ff;color:#c9d1d9;}
+.class-info{font-size:10px;color:#484f58;text-align:center;line-height:1.5;}
+.class-info strong{color:#8b949e;}
+/* Right: generator picker */
+.gen-col{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:14px;gap:12px;}
+/* meter */
+.meter{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#161b22;border:1px solid #30363d;border-radius:8px;}
+.meter-num{font-size:48px;font-weight:700;font-family:monospace;line-height:1;transition:color .2s;}
+.meter-info{flex:1;}
+.meter-label{font-size:13px;color:#8b949e;margin-bottom:4px;}
+.meter-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;}
+.meter-badge.ok{background:#1a2e1a;color:#7ee787;border:1px solid #2ea043;}
+.meter-badge.warn{background:#1c1d10;color:#b8a000;border:1px solid #3d3d00;}
+.meter-sub{font-size:10px;color:#484f58;margin-top:4px;}
+.meter-actions{display:flex;gap:4px;flex-wrap:wrap;}
+.mact{padding:4px 10px;font-size:10px;border-radius:4px;border:1px solid #30363d;background:#21262d;color:#8b949e;cursor:pointer;transition:all .12s;}
+.mact:hover{border-color:#58a6ff;color:#c9d1d9;}
+.mact.hi{border-color:#238636;color:#7ee787;}
+/* cycle grid area */
+.grids{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;}
+.grid-section{background:#161b22;border:1px solid #21262d;border-radius:6px;padding:10px 12px;}
+.grid-section h3{font-size:10px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;}
+/* C4 3×3 grid with row/col labels */
+.c4-table{display:grid;grid-template-columns:36px repeat(3,1fr);gap:3px;}
+.c4-ax{font-size:9px;color:#484f58;text-align:center;padding:3px 2px;display:flex;align-items:center;justify-content:center;}
+.c4-row-ax{font-size:9px;color:#484f58;text-align:right;padding-right:6px;display:flex;align-items:center;justify-content:flex-end;}
+.cyc-cell{padding:7px 4px;border-radius:4px;border:1px solid #21262d;cursor:pointer;font-size:9px;font-family:monospace;text-align:center;line-height:1.4;transition:all .15s;background:#0d1117;color:#484f58;user-select:none;}
+.cyc-cell:hover{border-color:#58a6ff;color:#8b949e;}
+.cyc-cell.on{background:#0d1a0d;border-color:#2ea043;color:#7ee787;}
+.cyc-cell.on.hex{background:#0a0d1a;border-color:#1565c0;color:#79c0ff;}
+.cyc-cell.dim{opacity:.35;}
+/* hex row */
+.hex-row{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;}
+/* finding box */
+.finding{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:10px 14px;font-size:11px;line-height:1.7;color:#484f58;}
+.finding strong{color:#8b949e;}
+.finding .answer{color:#ffa657;font-weight:600;}
 </style>
 </head>
 <body>
 <header>
-  <h1>K(3,3) Cycle Reversal Explorer</h1>
-  <div class="mode-toggle">
-    <button class="mode-btn active" id="btn-all" onclick="setMode('all')">All directed cycles</button>
-    <button class="mode-btn" id="btn-face" onclick="setMode('face')">Torus face cycles</button>
-    <button class="mode-btn" id="btn-gen" onclick="setMode('gen')">Generator explorer</button>
+  <div class="hdr-top">
+    <h1>K(3,3) Circuit Generators</h1>
+    <span class="hdr-q">If only <strong>specific circuits</strong> are allowed to be reversed, how many do you need to reach any orientation reachable by arbitrary reversals?</span>
   </div>
-  <div class="hdr-right">
-    <span><strong id="hdr-tcos">—</strong> TCOs</span>
-    <span><strong id="hdr-comps">—</strong> classes</span>
-    <span id="hdr-info" style="color:#8b949e"></span>
+  <div class="hdr-stats">
+    <span id="stat-tcos">— TCOs</span>
+    <span id="stat-classes">— equivalence classes</span>
+    <span id="stat-note" style="color:#ffa657"></span>
   </div>
 </header>
 
 <div class="content">
-  <div class="graph-area">
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px;">
-      <span style="font-size:10px;color:#484f58;">Layout:</span>
-      <div class="mode-toggle" style="margin-left:0">
-        <button class="mode-btn" id="btn-vgraph" onclick="setView('graph')">Bipartite</button>
-        <button class="mode-btn active" id="btn-vtorus" onclick="setView('torus')">Torus (Pac-Man)</button>
-      </div>
-    </div>
-    <svg id="graph-svg" width="660" height="420"></svg>
-    <div class="insight-bar" id="insight-bar">Loading…</div>
-  </div>
 
-  <div class="side">
-    <div class="side-scroll">
-
-      <!-- Out-degree display -->
-      <div class="sec">
-        <h3>Vertex Out-Degrees <span class="tag" style="color:#ffa657">invariant</span></h3>
-        <div class="deg-grid" id="deg-grid"></div>
-        <div style="font-size:10px;color:#484f58;margin-top:6px;">
-          Reversing any cycle never changes these counts — they uniquely identify the equivalence class.
-        </div>
-      </div>
-
-      <!-- Equivalence class -->
-      <div class="sec">
-        <h3>Equivalence Class</h3>
-        <div class="sr"><span class="sl">Class #</span><span class="sv" id="s-comp">—</span></div>
-        <div class="sr"><span class="sl">Class size</span><span class="sv" id="s-csize">—</span></div>
-        <div class="sr"><span class="sl">Directed cycles</span><span class="sv" id="s-ncycles">—</span></div>
-        <div style="font-size:10px;color:#484f58;margin:6px 0 2px;">Other orientations in this class (hover to see connecting cycle):</div>
-        <div class="comp-nodes" id="comp-nodes"></div>
-      </div>
-
-      <!-- 20-class map -->
-      <div class="sec">
-        <h3>All 20 Classes  <span class="tag">C(6,3) = 20</span></h3>
-        <div class="class-map" id="class-map"></div>
-        <div class="class-legend">
-          <div class="leg-item"><div class="leg-dot" style="background:#388e3c"></div> 3 heavy on Left</div>
-          <div class="leg-item"><div class="leg-dot" style="background:#1565c0"></div> 3 heavy on Right</div>
-          <div class="leg-item"><div class="leg-dot" style="background:#5c6bc0"></div> mixed split</div>
-        </div>
-      </div>
-
-      <!-- Generator explorer panel (hidden unless gen mode) -->
-      <div class="sec" id="gen-panel" style="display:none">
-        <h3>Generator Explorer <span class="tag" style="color:#ffa657">research mode</span></h3>
-        <div class="comp-meter" id="gen-meter">
-          <div class="comp-num" id="gen-comps-num">—</div>
-          <div class="comp-label">
-            <strong id="gen-comps-label">components</strong>
-            <span id="gen-badge-container"></span>
-          </div>
-        </div>
-        <div class="gen-actions">
-          <button class="gen-act" onclick="genSelectAll()">Select all</button>
-          <button class="gen-act" onclick="genClearAll()">Clear all</button>
-          <button class="gen-act hi" onclick="genShowMinimal()">Show minimal set</button>
-        </div>
-
-        <div style="font-size:10px;color:#8b949e;margin-bottom:4px;">
-          4-cycles (C₄) — indexed by left-pair × right-pair:
-        </div>
-        <div style="display:grid;grid-template-columns:28px 1fr 1fr 1fr;gap:3px;margin-bottom:8px;" id="c4-grid-wrap">
-          <div></div>
-          <div class="gen-axis">R₀R₁</div><div class="gen-axis">R₀R₂</div><div class="gen-axis">R₁R₂</div>
-        </div>
-
-        <div style="font-size:10px;color:#8b949e;margin-bottom:4px;margin-top:4px;">
-          6-cycles (hexagons) — torus face cycles:
-        </div>
-        <div class="gen-grid" id="hex-grid"></div>
-
-        <div style="font-size:10px;color:#484f58;margin-top:8px;line-height:1.5;">
-          <strong style="color:#8b949e;">Key finding:</strong> minimum generating set needs <strong style="color:#ffa657;">5</strong> cycles (not 4 = cycle rank). All 9 minimal sets use only C₄s, never hexagons.
-        </div>
-      </div>
-
-      <!-- Cycles list -->
-      <div class="sec" id="cycles-sec">
-        <h3 id="cyc-header">Directed Cycles</h3>
-        <div id="cycles-list"></div>
-      </div>
-
-    </div>
-    <div class="nav">
-      <button class="nbtn" onclick="randomTCO()">⚄ Random</button>
+  <!-- Left: K(3,3) current orientation -->
+  <div class="graph-col">
+    <svg id="graph-svg" width="380" height="340"></svg>
+    <div class="od-row" id="od-row"></div>
+    <div class="class-info" id="class-info"></div>
+    <div class="nav-row">
+      <button class="nbtn" onclick="randomTCO()">⚄ Random orientation</button>
       <button class="nbtn" onclick="nextInComp()">Next in class →</button>
     </div>
   </div>
+
+  <!-- Right: Generator picker -->
+  <div class="gen-col">
+
+    <!-- Component meter -->
+    <div class="meter">
+      <div class="meter-num" id="meter-num">—</div>
+      <div class="meter-info">
+        <div class="meter-label">equivalence classes reachable</div>
+        <span class="meter-badge" id="meter-badge">—</span>
+        <div class="meter-sub" id="meter-sub">Select circuits below to include them as allowed moves</div>
+      </div>
+      <div class="meter-actions">
+        <button class="mact" onclick="genAll()">All 15</button>
+        <button class="mact" onclick="genNone()">None</button>
+        <button class="mact hi" onclick="genMinimal()">▶ Show minimal set</button>
+      </div>
+    </div>
+
+    <div class="grids">
+
+      <!-- C4 cycles -->
+      <div class="grid-section">
+        <h3>4-cycles (C₄) — 9 total, indexed by which 2 left × 2 right vertices</h3>
+        <div class="c4-table" id="c4-table">
+          <div></div>
+          <div class="c4-ax">R₀R₁</div>
+          <div class="c4-ax">R₀R₂</div>
+          <div class="c4-ax">R₁R₂</div>
+        </div>
+      </div>
+
+      <!-- C6 hexagons -->
+      <div class="grid-section">
+        <h3>6-cycles (C₆) — 6 total (⬡ = torus face cycles)</h3>
+        <div class="hex-row" id="hex-row"></div>
+      </div>
+
+      <!-- Finding -->
+      <div class="finding">
+        <strong>Cycle rank of K(3,3):</strong> E − V + 1 = 9 − 6 + 1 = <strong>4</strong><br>
+        <strong>For planar graphs:</strong> 4 cycles always suffice (= cycle rank)<br>
+        <span class="answer">For K(3,3): minimum is 5 — one more than the cycle rank</span><br>
+        All 9 minimal sets use <strong>only C₄ cycles</strong> — never the hexagonal faces<br>
+        <strong>There are exactly 9 minimal sets</strong> (one per column of the C₄ grid above)
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-// ── constants ────────────────────────────────────────────────
-const EDGES = [[0,3],[0,4],[0,5],[1,3],[1,4],[1,5],[2,3],[2,4],[2,5]];
-const NV = 6;
-const EIDX = {};
-EDGES.forEach(([u,v],k) => { EIDX[`${u},${v}`] = k; EIDX[`${v},${u}`] = k; });
+// ── core constants ────────────────────────────────────────────
+const EDGES=[[0,3],[0,4],[0,5],[1,3],[1,4],[1,5],[2,3],[2,4],[2,5]];
+const NV=6;
+const EIDX={};
+EDGES.forEach(([u,v],k)=>{EIDX[`${u},${v}`]=k;EIDX[`${v},${u}`]=k;});
+const FACES=[[0,3,2,4,1,5],[3,0,4,2,5,1],[4,0,5,2,3,1]];
+const NODE_LABELS=['L₀','L₁','L₂','R₀','R₁','R₂'];
+const CYCLE_C=['#f0883e','#7ee787','#58a6ff','#d2a8ff','#ffa657','#ff7b72','#a5d6ff','#ffd700'];
 
-// Torus face cycles of K(3,3) (from rotation system, see k33_flip_graph.py)
-const FACES = [
-  [0,3,2,4,1,5],  // Face 1
-  [3,0,4,2,5,1],  // Face 2
-  [4,0,5,2,3,1],  // Face 3
-];
+// Bipartite node positions
+const NP={0:{x:100,y:80},1:{x:100,y:200},2:{x:100,y:320},3:{x:280,y:80},4:{x:280,y:200},5:{x:280,y:320}};
 
-const CYCLE_C = ['#f0883e','#7ee787','#58a6ff','#d2a8ff','#ffa657','#ff7b72','#a5d6ff','#ffd700'];
-const NODE_LABELS = ['L₀','L₁','L₂','R₀','R₁','R₂'];
-
-// Bipartite layout (classic left/right columns)
-const NP_GRAPH = {0:{x:185,y:85},1:{x:185,y:225},2:{x:185,y:365},3:{x:475,y:85},4:{x:475,y:225},5:{x:475,y:365}};
-
-// Torus layout: 3×2 grid, vertices at:
-//   Row 0 (y=140): L0(col0), R0(col1), L1(col2)
-//   Row 1 (y=280): R1(col0), L2(col1), R2(col2)
-// Torus rect: x∈[90,570], y∈[70,350]; cell=160×140
-const NP_TORUS = {0:{x:170,y:140},1:{x:490,y:140},2:{x:330,y:280},3:{x:330,y:140},4:{x:170,y:280},5:{x:490,y:280}};
-const TORUS_RECT = {x1:90,y1:70,x2:570,y2:350};
-// Wrapping edges: k=2 (L0↔R2, wraps L/R) and k=4 (L1↔R1, wraps L/R)
-// Both cross the boundary at y=(140+280)/2=210
-const WRAP_Y = 210;
-// wrapSegs(k, bit) → [[x1,y1,x2,y2],[x1,y1,x2,y2]] for the two segments
-function wrapSegs(k, bit) {
-  if(k===2) return bit===0
-    ? [[170,140,90,WRAP_Y],[570,WRAP_Y,490,280]]  // L0→R2 via left boundary
-    : [[490,280,570,WRAP_Y],[90,WRAP_Y,170,140]]; // R2→L0 via right boundary
-  if(k===4) return bit===0
-    ? [[490,140,570,WRAP_Y],[90,WRAP_Y,170,280]]  // L1→R1 via right boundary
-    : [[170,280,90,WRAP_Y],[570,WRAP_Y,490,140]]; // R1→L1 via left boundary
-}
-
-let viewMode = 'torus';
-function np(v) { return viewMode==='torus' ? NP_TORUS[v] : NP_GRAPH[v]; }
-
-// ── graph math ───────────────────────────────────────────────
-function adj(o) {
-  const a = Array.from({length:NV},()=>[]);
-  EDGES.forEach(([u,v],k) => (o>>k)&1 ? a[v].push(u) : a[u].push(v));
+// ── graph math ────────────────────────────────────────────────
+function adj(o){
+  const a=Array.from({length:NV},()=>[]);
+  EDGES.forEach(([u,v],k)=>(o>>k)&1?a[v].push(u):a[u].push(v));
   return a;
 }
-function reach(a,s,d) {
-  if(s===d) return true;
+function reach(a,s,d){
+  if(s===d)return true;
   const vis=new Set([s]),q=[s];
-  while(q.length){const n=q.shift();for(const nb of a[n]){if(nb===d) return true;if(!vis.has(nb)){vis.add(nb);q.push(nb);}}}
+  while(q.length){const n=q.shift();for(const nb of a[n]){if(nb===d)return true;if(!vis.has(nb)){vis.add(nb);q.push(nb);}}}
   return false;
 }
-function isTCO(o) {
+function isTCO(o){
   const a=adj(o);
-  for(let k=0;k<9;k++){const[u,v]=EDGES[k],[s,d]=(o>>k)&1?[v,u]:[u,v];if(!reach(a,d,s)) return false;}
+  for(let k=0;k<9;k++){const[u,v]=EDGES[k],[s,d]=(o>>k)&1?[v,u]:[u,v];if(!reach(a,d,s))return false;}
   return true;
 }
-function outDeg(o) {
-  const d=new Array(NV).fill(0);
-  EDGES.forEach(([u,v],k) => (o>>k)&1 ? d[v]++ : d[u]++);
-  return d;
-}
-function edgeGoes(u,v,o) {
-  const k=EIDX[`${u},${v}`],bit=(o>>k)&1;
-  return (u<v&&bit===0)||(u>v&&bit===1);
-}
-function isFaceDirected(face,o) {
-  const n=face.length;
-  const fwd=face.every((_,i)=>edgeGoes(face[i],face[(i+1)%n],o));
-  const bwd=face.every((_,i)=>edgeGoes(face[(i+1)%n],face[i],o));
-  return fwd||bwd;
-}
-function cycleMask(verts) {
-  let m=0,n=verts.length;
-  for(let i=0;i<n;i++) m|=1<<EIDX[`${verts[i]},${verts[(i+1)%n]}`];
-  return m;
-}
-function findCycles(o) {
+function outDeg(o){const d=new Array(NV).fill(0);EDGES.forEach(([u,v],k)=>(o>>k)&1?d[v]++:d[u]++);return d;}
+function cycleMask(verts){let m=0,n=verts.length;for(let i=0;i<n;i++)m|=1<<EIDX[`${verts[i]},${verts[(i+1)%n]}`];return m;}
+function edgeGoes(u,v,o){const k=EIDX[`${u},${v}`],bit=(o>>k)&1;return(u<v&&bit===0)||(u>v&&bit===1);}
+function isFaceDir(face,o){const n=face.length;return face.every((_,i)=>edgeGoes(face[i],face[(i+1)%n],o))||face.every((_,i)=>edgeGoes(face[(i+1)%n],face[i],o));}
+function findCycles(o){
   const a=adj(o),found=[],seen=new Set();
   function dfs(st,cur,path,vis){
     for(const nb of a[cur]){
@@ -291,654 +188,231 @@ function findCycles(o) {
   for(let s=0;s<NV;s++) dfs(s,s,[s],new Set([s]));
   return found;
 }
-function faceCycles(o) {
-  return FACES.filter(f=>isFaceDirected(f,o));
-}
-function bfsComp(nbrs, start) {
-  const vis=new Set([start]),q=[start];
-  while(q.length){const n=q.shift();for(const nb of nbrs[n])if(!vis.has(nb)){vis.add(nb);q.push(nb);}}
-  return vis;
-}
 
-// ── precompute ───────────────────────────────────────────────
-const TCOs=[], tcoSet=new Set();
+// ── precompute ────────────────────────────────────────────────
+const TCOs=[],tcoSet=new Set();
 for(let o=0;o<512;o++) if(isTCO(o)){TCOs.push(o);tcoSet.add(o);}
 
-// Enumerate all distinct cycle masks across all TCOs
-const allCycleMasks=new Map(); // mask → canonical cycle array
-for(const o of TCOs){
-  for(const c of findCycles(o)){
-    const m=cycleMask(c);
-    if(!allCycleMasks.has(m)) allCycleMasks.set(m,c);
-  }
-}
+const allCycleMasks=new Map();
+for(const o of TCOs) for(const c of findCycles(o)){const m=cycleMask(c);if(!allCycleMasks.has(m))allCycleMasks.set(m,c);}
 
-// Separate into 4-cycles and 6-cycles
-// 4-cycles: indexed as [leftPair][rightPair], leftPairs=[{0,1},{0,2},{1,2}], rightPairs=[{3,4},{3,5},{4,5}]
 const LEFT_PAIRS=[[0,1],[0,2],[1,2]];
 const RIGHT_PAIRS=[[3,4],[3,5],[4,5]];
-const C4_GRID=[]; // 3×3 array of masks
-for(const lp of LEFT_PAIRS){
-  const row=[];
-  for(const rp of RIGHT_PAIRS){
-    // Find the mask for cycle on these 4 vertices
-    let found=null;
-    for(const [m,c] of allCycleMasks){
-      if(c.length===4){
-        const cv=new Set(c);
-        if(lp.every(v=>cv.has(v))&&rp.every(v=>cv.has(v))) {found=m;break;}
-      }
-    }
-    row.push(found);
-  }
-  C4_GRID.push(row);
-}
+const C4_GRID=LEFT_PAIRS.map(lp=>RIGHT_PAIRS.map(rp=>{
+  for(const[m,c]of allCycleMasks)
+    if(c.length===4&&lp.every(v=>c.includes(v))&&rp.every(v=>c.includes(v)))return m;
+  return null;
+}));
 const HEX_MASKS=[...allCycleMasks.keys()].filter(m=>allCycleMasks.get(m).length===6);
+const FACE_MASK_SET=new Set(FACES.map(f=>cycleMask(f)));
 
-// The 9 minimal generating sets (5 C4 masks each)
-// Found by exhaustive search: only 4-cycle subsets of size 5 that preserve 20 components
-// (These are hardcoded here for performance)
-function buildCustomNbrs(selectedMasks){
-  const allowed=new Set(selectedMasks);
-  const nbrs={};
+function buildFlipNbrs(){
+  const nbrs={};TCOs.forEach(o=>{nbrs[o]=new Set();});
+  TCOs.forEach(o=>{for(const c of findCycles(o)){const m=cycleMask(c),nb=o^m;if(tcoSet.has(nb)&&nb!==o){nbrs[o].add(nb);nbrs[nb].add(o);}}});
+  return nbrs;
+}
+function buildCustomNbrs(sel){
+  const allowed=new Set(sel),nbrs={};
   for(const o of TCOs) nbrs[o]=new Set();
-  for(const o of TCOs){
-    for(const c of findCycles(o)){
-      const m=cycleMask(c);
-      if(allowed.has(m)){
-        const nb=o^m;
-        if(tcoSet.has(nb)&&nb!==o){nbrs[o].add(nb);nbrs[nb].add(o);}
-      }
-    }
-  }
+  for(const o of TCOs) for(const c of findCycles(o)){const m=cycleMask(c);if(allowed.has(m)){const nb=o^m;if(tcoSet.has(nb)&&nb!==o){nbrs[o].add(nb);nbrs[nb].add(o);}}}
   return nbrs;
 }
-function countComps(nbrs){
-  const vis=new Set(); let c=0;
-  for(const o of TCOs){
-    if(!vis.has(o)){c++;const q=[o];vis.add(o);while(q.length){const n=q.shift();for(const nb of nbrs[n])if(!vis.has(nb)){vis.add(nb);q.push(nb);}}}
-  }
-  return c;
+function bfsComp(nbrs,s){const vis=new Set([s]),q=[s];while(q.length){const n=q.shift();for(const nb of nbrs[n])if(!vis.has(nb)){vis.add(nb);q.push(nb);}}return vis;}
+function getComps(nbrs){
+  const visited=new Set(),comps=[],tc={};
+  for(const o of TCOs){if(visited.has(o))continue;const comp=[...bfsComp(nbrs,o)];comp.forEach(n=>{visited.add(n);tc[n]=comps.length;});comps.push(comp);}
+  comps.sort((a,b)=>b.length-a.length);comps.forEach((c,i)=>c.forEach(o=>tc[o]=i));
+  return{comps,tc};
 }
+function countComps(nbrs){const vis=new Set();let c=0;for(const o of TCOs){if(!vis.has(o)){c++;const q=[o];vis.add(o);while(q.length){const n=q.shift();for(const nb of nbrs[n])if(!vis.has(nb)){vis.add(nb);q.push(nb);}}}}return c;}
 
-// Custom selected masks set (starts with all)
-let customSelected=new Set([...allCycleMasks.keys()]);
+const allNbrs=buildFlipNbrs();
+const{comps:allComps,tc:allTC}=getComps(allNbrs);
 
-// Precompute out-degree signature for each TCO and class map
-function outKey(o) { return outDeg(o).join(','); }
-
-// Build both flip graphs
-function buildFlipNbrs(faceOnly) {
-  const nbrs={};
-  TCOs.forEach(o=>{nbrs[o]=new Set();});
-  TCOs.forEach(o=>{
-    const masks = faceOnly
-      ? FACES.filter(f=>isFaceDirected(f,o)).map(f=>cycleMask(f))
-      : findCycles(o).map(c=>cycleMask(c));
-    for(const m of masks){
-      const nb=o^m;
-      if(tcoSet.has(nb)&&nb!==o){nbrs[o].add(nb);nbrs[nb].add(o);}
-    }
-  });
-  return nbrs;
-}
-
-const allNbrs = buildFlipNbrs(false);
-const faceNbrs = buildFlipNbrs(true);
-
-// Connected components for a neighbor map
-function getComps(nbrs) {
-  const visited=new Set(), comps=[], tcoComp={};
-  for(const o of TCOs){
-    if(visited.has(o)) continue;
-    const comp=[...bfsComp(nbrs,o)];
-    comp.forEach(n=>{visited.add(n);tcoComp[n]=comps.length;});
-    comps.push(comp);
-  }
-  comps.sort((a,b)=>b.length-a.length);
-  comps.forEach((c,i)=>c.forEach(o=>tcoComp[o]=i));
-  return {comps, tcoComp};
-}
-
-const {comps:allComps, tcoComp:allTcoComp} = getComps(allNbrs);
-const {comps:faceComps, tcoComp:faceTcoComp} = getComps(faceNbrs);
-
-// Map each all-cycle class to its out-degree signature
-const classOuts = allComps.map(c => outDeg(c[0]));  // [comp_idx] -> out-degree array
-
-// Sort allComps by how many heavy (out=2) vertices are on left
-function nHeavyLeft(ci) { return classOuts[ci].slice(0,3).filter(x=>x===2).length; }
-
-// ── D3 setup ────────────────────────────────────────────────
-const svg = d3.select('#graph-svg');
-const defs = svg.append('defs');
-
-function mkArrow(id,col) {
-  defs.append('marker').attr('id',id)
-    .attr('viewBox','0 -5 10 10').attr('refX',10).attr('refY',0)
+// ── SVG setup ─────────────────────────────────────────────────
+const svg=d3.select('#graph-svg');
+const defs=svg.append('defs');
+function mkArrow(id,col){
+  defs.append('marker').attr('id',id).attr('viewBox','0 -5 10 10').attr('refX',10).attr('refY',0)
     .attr('markerWidth',7).attr('markerHeight',7).attr('orient','auto')
     .append('path').attr('d','M0,-5L10,0L0,5Z').attr('fill',col);
 }
 mkArrow('ar-def','#404850');
-mkArrow('ar-face','#58a6ff');
+mkArrow('ar-dim','#21262d');
 CYCLE_C.forEach((c,i)=>mkArrow(`ar-${i}`,c));
 
-// ── Torus background decoration ───────────────────────────
-const torusBg = svg.append('g').attr('id','torus-bg').attr('display','block');
-// Main rectangle
-torusBg.append('rect')
-  .attr('x',TORUS_RECT.x1).attr('y',TORUS_RECT.y1)
-  .attr('width',TORUS_RECT.x2-TORUS_RECT.x1).attr('height',TORUS_RECT.y2-TORUS_RECT.y1)
-  .attr('fill','none').attr('stroke','#30363d').attr('stroke-width',1);
-// Side-identification arrows: left & right sides (same color), top & bottom (same color)
-// Left side: down arrow
-torusBg.append('line').attr('x1',90).attr('y1',165).attr('x2',90).attr('y2',245)
-  .attr('stroke','#5c6bc0').attr('stroke-width',2);
-torusBg.append('polygon').attr('points','86,240 90,250 94,240').attr('fill','#5c6bc0');
-// Right side: down arrow (same direction → identifies left↔right)
-torusBg.append('line').attr('x1',570).attr('y1',165).attr('x2',570).attr('y2',245)
-  .attr('stroke','#5c6bc0').attr('stroke-width',2);
-torusBg.append('polygon').attr('points','566,240 570,250 574,240').attr('fill','#5c6bc0');
-// Top side: right arrow
-torusBg.append('line').attr('x1',295).attr('y1',70).attr('x2',365).attr('y2',70)
-  .attr('stroke','#4e5ba0').attr('stroke-width',2);
-torusBg.append('polygon').attr('points','360,66 370,70 360,74').attr('fill','#4e5ba0');
-// Bottom side: right arrow (same direction → identifies top↔bottom)
-torusBg.append('line').attr('x1',295).attr('y1',350).attr('x2',365).attr('y2',350)
-  .attr('stroke','#4e5ba0').attr('stroke-width',2);
-torusBg.append('polygon').attr('points','360,346 370,350 360,354').attr('fill','#4e5ba0');
-// Boundary crossing dots (where wrapping edges exit/enter)
-torusBg.append('circle').attr('cx',90).attr('cy',WRAP_Y).attr('r',4)
-  .attr('fill','#484f58').attr('stroke','#8b949e').attr('stroke-width',1);
-torusBg.append('circle').attr('cx',570).attr('cy',WRAP_Y).attr('r',4)
-  .attr('fill','#484f58').attr('stroke','#8b949e').attr('stroke-width',1);
-// Row/col labels for torus view
-const torLabels = torusBg.append('g').attr('id','tor-labels');
-torLabels.append('text').attr('x',170).attr('y',60).attr('text-anchor','middle')
-  .attr('fill','#3fb950').attr('font-size',10).attr('font-family','monospace').text('L₀');
-torLabels.append('text').attr('x',330).attr('y',60).attr('text-anchor','middle')
-  .attr('fill','#79c0ff').attr('font-size',10).attr('font-family','monospace').text('R₀');
-torLabels.append('text').attr('x',490).attr('y',60).attr('text-anchor','middle')
-  .attr('fill','#3fb950').attr('font-size',10).attr('font-family','monospace').text('L₁');
-torLabels.append('text').attr('x',58).attr('y',145).attr('text-anchor','middle')
-  .attr('fill','#3fb950').attr('font-size',10).attr('font-family','monospace').text('L₀');
-torLabels.append('text').attr('x',58).attr('y',285).attr('text-anchor','middle')
-  .attr('fill','#79c0ff').attr('font-size',10).attr('font-family','monospace').text('R₁');
-// "Pac-Man torus" label
-torusBg.append('text').attr('x',330).attr('y',390).attr('text-anchor','middle')
-  .attr('fill','#484f58').attr('font-size',10).text('K(3,3) on the torus — arrows show side identifications (Pac-Man rules)');
+svg.append('text').attr('x',100).attr('y',30).attr('text-anchor','middle').attr('fill','#3fb950').attr('font-size',10).text('Left');
+svg.append('text').attr('x',280).attr('y',30).attr('text-anchor','middle').attr('fill','#79c0ff').attr('font-size',10).text('Right');
 
-// ── Bipartite background labels ────────────────────────────
-const bipartiteBg = svg.append('g').attr('id','bipartite-bg').attr('display','none');
-bipartiteBg.append('text').attr('x',185).attr('y',22).attr('text-anchor','middle')
-  .attr('fill','#3fb950').attr('font-size',11).text('Left (L)');
-bipartiteBg.append('text').attr('x',475).attr('y',22).attr('text-anchor','middle')
-  .attr('fill','#79c0ff').attr('font-size',11).text('Right (R)');
-
-// ── Edge rendering ────────────────────────────────────────
-// 9 groups, each holding 1 path (bipartite) or 2 paths (torus wrap edges)
-const edgeG = svg.append('g');
-// Pre-allocate: 9 groups × 2 paths
-const edgeGroups = d3.range(9).map(k => {
-  const g = edgeG.append('g').attr('data-k',k);
-  g.append('path').attr('class','ep1').attr('fill','none').attr('stroke-width',2);
-  g.append('path').attr('class','ep2').attr('fill','none').attr('stroke-width',2); // used only for wrap
-  return g;
-});
-
-// ── Bipartite bezier helpers ──────────────────────────────
-function ctrlPt(k) {
-  const[u,v]=EDGES[k],{x:x1,y:y1}=NP_GRAPH[u],{x:x2,y:y2}=NP_GRAPH[v];
-  const off=(u-(v-3))*85,mx=(x1+x2)/2,my=(y1+y2)/2;
+function ctrlPt(k){
+  const[u,v]=EDGES[k],{x:x1,y:y1}=NP[u],{x:x2,y:y2}=NP[v];
+  const off=(u-(v-3))*70,mx=(x1+x2)/2,my=(y1+y2)/2;
   const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
   return{cx:mx+off*(-dy/len),cy:my+off*(dx/len)};
 }
-function epathGraph(k,o,shorten=20) {
+function epath(k,o,sh=18){
   const[u,v]=EDGES[k],rev=(o>>k)&1,{cx,cy}=ctrlPt(k);
   let x1,y1,x2,y2;
-  if(!rev){({x:x1,y:y1}=NP_GRAPH[u]);({x:x2,y:y2}=NP_GRAPH[v]);}
-  else{({x:x1,y:y1}=NP_GRAPH[v]);({x:x2,y:y2}=NP_GRAPH[u]);}
+  if(!rev){({x:x1,y:y1}=NP[u]);({x:x2,y:y2}=NP[v]);}else{({x:x1,y:y1}=NP[v]);({x:x2,y:y2}=NP[u]);}
   const tx=x2-cx,ty=y2-cy,tl=Math.sqrt(tx*tx+ty*ty);
-  const xe=x2-shorten*tx/tl,ye=y2-shorten*ty/tl;
+  const xe=x2-sh*tx/tl,ye=y2-sh*ty/tl;
   const sx=cx-x1,sy=cy-y1,sl=Math.sqrt(sx*sx+sy*sy);
-  const xs=sl>0?x1+6*sx/sl:x1,ys=sl>0?y1+6*sy/sl:y1;
-  return`M${xs},${ys}Q${cx},${cy},${xe},${ye}`;
-}
-// Shorten a segment endpoint by `d` pixels
-function shortenEnd(x1,y1,x2,y2,d) {
-  const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
-  if(len<1) return[x2,y2];
-  return[x2-d*dx/len, y2-d*dy/len];
-}
-function shortenStart(x1,y1,x2,y2,d) {
-  const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
-  if(len<1) return[x1,y1];
-  return[x1+d*dx/len, y1+d*dy/len];
+  return`M${sl>0?x1+5*sx/sl:x1},${sl>0?y1+5*sy/sl:y1}Q${cx},${cy},${xe},${ye}`;
 }
 
-// ── Node elements ────────────────────────────────────────
-const nodeG = svg.append('g');
+const edgeG=svg.append('g');
+const edgeSel=edgeG.selectAll('path').data(d3.range(9)).join('path').attr('fill','none').attr('stroke-width',2);
+const nodeG=svg.append('g');
 nodeG.selectAll('circle').data(d3.range(NV)).join('circle')
-  .attr('cx',d=>np(d).x).attr('cy',d=>np(d).y).attr('r',18)
-  .attr('fill','#161b22').attr('stroke',d=>d<3?'#3fb950':'#79c0ff').attr('stroke-width',2);
-nodeG.selectAll('.nlabel').data(d3.range(NV)).join('text').attr('class','nlabel')
-  .attr('x',d=>np(d).x).attr('y',d=>np(d).y+1)
-  .attr('text-anchor','middle').attr('dominant-baseline','middle')
-  .attr('font-size',10).attr('font-family','monospace')
-  .attr('fill',d=>d<3?'#3fb950':'#79c0ff').attr('pointer-events','none')
+  .attr('cx',d=>NP[d].x).attr('cy',d=>NP[d].y).attr('r',16)
+  .attr('fill','#0d1117').attr('stroke',d=>d<3?'#3fb950':'#79c0ff').attr('stroke-width',1.5);
+nodeG.selectAll('.nl').data(d3.range(NV)).join('text').attr('class','nl')
+  .attr('x',d=>NP[d].x).attr('y',d=>NP[d].y+1).attr('text-anchor','middle').attr('dominant-baseline','middle')
+  .attr('font-size',9).attr('font-family','monospace').attr('fill',d=>d<3?'#3fb950':'#79c0ff').attr('pointer-events','none')
   .text(d=>NODE_LABELS[d]);
-const odBadges = nodeG.selectAll('.odbadge').data(d3.range(NV)).join('text').attr('class','odbadge')
-  .attr('x',d=>np(d).x).attr('y',d=>np(d).y+30)
-  .attr('text-anchor','middle').attr('font-size',9).attr('font-family','monospace')
-  .attr('pointer-events','none');
+const odBadges=nodeG.selectAll('.odb').data(d3.range(NV)).join('text').attr('class','odb')
+  .attr('x',d=>NP[d].x).attr('y',d=>NP[d].y+28).attr('text-anchor','middle')
+  .attr('font-size',8).attr('font-family','monospace').attr('pointer-events','none');
 
-function updateNodePositions() {
-  nodeG.selectAll('circle').attr('cx',d=>np(d).x).attr('cy',d=>np(d).y);
-  nodeG.selectAll('.nlabel').attr('x',d=>np(d).x).attr('y',d=>np(d).y+1);
-  odBadges.attr('x',d=>np(d).x).attr('y',d=>np(d).y+30);
-}
+// ── generator state ───────────────────────────────────────────
+let customSel=new Set([...allCycleMasks.keys()]);
+let genNbrs=buildCustomNbrs([...customSel]);
+let curO=TCOs[0],compIdx=0;
 
-function setView(v) {
-  viewMode = v;
-  document.getElementById('btn-vgraph').classList.toggle('active', v==='graph');
-  document.getElementById('btn-vtorus').classList.toggle('active', v==='torus');
-  svg.select('#torus-bg').attr('display', v==='torus'?'block':'none');
-  svg.select('#bipartite-bg').attr('display', v==='graph'?'block':'none');
-  updateNodePositions();
-  render(curO, hlIdx);
-}
-
-// ── state ────────────────────────────────────────────────────
-let curO = TCOs[0], hlIdx = null, compNavIdx = 0, mode = 'all';
-
-let genCompsCache = null, genTcoCompCache = null;
-function curNbrs() { return mode==='all' ? allNbrs : mode==='face' ? faceNbrs : genNbrs; }
-function curComps() {
-  if(mode==='gen'){
-    if(!genCompsCache) { const r=getComps(genNbrs); genCompsCache=r.comps; genTcoCompCache=r.tcoComp; }
-    return genCompsCache;
+// edge → is it in any selected cycle?
+function edgeInSel(k){
+  for(const[m,c]of allCycleMasks){
+    if(!customSel.has(m))continue;
+    if(c.some((_,i)=>{const u=c[i],v=c[(i+1)%c.length];return EIDX[`${u},${v}`]===k;}))return true;
   }
-  return mode==='all' ? allComps : faceComps;
+  return false;
 }
-function curTcoComp() {
-  if(mode==='gen'){
-    if(!genTcoCompCache) { const r=getComps(genNbrs); genCompsCache=r.comps; genTcoCompCache=r.tcoComp; }
-    return genTcoCompCache;
+
+function render(o,hlMask){
+  // Edges
+  const edgeCol=new Array(9).fill(null),markerIds=new Array(9).fill(null);
+  if(hlMask){
+    for(let k=0;k<9;k++) if((hlMask>>k)&1){edgeCol[k]='#ffa657';markerIds[k]='ar-4';}
   }
-  return mode==='all' ? allTcoComp : faceTcoComp;
-}
+  edgeSel
+    .attr('d',k=>epath(k,o))
+    .attr('stroke',k=>{if(edgeCol[k])return edgeCol[k];return edgeInSel(k)?'#384048':'#1c2128';})
+    .attr('stroke-width',k=>edgeCol[k]?2.8:1.8)
+    .attr('marker-end',k=>`url(#${markerIds[k]||(edgeInSel(k)?'ar-def':'ar-dim')})`);
 
-function curCycles(o) {
-  if(mode==='gen'){
-    return findCycles(o).filter(c=>customSelected.has(cycleMask(c)));
-  }
-  return mode==='all' ? findCycles(o) : FACES.filter(f=>isFaceDirected(f,o));
-}
-
-// ── class map ────────────────────────────────────────────────
-function buildClassMap() {
-  const map = document.getElementById('class-map');
-  map.innerHTML = '';
-  // Sort allComps by nHeavyLeft descending, then by specific assignment for stability
-  const sorted = allComps.map((_,i)=>i).sort((a,b)=>{
-    const d=nHeavyLeft(b)-nHeavyLeft(a);
-    return d!==0?d:a-b;
-  });
-  sorted.forEach(ci=>{
-    const nhl=nHeavyLeft(ci);
-    // Color gradient: green (3L) → indigo (2L1R) → purple (1L2R) → blue (0L3R)
-    const colors=['#1565c0','#5c6bc0','#4e5ba0','#388e3c'];
-    const baseColor=colors[3-nhl];
-    const box=document.createElement('div');
-    box.className='class-box';
-    box.style.background=baseColor;
-    box.title=`Class #${ci} (size ${allComps[ci].length})\nOut=2: ${classOuts[ci].map((v,i)=>v===2?NODE_LABELS[i]:'').filter(Boolean).join(', ')}`;
-    box.dataset.ci=ci;
-    box.textContent=allComps[ci].length;
-    box.onclick=()=>navigate(allComps[ci][0]);
-    map.appendChild(box);
-  });
-}
-buildClassMap();
-
-function updateClassMap() {
-  const ci = allTcoComp[curO];
-  document.querySelectorAll('.class-box').forEach(b=>{
-    b.classList.toggle('current', +b.dataset.ci===ci);
-  });
-}
-
-// ── render ───────────────────────────────────────────────────
-function render(o, hl) {
-  curO = o;
-  const cycs = curCycles(o);
-  const nbrs = curNbrs();
-  const comps = curComps();
-  const tcoComp = curTcoComp();
-
-  // Edge colors
-  const edgeCol = new Array(9).fill(null);
-  const markerIds = new Array(9).fill('ar-def');
-  if(hl!==null && hl<cycs.length) {
-    const cyc=cycs[hl], n=cyc.length;
-    for(let i=0;i<n;i++) {
-      const u=cyc[i],v=cyc[(i+1)%n];
-      edgeCol[EIDX[`${u},${v}`]]=CYCLE_C[hl%CYCLE_C.length];
-      markerIds[EIDX[`${u},${v}`]]=`ar-${hl%CYCLE_C.length}`;
-    }
-  }
-  // Render each edge group
-  edgeGroups.forEach((g, k) => {
-    const col = edgeCol[k]||'#384048';
-    const sw = edgeCol[k]?2.8:1.8;
-    const mid = markerIds[k];
-    const bit = (o>>k)&1;
-    const ep1 = g.select('.ep1'), ep2 = g.select('.ep2');
-    if(viewMode==='torus' && (k===2||k===4)) {
-      // Wrap edge: two segments
-      const [[ax,ay,bx,by],[cx,cy,dx,dy]] = wrapSegs(k, bit);
-      // Segment 1: from src to boundary (no arrowhead)
-      const [ssx,ssy] = shortenStart(ax,ay,bx,by,6);
-      ep1.attr('d',`M${ssx},${ssy}L${bx},${by}`)
-        .attr('stroke',col).attr('stroke-width',sw).attr('marker-end','none')
-        .attr('stroke-dasharray','none').attr('display','block');
-      // Segment 2: from boundary to dst (with arrowhead, shortened at dst end)
-      const [sex,sey] = shortenEnd(cx,cy,dx,dy,18);
-      ep2.attr('d',`M${cx},${cy}L${sex},${sey}`)
-        .attr('stroke',col).attr('stroke-width',sw).attr('marker-end',`url(#${mid})`)
-        .attr('display','block');
-    } else {
-      // Regular edge: one bezier (bipartite) or straight line (torus)
-      if(viewMode==='torus') {
-        const[u,v]=EDGES[k];
-        const src=bit?v:u, dst=bit?u:v;
-        const {x:x1,y:y1}=np(src), {x:x2,y:y2}=np(dst);
-        const [sx,sy]=shortenStart(x1,y1,x2,y2,6);
-        const [ex,ey]=shortenEnd(x1,y1,x2,y2,18);
-        ep1.attr('d',`M${sx},${sy}L${ex},${ey}`)
-          .attr('stroke',col).attr('stroke-width',sw).attr('marker-end',`url(#${mid})`)
-          .attr('display','block');
-      } else {
-        ep1.attr('d',epathGraph(k,o)).attr('stroke',col)
-          .attr('stroke-width',sw).attr('marker-end',`url(#${mid})`).attr('display','block');
-      }
-      ep2.attr('display','none');
-    }
-  });
-
-  // Out-degree badges
-  const od = outDeg(o);
-  odBadges.attr('fill',d=>od[d]===2?'#ffa657':'#555e6b')
-    .text(d=>`→${od[d]}`);
-
-  // Node stroke width based on out-degree
+  // Out-degree
+  const od=outDeg(o);
+  odBadges.attr('fill',d=>od[d]===2?'#ffa657':'#555e6b').text(d=>`→${od[d]}`);
   nodeG.selectAll('circle')
-    .attr('stroke-width', d => od[d]===2 ? 2.8 : 1.5)
-    .attr('stroke', d => {
-      const base = d<3?'#3fb950':'#79c0ff';
-      return od[d]===2 ? base : d<3?'#1f6b30':'#1f4f7a';
-    });
+    .attr('stroke-width',d=>od[d]===2?2.5:1.5)
+    .attr('stroke',d=>{const b=d<3?'#3fb950':'#79c0ff';return od[d]===2?b:d<3?'#1f6b30':'#1f4f7a';});
 
-  // Side panel: out-degrees
-  const dg = document.getElementById('deg-grid');
-  dg.innerHTML = '';
-  for(let i=0;i<NV;i++) {
-    const el=document.createElement('div');
-    el.className='deg-cell';
+  // Out-degree chips row
+  const row=document.getElementById('od-row');
+  row.innerHTML='';
+  for(let i=0;i<NV;i++){
+    const div=document.createElement('div');div.className='od-chip';
     const col=i<3?'#3fb950':'#79c0ff';
-    el.innerHTML=`<div class="deg-dot" style="background:${col}"></div>
-      <span class="deg-label">${NODE_LABELS[i]}</span>
-      <span class="deg-val ${od[i]===2?'high':'low'}">→${od[i]}</span>`;
-    dg.appendChild(el);
+    div.innerHTML=`<div class="od-dot" style="background:${col}"></div><span style="color:#8b949e">${NODE_LABELS[i]}</span><span class="od-val ${od[i]===2?'heavy':'light'}">→${od[i]}</span>`;
+    row.appendChild(div);
   }
 
-  // Side panel: class info
-  const ci=tcoComp[o], comp=comps[ci];
-  document.getElementById('s-comp').textContent=`#${ci}`;
-  document.getElementById('s-csize').textContent=comp.length;
-  document.getElementById('s-ncycles').textContent=cycs.length;
-
-  // Comp nodes — labeled "State N", tooltip shows connecting cycle
-  const cn=document.getElementById('comp-nodes');
-  cn.innerHTML='';
-  comp.forEach((n,idx)=>{
-    const b=document.createElement('span');
-    b.className='cn'+(n===o?' cur':'');
-    b.textContent=`S${idx+1}`;
-    if(n===o){
-      b.title=`State ${idx+1} of ${comp.length} — current`;
-    } else {
-      const diffMask=o^n;
-      const connecting=findCycles(o).find(c=>cycleMask(c)===diffMask);
-      if(connecting){
-        const arrow=connecting.map(v=>NODE_LABELS[v]).join('→')+'→'+NODE_LABELS[connecting[0]];
-        b.title=`State ${idx+1} of ${comp.length}\nReach by reversing: ${arrow}`;
-      } else {
-        b.title=`State ${idx+1} of ${comp.length}`;
-      }
-    }
-    b.onclick=()=>navigate(n);
-    cn.appendChild(b);
-  });
-
-  // Class map highlight
-  updateClassMap();
-
-  // Cycles list
-  const cl=document.getElementById('cycles-list');
-  cl.innerHTML='';
-
-  if(mode==='face') {
-    const avail=FACES.filter(f=>isFaceDirected(f,o));
-    const missing=3-avail.length;
-    if(missing>0) {
-      const alert=document.createElement('div');
-      alert.className='face-alert';
-      alert.textContent=`${missing} of 3 torus face${missing>1?'s are':' is'} not directed — no move available on ${missing>1?'them':'it'}.`;
-      cl.appendChild(alert);
-    }
-    if(!avail.length) {
-      const p=document.createElement('p');
-      p.className='empty';p.textContent='No face cycles available. This TCO is stuck in face-only mode.';
-      cl.appendChild(p);return;
-    }
-  } else if(!cycs.length) {
-    cl.innerHTML='<p class="empty">No directed cycles.</p>';return;
-  }
-
-  cycs.forEach((c,i)=>{
-    const col=CYCLE_C[i%CYCLE_C.length];
-    const label=c.map(v=>NODE_LABELS[v]).join('→')+'→'+NODE_LABELS[c[0]];
-    const nb=o^cycleMask(c);
-    const isValid=tcoSet.has(nb);
-    const div=document.createElement('div');
-    div.className='cyc-item'+(i===hl?' hl':'');
-    div.style.borderColor=i===hl?col:'';
-    div.innerHTML=`<div class="cdot" style="background:${col}"></div>
-      <div class="clabel">${label}<br>
-        <span class="cmeta">len ${c.length}${!isValid?' · reversal exits TCO set':''}</span></div>
-      <button class="cbtn" ${!isValid||!tcoSet.has(nb)?'disabled':''} onclick="event.stopPropagation();navigate(${nb})">↺</button>`;
-    div.onclick=()=>{ hlIdx=(hlIdx===i?null:i); render(o,hlIdx); };
-    cl.appendChild(div);
-  });
-
-  // Insight bar
-  updateInsight(o, cycs, comp, ci);
+  // Class info
+  const ci=allTC[o],comp=allComps[ci];
+  const nhl=od.slice(0,3).filter(x=>x===2).length;
+  document.getElementById('class-info').innerHTML=
+    `<strong>Class ${ci+1}/20</strong> · size ${comp.length} · `+
+    `heavy: ${od.map((v,i)=>v===2?NODE_LABELS[i]:'').filter(Boolean).join(', ')}`;
 }
 
-function updateInsight(o, cycs, comp, ci) {
-  const od = outDeg(o);
-  const nhl = od.slice(0,3).filter(x=>x===2).length;
-  const nhr = od.slice(3).filter(x=>x===2).length;
-  const heavy = d3.range(NV).filter(i=>od[i]===2).map(i=>NODE_LABELS[i]).join(', ');
-
-  let modeNote = '';
-  if(mode==='face') {
-    const nAvail = FACES.filter(f=>isFaceDirected(f,o)).length;
-    modeNote = ` In face-only mode, <strong>${nAvail}/3</strong> torus faces are directed (reversible) here.
-      <strong>${faceComps.length} classes</strong> total — 60 of 102 TCOs are completely stuck with no face moves.`;
-  } else if(mode==='gen') {
-    const nc=countComps(genNbrs);
-    const n=customSelected.size;
-    modeNote = ` Generator explorer: <strong>${n}</strong> cycle${n===1?'':'s'} selected → <strong>${nc}</strong> components.
-      Target: <strong>20</strong> (= full flip graph classes). Cycle rank = <strong>4</strong> but minimum generating set needs <strong>5</strong> cycles.`;
-  } else {
-    modeNote = ` All ${cycs.length} directed cycles are reversible. Every reversal lands in another TCO.
-      <strong>20 classes</strong> in total — one per out-degree assignment.`;
-  }
-
-  document.getElementById('insight-bar').innerHTML =
-    `<strong>Out=2 vertices:</strong> ${heavy} &nbsp;·&nbsp;
-     <strong>Split:</strong> ${nhl}L + ${nhr}R
-     ${(nhl===3||nhr===3)?'<span style="color:#ffa657">(all one side → size-6 class)</span>':'<span style="color:#8b949e">(mixed → size-5 class)</span>'}
-     &nbsp;·&nbsp; <strong>Class size:</strong> ${comp.length} TCOs
-     <br>${modeNote}`;
+function updateMeter(){
+  const nc=countComps(genNbrs);
+  const n=customSel.size;
+  const el=document.getElementById('meter-num');
+  el.textContent=nc;
+  el.style.color=nc===20?'#7ee787':nc<60?'#ffa657':'#ff7b72';
+  document.getElementById('meter-badge').textContent=nc===20?`Generating set (${n} cycles)`:`${nc} of 20 — not enough`;
+  document.getElementById('meter-badge').className='meter-badge '+(nc===20?'ok':'warn');
+  if(nc===20&&n<=5) document.getElementById('meter-badge').textContent=`Minimal! (${n} cycles)`;
+  document.getElementById('meter-sub').textContent=
+    nc===20?`All 20 equivalence classes are reachable with these ${n} cycle${n===1?'':'s'}.`
+           :`With these ${n} cycle${n===1?'':'s'}, the TCOs split into ${nc} groups — some classes are fragmented.`;
+  document.getElementById('stat-note').textContent=
+    nc===20?`${n} cycles → generates all`:`${n} selected → ${nc} groups (target: 20)`;
 }
 
-// ── generator explorer ───────────────────────────────────────
-function buildGenGrid() {
-  // C4 grid (3x3 with row labels)
-  const wrap=document.getElementById('c4-grid-wrap');
+// ── build C4 grid ─────────────────────────────────────────────
+function buildGrid(){
+  const tbl=document.getElementById('c4-table');
   const rowLabels=['L₀L₁','L₀L₂','L₁L₂'];
-  for(let r=0;r<3;r++){
-    const lbl=document.createElement('div');
-    lbl.className='gen-axis';lbl.style.textAlign='right';lbl.style.paddingRight='4px';
-    lbl.textContent=rowLabels[r];
-    wrap.appendChild(lbl);
-    for(let c=0;c<3;c++){
+  LEFT_PAIRS.forEach((lp,r)=>{
+    const ax=document.createElement('div');ax.className='c4-row-ax';ax.textContent=rowLabels[r];tbl.appendChild(ax);
+    RIGHT_PAIRS.forEach((rp,c)=>{
       const m=C4_GRID[r][c];
       const cyc=allCycleMasks.get(m);
       const cell=document.createElement('div');
-      cell.className='gen-cell on';
-      cell.id=`c4-${r}-${c}`;
-      cell.dataset.mask=m;
-      const lp=LEFT_PAIRS[r].map(v=>NODE_LABELS[v]).join('');
-      const rp=RIGHT_PAIRS[c].map(v=>NODE_LABELS[v]).join('');
-      cell.title=cycleLabel(cyc);
-      cell.innerHTML=`<div style="font-size:8px;color:#484f58">${lp}×${rp}</div>C₄`;
-      cell.onclick=()=>toggleGenMask(m,cell);
-      wrap.appendChild(cell);
-    }
-  }
-  // Hex grid
-  const hexGrid=document.getElementById('hex-grid');
+      cell.className='cyc-cell on';cell.dataset.mask=m;
+      const lLabel=lp.map(v=>['0','1','2'][v]).join('');
+      const rLabel=rp.map(v=>['0','1','2'][v-3]).join('');
+      cell.innerHTML=`L${lLabel}<br>R${rLabel}`;
+      cell.title='C₄: '+cycLabel(cyc);
+      cell.onclick=()=>{
+        customSel.has(m)?customSel.delete(m):customSel.add(m);
+        cell.classList.toggle('on',customSel.has(m));
+        onSelChange();
+      };
+      cell.onmouseenter=()=>render(curO,m);
+      cell.onmouseleave=()=>render(curO,null);
+      tbl.appendChild(cell);
+    });
+  });
+
+  const hexRow=document.getElementById('hex-row');
   HEX_MASKS.forEach((m,i)=>{
     const cyc=allCycleMasks.get(m);
+    const isFace=FACE_MASK_SET.has(m);
     const cell=document.createElement('div');
-    cell.className='gen-cell on hex';
-    cell.id=`hex-${i}`;
-    cell.dataset.mask=m;
-    const isFace=FACES.some(f=>cycleMask(f)===m);
-    cell.title=(isFace?'[Torus face] ':'')+cycleLabel(cyc);
-    cell.innerHTML=`${isFace?'⬡ ':''}C₆`;
-    cell.onclick=()=>toggleGenMask(m,cell);
-    hexGrid.appendChild(cell);
+    cell.className='cyc-cell on hex';cell.dataset.mask=m;
+    cell.innerHTML=isFace?'⬡<br>torus':'C₆';
+    cell.title=(isFace?'[Torus face] ':'')+cycLabel(cyc);
+    cell.onclick=()=>{
+      customSel.has(m)?customSel.delete(m):customSel.add(m);
+      cell.classList.toggle('on',customSel.has(m));
+      onSelChange();
+    };
+    cell.onmouseenter=()=>render(curO,m);
+    cell.onmouseleave=()=>render(curO,null);
+    hexRow.appendChild(cell);
   });
 }
+function cycLabel(c){return c.map(v=>NODE_LABELS[v]).join('→')+'→'+NODE_LABELS[c[0]];}
 
-function cycleLabel(c){
-  return c.map(v=>NODE_LABELS[v]).join('→')+'→'+NODE_LABELS[c[0]];
+function onSelChange(){
+  genNbrs=buildCustomNbrs([...customSel]);
+  updateMeter();
+  render(curO,null);
 }
 
-function toggleGenMask(m,cell){
-  if(customSelected.has(m)) customSelected.delete(m);
-  else customSelected.add(m);
-  cell.classList.toggle('on',customSelected.has(m));
-  updateGenMeter();
+function genAll(){customSel=new Set([...allCycleMasks.keys()]);document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.add('on'));onSelChange();}
+function genNone(){customSel=new Set();document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.remove('on'));onSelChange();}
+function genMinimal(){
+  // Minimal set #1: 2×2 top-left block + bottom-right corner
+  const ms=[C4_GRID[0][0],C4_GRID[0][1],C4_GRID[1][0],C4_GRID[1][1],C4_GRID[2][2]];
+  customSel=new Set(ms);
+  document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.toggle('on',customSel.has(+c.dataset.mask)));
+  onSelChange();
 }
 
-function updateGenMeter(){
-  genNbrs=buildCustomNbrs([...customSelected]);
-  genCompsCache=null; genTcoCompCache=null;
-  const nc=countComps(genNbrs);
-  const num=document.getElementById('gen-comps-num');
-  const lbl=document.getElementById('gen-comps-label');
-  const bc=document.getElementById('gen-badge-container');
-  num.textContent=nc;
-  num.style.color=nc===20?'#7ee787':nc<40?'#ffa657':'#ff7b72';
-  lbl.textContent=nc===1?'component':'components';
-  const n=customSelected.size;
-  let badge='';
-  if(nc===20&&n<=5) badge=`<span class="gen-badge success">Minimal generating set! (${n} cycles)</span>`;
-  else if(nc===20) badge=`<span class="gen-badge success">Generating set (${n} cycles)</span>`;
-  else if(nc<40) badge=`<span class="gen-badge warn">${nc} components — not enough yet</span>`;
-  else badge=`<span class="gen-badge error">${nc} components — many classes split</span>`;
-  bc.innerHTML=badge;
-  document.getElementById('hdr-comps').textContent=nc;
-  navigate(curO);
-}
+// ── navigation ────────────────────────────────────────────────
+function navigate(o){curO=o;compIdx=allComps[allTC[o]].indexOf(o);render(o,null);}
+function randomTCO(){navigate(TCOs[Math.floor(Math.random()*TCOs.length)]);}
+function nextInComp(){const comp=allComps[allTC[curO]];compIdx=(compIdx+1)%comp.length;navigate(comp[compIdx]);}
 
-let genNbrs={};
-
-function genSelectAll(){
-  customSelected=new Set([...allCycleMasks.keys()]);
-  document.querySelectorAll('.gen-cell').forEach(c=>c.classList.add('on'));
-  updateGenMeter();
-}
-function genClearAll(){
-  customSelected=new Set();
-  document.querySelectorAll('.gen-cell').forEach(c=>c.classList.remove('on'));
-  updateGenMeter();
-}
-function genShowMinimal(){
-  // One of the 9 minimal generating sets: the first one we know works
-  // Set 1 from our analysis: top-left 2×2 block + bottom-right corner
-  const minSet=[
-    C4_GRID[0][0],C4_GRID[0][1],  // L01×R01, L01×R02
-    C4_GRID[1][0],C4_GRID[1][1],  // L02×R01, L02×R02
-    C4_GRID[2][2]                  // L12×R12
-  ];
-  customSelected=new Set(minSet);
-  document.querySelectorAll('.gen-cell').forEach(c=>{
-    const m=+c.dataset.mask;
-    c.classList.toggle('on', customSelected.has(m));
-  });
-  updateGenMeter();
-}
-
-function updateGenUI(){
-  updateGenMeter();
-}
-
-function navigate(o) {
-  hlIdx=null;
-  compNavIdx=curComps()[curTcoComp()[o]].indexOf(o);
-  render(o,null);
-}
-function randomTCO() { navigate(TCOs[Math.floor(Math.random()*TCOs.length)]); }
-function nextInComp() {
-  const comp=curComps()[curTcoComp()[curO]];
-  compNavIdx=(compNavIdx+1)%comp.length;
-  navigate(comp[compNavIdx]);
-}
-function setMode(m) {
-  mode=m;
-  ['all','face','gen'].forEach(id=>{
-    document.getElementById('btn-'+id).classList.toggle('active',m===id);
-  });
-  const info=m==='face' ? '80 classes (60 stuck)'
-    : m==='gen' ? 'generator explorer'
-    : '20 classes · out-deg invariant';
-  document.getElementById('hdr-info').textContent=info;
-  document.getElementById('cyc-header').textContent =
-    m==='face' ? 'Torus Face Cycles (directed)' : 'Directed Cycles';
-  document.getElementById('gen-panel').style.display=m==='gen'?'block':'none';
-  document.getElementById('cycles-sec').style.display=m==='gen'?'none':'block';
-  if(m==='gen') updateGenUI();
-  navigate(curO);
-}
-
-// Header stats
-document.getElementById('hdr-tcos').textContent=TCOs.length;
-document.getElementById('hdr-comps').textContent=allComps.length;
-document.getElementById('hdr-info').textContent='20 classes · out-deg invariant';
-
-// Build generator grid UI
-buildGenGrid();
-genNbrs=buildCustomNbrs([...customSelected]);
-
-// Start in torus view (default)
-setView('torus');
+// ── init ──────────────────────────────────────────────────────
+document.getElementById('stat-tcos').textContent=`${TCOs.length} TCOs`;
+document.getElementById('stat-classes').textContent=`${allComps.length} equivalence classes`;
+buildGrid();
+updateMeter();
 navigate(TCOs[0]);
 </script>
 </body>
