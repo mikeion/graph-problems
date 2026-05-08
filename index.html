@@ -122,10 +122,21 @@ h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
       </div>
 
       <div class="finding">
-        <strong>Cycle rank = 4.</strong> &nbsp;For planar graphs: 4 specific circuits always suffice.<br>
+        <strong>Cycle rank = 4.</strong> For planar graphs, 4 specific circuits always suffice.<br>
         <span class="key">For K(3,3): the minimum is 5 — one more than the cycle rank.</span><br>
-        All 9 minimal generating sets use <strong>only C₄ cycles</strong> — the hexagonal torus faces never appear.<br>
-        <strong>There are exactly 9 minimal sets</strong>, one per column of the C₄ grid above.
+        All 9 minimal sets use <strong>only C₄ cycles</strong>. The hexagonal torus faces never appear.<br>
+        <br>
+        <strong>How we know — proof by exhaustive search:</strong><br>
+        K(3,3) has exactly <strong>15 distinct cycle masks</strong> (9 four-cycles + 6 six-cycles).<br>
+        We checked every subset of those 15:<br>
+        <span style="font-family:monospace;font-size:10px;color:#555e6b;">
+        &nbsp; size 1: &nbsp;&nbsp;15 subsets checked → 0 generating sets<br>
+        &nbsp; size 2: &nbsp;105 subsets checked → 0 generating sets<br>
+        &nbsp; size 3: &nbsp;455 subsets checked → 0 generating sets<br>
+        &nbsp; size 4: 1365 subsets checked → 0 generating sets &nbsp;← 4 never suffices<br>
+        &nbsp; size 5: 3003 subsets checked → <strong style="color:#7ee787">9 generating sets</strong> &nbsp;← minimum is 5<br>
+        </span>
+        Verified in <a href="https://github.com/mikeion/graph-problems/blob/main/k33_flip_graph.py" target="_blank" style="color:#58a6ff">k33_flip_graph.py</a> — run it locally to reproduce.
       </div>
 
     </div>

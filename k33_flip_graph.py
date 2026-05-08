@@ -219,6 +219,84 @@ def analyze_graph(flip_graph, label):
     return comps
 
 
+from itertools import combinations as _combinations
+
+
+def collect_all_cycle_masks(tcos):
+    """Return dict {mask: cycle_vertices} for all distinct directed cycles across all TCOs."""
+    all_masks = {}
+    for o in tcos:
+        for c in find_all_simple_cycles(o):
+            m = cycle_to_edge_mask(c)
+            if m not in all_masks:
+                all_masks[m] = c
+    return all_masks
+
+
+def find_minimum_generators(tcos, tco_set, target_comps=20):
+    """
+    Exhaustive search: find the minimum number of cycle masks whose flip graph
+    has exactly target_comps connected components.
+
+    Returns (min_size, list_of_minimal_sets).
+    """
+    all_masks_dict = collect_all_cycle_masks(tcos)
+    all_masks = list(all_masks_dict.keys())
+
+    # Precompute: for each TCO, which masks are available (directed cycle exists)
+    avail = {o: set() for o in tcos}
+    for o in tcos:
+        for c in find_all_simple_cycles(o):
+            avail[o].add(cycle_to_edge_mask(c))
+
+    def count_comps_subset(subset_set):
+        adj = {o: set() for o in tcos}
+        for o in tcos:
+            for m in avail[o]:
+                if m in subset_set:
+                    nb = o ^ m
+                    if nb in tco_set and nb != o:
+                        adj[o].add(nb)
+                        adj[nb].add(o)
+        visited = set()
+        count = 0
+        for o in tcos:
+            if o not in visited:
+                count += 1
+                stack = [o]
+                visited.add(o)
+                while stack:
+                    cur = stack.pop()
+                    for nb in adj[cur]:
+                        if nb not in visited:
+                            visited.add(nb)
+                            stack.append(nb)
+        return count
+
+    print(f"\n=== Minimum Generator Search ===")
+    print(f"Distinct cycle masks: {len(all_masks)} ({sum(1 for c in all_masks_dict.values() if len(c)==4)} C4, "
+          f"{sum(1 for c in all_masks_dict.values() if len(c)==6)} C6)")
+
+    for size in range(1, len(all_masks) + 1):
+        n_subsets = 0
+        good = []
+        for subset in _combinations(all_masks, size):
+            n_subsets += 1
+            if count_comps_subset(set(subset)) == target_comps:
+                good.append(subset)
+        c4_only = [s for s in good
+                   if all(len(all_masks_dict[m]) == 4 for m in s)]
+        print(f"  Size {size}: checked {n_subsets:5d} subsets → "
+              f"{len(good)} generating sets ({len(c4_only)} C4-only)")
+        if good:
+            print(f"  ✓ Minimum generating set size = {size}")
+            return size, good, all_masks_dict
+        if size == 5:
+            break  # stop after confirming minimum
+
+    return None, [], all_masks_dict
+
+
 if __name__ == "__main__":
     print("Computing all totally cyclic orientations of K(3,3)...")
     tcos = [o for o in range(1 << N_EDGES) if is_totally_cyclic(o)]
@@ -241,13 +319,37 @@ if __name__ == "__main__":
     isolated = [o for o in tcos if not face_fg[o]]
     print(f"  Isolated nodes (no face cycle available): {len(isolated)}")
 
-    # Show sample TCO with its out-degree sequence
-    print("\n=== Sample TCO ===")
-    sample = tcos[0]
-    seq = out_degree_seq(sample)
-    print(f"Orientation: {sample} (bits: {sample:09b})")
-    print(f"Out-degrees: L0={seq[0]}, L1={seq[1]}, L2={seq[2]}, R0={seq[3]}, R1={seq[4]}, R2={seq[5]}")
-    cycs = find_all_simple_cycles(sample)
-    print(f"Directed cycles: {len(cycs)}")
-    for c in sorted(cycs, key=len):
-        print(f"  {'→'.join(str(v) for v in c)}→{c[0]}  (mask={cycle_to_edge_mask(c)})")
+    # Exhaustive generator search
+    min_size, min_sets, mask_dict = find_minimum_generators(tcos, tco_set)
+
+    if min_sets:
+        LEFT_PAIRS = [(0,1),(0,2),(1,2)]
+        RIGHT_PAIRS = [(3,4),(3,5),(4,5)]
+
+        # Build the C4 grid for labeling
+        grid = {}
+        for lp in LEFT_PAIRS:
+            for rp in RIGHT_PAIRS:
+                for m, c in mask_dict.items():
+                    if len(c) == 4 and set(lp) <= set(c) and set(rp) <= set(c):
+                        grid[(lp,rp)] = m
+
+        def cell_label(m):
+            c = mask_dict[m]
+            if len(c) != 4:
+                return "C6"
+            left = sorted(v for v in c if v < 3)
+            right = sorted(v - 3 for v in c if v >= 3)
+            return f"L{''.join(map(str,left))}_R{''.join(map(str,right))}"
+
+        print(f"\n  The {len(min_sets)} minimal generating sets (C4 grid: rows=left pairs, cols=right pairs):")
+        print("         R01  R02  R12")
+        for i, s in enumerate(min_sets):
+            s_set = set(s)
+            row = f"  Set {i+1:2d}: "
+            for lp in LEFT_PAIRS:
+                for rp in RIGHT_PAIRS:
+                    row += "X " if grid[(lp,rp)] in s_set else ". "
+                row += "| "
+            print(row)
+        print("  (X = included, . = excluded;  grid columns are R-pairs, rows are L-pairs)")
