@@ -19,9 +19,11 @@ The **move**: pick any directed cycle and reverse all of its arrows. This produc
 
 ## The Question
 
-For planar graphs, the minimum number of specific circuits that generate all reachable moves equals the **cycle rank** (E − V + 1). For K(3,3) that would be 9 − 6 + 1 = **4**.
+For any connected graph, the **cycle rank** E − V + 1 measures the dimension of the cycle space. For K(3,3): 9 − 6 + 1 = **4**.
 
-Does K(3,3) also need just 4? Or more?
+For planar graphs, a cycle basis of E−V+1 circuits always suffices to generate all reachable moves — any circuit is a XOR-combination of basis circuits, so any flip decomposes into basis flips. Fewer than E−V+1 circuits leave some directions unreachable. So for planar graphs, the minimum generating set size equals the cycle rank.
+
+Does the same bound hold for K(3,3)?
 
 ---
 
