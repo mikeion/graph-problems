@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>K(3,3) — Proof Output</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0d1117;color:#c9d1d9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6;padding:32px 24px;max-width:760px;margin:0 auto;}
+h1{font-size:16px;font-weight:600;color:#7ee787;margin-bottom:4px;}
+.subtitle{font-size:12px;color:#8b949e;margin-bottom:32px;}
+.subtitle a{color:#58a6ff;text-decoration:none;}
+.subtitle a:hover{text-decoration:underline;}
+
+.step{margin-bottom:32px;}
+.step-label{font-size:10px;font-weight:600;color:#6e7681;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
+.step h2{font-size:13px;font-weight:600;color:#c9d1d9;margin-bottom:6px;}
+.step p{font-size:12px;color:#8b949e;margin-bottom:10px;line-height:1.7;}
+.step p strong{color:#c9d1d9;}
+.step p em{color:#ffa657;font-style:normal;}
+
+pre{background:#161b22;border:1px solid #21262d;border-radius:6px;padding:14px 16px;font-size:11px;font-family:'SF Mono',Consolas,'Liberation Mono',monospace;color:#8b949e;overflow-x:auto;line-height:1.7;margin-bottom:10px;}
+pre .hl{color:#7ee787;}
+pre .warn{color:#ffa657;}
+pre .dim{color:#484f58;}
+pre .key{color:#ffa657;font-weight:600;}
+
+.note{background:#161b22;border-left:3px solid #30363d;border-radius:0 4px 4px 0;padding:10px 14px;font-size:11px;color:#8b949e;margin-bottom:10px;line-height:1.7;}
+.note strong{color:#c9d1d9;}
+.note.green{border-left-color:#2ea043;}
+.note.orange{border-left-color:#9a6700;}
+
+hr{border:none;border-top:1px solid #21262d;margin:32px 0;}
+.back{font-size:11px;color:#58a6ff;text-decoration:none;}
+.back:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<h1>K(3,3) Circuit Generators — Full Proof Output</h1>
+<div class="subtitle">
+  Output of <code>python k33_flip_graph.py</code> — annotated. &nbsp;
+  <a href="https://github.com/mikeion/graph-problems/blob/main/k33_flip_graph.py">View source</a> &nbsp;·&nbsp;
+  <a href="index.html">← Back to app</a>
+</div>
+
+<!-- Step 1 -->
+<div class="step">
+  <div class="step-label">Step 1</div>
+  <h2>Enumerate all totally cyclic orientations</h2>
+  <p>
+    K(3,3) has 9 edges, so 2⁹ = 512 possible orientations. An orientation is
+    <strong>totally cyclic (TCO)</strong> if every edge lies in at least one directed cycle.
+    We check all 512 by BFS: for each edge u→v, verify that v can reach u.
+  </p>
+<pre>
+Computing all totally cyclic orientations of K(3,3)...
+<span class="hl">Found 102 TCOs</span> out of 512 total orientations
+</pre>
+  <div class="note">
+    102 is the right count — it equals the Tutte polynomial evaluation t(K₃₃; 0, 2),
+    the number of strongly connected orientations of K(3,3).
+  </div>
+</div>
+
+<!-- Step 2 -->
+<div class="step">
+  <div class="step-label">Step 2</div>
+  <h2>Build the full flip graph</h2>
+  <p>
+    For each TCO, find every directed cycle in that orientation. Reversing any one
+    gives another TCO. Build a graph: nodes = 102 TCOs, edges = one cycle reversal apart.
+  </p>
+<pre>
+=== All-Cycles Flip Graph ===
+Nodes: 102  |  Edges: 210  |  Components: <span class="hl">20</span>
+  2× size-6 components, diameters: [1]
+  18× size-5 components, diameters: [1]
+  Degree range: 4–5, mean 4.12
+</pre>
+  <div class="note green">
+    <strong>20 components, each of diameter 1.</strong> Diameter 1 means any two TCOs in
+    the same class are connected by a single cycle reversal — they are direct neighbors.
+    The components are small (5 or 6 nodes) and completely connected within themselves.
+  </div>
+</div>
+
+<!-- Step 3 -->
+<div class="step">
+  <div class="step-label">Step 3</div>
+  <h2>Prove the 20 classes are permanent</h2>
+  <p>
+    Reversing a directed cycle never changes any vertex's out-degree. In a K(3,3) TCO,
+    every vertex has out-degree 1 or 2, and exactly 3 are <strong>heavy</strong> (out-degree 2).
+    The C(6,3) = 20 ways to assign heavy vertices to 3 of the 6 give exactly 20 permanent classes —
+    no reversal can move between them.
+  </p>
+<pre>
+=== Verifying Out-Degree Invariant ===
+  <span class="hl">✓</span> Each component has exactly one out-degree sequence
+  <span class="hl">✓</span> All 20 components have distinct out-degree sequences
+  <span class="hl">✓</span> C(6,3) = 20 = ways to place 3 'heavy' vertices (out=2) among 6 = components
+
+  Heavy vertices on left | # classes | class sizes
+  0 left, 3 right       |         1 | [6]
+  1 left, 2 right       |         9 | [5, 5, 5, 5, 5, 5, 5, 5, 5]
+  2 left, 1 right       |         9 | [5, 5, 5, 5, 5, 5, 5, 5, 5]
+  3 left, 0 right       |         1 | [6]
+</pre>
+  <div class="note">
+    This is Gioan (2007) Proposition 4.10: equivalence classes of the cycle reversing system
+    correspond exactly to indegree sequences. Our 20 classes and their sizes follow from
+    the bipartite symmetry of K(3,3).
+  </div>
+</div>
+
+<!-- Step 4 -->
+<div class="step">
+  <div class="step-label">Step 4</div>
+  <h2>What happens if you only use the torus face cycles?</h2>
+  <p>
+    K(3,3) embeds on the torus with 3 hexagonal faces. These 3 face cycles (C₆) are
+    geometrically natural. How far do they get you?
+  </p>
+<pre>
+=== Face-Cycles-Only Flip Graph (torus faces) ===
+Nodes: 102  |  Edges: 24  |  Components: <span class="warn">80</span>
+  2× size-3 components, diameters: [1]
+  18× size-2 components, diameters: [1]
+  60× size-1 components, diameters: [0]
+  Degree range: 0–2, mean 0.47
+  <span class="warn">Isolated nodes (no face cycle available): 60</span>
+</pre>
+  <div class="note orange">
+    The 3 torus face cycles are nearly useless: 60 of 102 TCOs have no face cycle
+    available at all, and the flip graph fragments into 80 tiny components.
+    This foreshadows the main result — torus faces never appear in a minimal generating set.
+  </div>
+</div>
+
+<!-- Step 5 -->
+<div class="step">
+  <div class="step-label">Step 5</div>
+  <h2>Exhaustive search for the minimum generating set</h2>
+  <p>
+    K(3,3) has exactly <strong>15 distinct cycle masks</strong> across all 102 TCOs:
+    9 four-cycles (C₄) and 6 six-cycles (C₆).
+    We check every subset of those 15 — in order of size — and ask:
+    does the restricted flip graph (using only cycles in the subset) have exactly 20 components?
+  </p>
+<pre>
+=== Minimum Generator Search ===
+Distinct cycle masks: 15 (9 C4, 6 C6)
+  Size 1: checked    <span class="dim">15</span> subsets → <span class="warn">0</span> generating sets (0 C4-only)
+  Size 2: checked   <span class="dim">105</span> subsets → <span class="warn">0</span> generating sets (0 C4-only)
+  Size 3: checked   <span class="dim">455</span> subsets → <span class="warn">0</span> generating sets (0 C4-only)
+  Size 4: checked  <span class="dim">1365</span> subsets → <span class="warn">0</span> generating sets (0 C4-only)
+  Size 5: checked  <span class="dim">3003</span> subsets → <span class="hl">9 generating sets</span> (9 C4-only)
+  <span class="hl">✓ Minimum generating set size = 5</span>
+</pre>
+  <div class="note green">
+    <strong>Zero subsets of size ≤ 4 work — no exceptions.</strong> This is a complete proof
+    by exhaustive search: all C(15,1) + C(15,2) + C(15,3) + C(15,4) = 1940 subsets of size
+    ≤ 4 were checked. The cycle rank of K(3,3) is E−V+1 = 4. The minimum is 5 — one more.
+  </div>
+</div>
+
+<!-- Step 6 -->
+<div class="step">
+  <div class="step-label">Step 6</div>
+  <h2>The 9 minimal generating sets</h2>
+  <p>
+    Label the 9 four-cycles by which pair of left vertices and which pair of right vertices
+    they connect. The grid below names them a–i:
+  </p>
+<pre>
+         R₀R₁   R₀R₂   R₁R₂
+L₀L₁  [  a  ] [  b  ] [  c  ]
+L₀L₂  [  d  ] [  e  ] [  f  ]
+L₁L₂  [  g  ] [  h  ] [  i  ]
+</pre>
+  <p>The 9 minimal generating sets (each is 5 of the 9 four-cycles):</p>
+<pre>
+  Set 1:  <span class="hl">a b</span> <span class="dim">·</span>  <span class="hl">d e</span> <span class="dim">·</span>  <span class="dim">· ·</span> <span class="hl">i</span>   →  { a, b, d, e, i }
+  Set 2:  <span class="dim">· ·</span> <span class="hl">c</span>  <span class="hl">d e</span> <span class="dim">·</span>  <span class="hl">g h</span> <span class="dim">·</span>   →  { c, d, e, g, h }
+  Set 3:  <span class="hl">a</span> <span class="dim">·</span> <span class="hl">c</span>  <span class="hl">d</span> <span class="dim">·</span> <span class="hl">f</span>  <span class="dim">·</span> <span class="hl">h</span> <span class="dim">·</span>   →  { a, c, d, f, h }
+  Set 4:  <span class="dim">·</span> <span class="hl">b</span> <span class="dim">·</span>  <span class="hl">d</span> <span class="dim">·</span> <span class="hl">f</span>  <span class="hl">g</span> <span class="dim">·</span> <span class="hl">i</span>   →  { b, d, f, g, i }
+  Set 5:  <span class="dim">·</span> <span class="hl">b c</span>  <span class="hl">d</span> <span class="dim">· ·</span>  <span class="dim">·</span> <span class="hl">h i</span>   →  { b, c, d, h, i }
+  Set 6:  <span class="hl">a</span> <span class="dim">·</span> <span class="hl">c</span>  <span class="dim">·</span> <span class="hl">e</span> <span class="dim">·</span>  <span class="hl">g</span> <span class="dim">·</span> <span class="hl">i</span>   →  { a, c, e, g, i }
+  Set 7:  <span class="hl">a</span> <span class="dim">· ·</span>  <span class="dim">·</span> <span class="hl">e f</span>  <span class="dim">·</span> <span class="hl">h i</span>   →  { a, e, f, h, i }
+  Set 8:  <span class="dim">·</span> <span class="hl">b c</span>  <span class="dim">·</span> <span class="hl">e f</span>  <span class="hl">g</span> <span class="dim">· ·</span>   →  { b, c, e, f, g }
+  Set 9:  <span class="hl">a b</span> <span class="dim">·</span>  <span class="dim">· ·</span> <span class="hl">f</span>  <span class="hl">g h</span> <span class="dim">·</span>   →  { a, b, f, g, h }
+</pre>
+  <div class="note">
+    Note: Set 6 = {a, c, e, g, i} is the main diagonal of the grid.
+    Every circuit appears in exactly 5 of the 9 minimal sets (by symmetry: 9 × 5 / 9 = 5).
+    No C₆ cycle (including the 3 torus faces) appears in any minimal set.
+  </div>
+</div>
+
+<hr>
+
+<a class="back" href="index.html">← Back to interactive app</a>
+
+</body>
+</html>

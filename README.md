@@ -127,4 +127,4 @@ The reversal operation studied here is an instance of what Gioan (2007) calls a 
 python k33_flip_graph.py
 ```
 
-Outputs the flip graph structure, out-degree invariant verification, and face-cycle-only analysis.
+Outputs the flip graph structure, out-degree invariant verification, and face-cycle-only analysis. An **[annotated walkthrough of the full output](https://mikeion.github.io/graph-problems/proof.html)** is available without running the code.
