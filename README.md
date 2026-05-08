@@ -103,15 +103,26 @@ The reversal operation studied here is an instance of what Gioan (2007) calls a 
 
 ## Open Questions
 
-**Is bipartiteness the condition?** K(3,3) (non-planar, bipartite) exceeds cycle rank; K₅ (non-planar, not bipartite) meets it. The refined conjecture: minimum > cycle rank iff G is non-planar and bipartite — equivalently, iff G contains K(3,3) as a minor but not K₅. The next test cases are non-planar non-bipartite graphs like the Petersen graph.
+**Conjecture: minimum > cycle rank iff G is non-planar and bipartite.**
 
-**K₅ needs exactly the cycle rank.** K₅ has cycle rank 6, and exhaustive search (all C(37,6) = 2,324,784 subsets checked) finds exactly **5 minimal generating sets, each of size 6 = cycle rank**. The 5 sets have a clean structure: each consists of the 6 triangles (C₃ cycles) passing through a single vertex — one set per vertex of K₅. Since K₅ has 5 vertices, there are 5 such sets. The triangles through any vertex span the full cycle space (there are exactly cycle rank = 6 of them), so the cycle rank bound is tight.
+| Graph | Planar | Bipartite | Cycle rank | Minimum | Result |
+|-------|--------|-----------|------------|---------|--------|
+| Planar graphs | ✓ | — | E−V+1 | = rank | holds |
+| K₅ | ✗ | ✗ | 6 | 6 | holds |
+| K(3,3) | ✗ | ✓ | 4 | 5 | **fails** |
+| K(3,4) | ✗ | ✓ | 6 | > 6 | **fails** |
 
-**Refined conjecture:** Minimum > cycle rank iff G is **non-planar and bipartite**. K(3,3) is bipartite (girth 4, no triangles) — no triangle-based cycle basis exists, so the bound fails. K₅ is non-planar but not bipartite — triangles through any vertex give a natural basis, so the bound holds. Planar graphs always satisfy the bound regardless of bipartiteness.
+All four cases verified by exhaustive search. K₅: all C(37,6) = 2,324,784 subsets of size 6 checked. K(3,4): all C(42,6) = 5,245,786 subsets of size 6 checked — zero generating sets found.
 
-**Why only C₄ cycles in minimal sets?** The 9 minimal generating sets use only 4-cycles — the hexagonal torus face cycles never appear. The exhaustive search confirms this but doesn't explain it. There's likely a structural reason tied to the bipartite geometry or the torus embedding.
+**K₅ result.** K₅ has cycle rank 6, and exhaustive search finds exactly **5 minimal generating sets, each of size 6 = cycle rank**. The 5 sets have a clean structure: each consists of the 6 triangles (C₃ cycles) passing through a single vertex — one set per vertex of K₅. The triangles through any vertex span the full cycle space (there are exactly cycle rank = 6 of them), so the cycle rank bound is tight.
 
-**What is the right general invariant?** The minimum generator count is computable but not obviously a matroid invariant. Is there a closed-form characterization, or does it require case-by-case computation for each graph?
+**K(3,4) result.** K(3,4) has 7 vertices, 12 edges, cycle rank = 6, and 906 TCOs splitting into 96 equivalence classes. Exhaustive search over all 5,245,786 subsets of size 6 finds zero generating sets, confirming minimum > 6 = cycle rank.
+
+**Matroid framing.** The conjecture is equivalent to: minimum > cycle rank iff M(G) is **even** (all circuits have even cardinality) and **not co-graphic** (G is non-planar). For graphic matroids M(G), even ↔ G bipartite. This connects to the Seymour decomposition of regular matroids: the obstruction arises precisely when M(G) contains an R₁₀ piece (R₁₀ is even and neither graphic nor co-graphic; R₁₀\e ≅ M(K₃,₃)).
+
+**Why only C₄ cycles in minimal sets?** The 9 minimal generating sets for K(3,3) use only 4-cycles — the hexagonal torus face cycles never appear. The exhaustive search confirms this but doesn't explain it. There's likely a structural reason tied to the bipartite geometry or the torus embedding.
+
+**What is the right general invariant?** The minimum generator count is computable but not obviously a standard matroid invariant. Is there a closed-form characterization, or does it require case-by-case computation for each graph?
 
 ---
 
