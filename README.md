@@ -60,6 +60,25 @@ Hovering over any cycle cell highlights its edges on the graph.
 
 ---
 
+## Connection to Prior Work
+
+The reversal operation studied here is an instance of what Gioan (2007) calls a **cycle reversing system** on the set of strongly connected orientations (which coincides with totally cyclic orientations for K(3,3)). Two key results from that paper apply directly:
+
+- **Equivalence classes = indegree sequences** (Proposition 4.10): two orientations land in the same class if and only if they assign the same indegree to every vertex. This is why the 20 classes are permanent — no reversal can change a vertex's out-degree.
+- **Class count = t(G; 0, 1)** (Corollary 4.11): the number of classes equals the Tutte polynomial evaluated at (0, 1). For K(3,3) this evaluates to 20, matching our count.
+
+**What Gioan doesn't address** — and what this project answers — is the **minimum generator question**: given the full circuit set generates the correct partition, what is the smallest subset that also generates it? For planar graphs the cycle rank E−V+1 always works; the exhaustive search here shows K(3,3) requires one more.
+
+---
+
+## References
+
+- E. Gioan, "Enumerating degree sequences in digraphs and a cycle–cocycle reversing system," *European Journal of Combinatorics* 28 (2007), 1351–1366.
+- P. D. Seymour, "Decomposition of regular matroids," *Journal of Combinatorial Theory, Series B* 28 (1980), 305–359.
+- W. T. Tutte, "A contribution to the theory of chromatic polynomials," *Canadian Journal of Mathematics* 6 (1954), 80–91.
+
+---
+
 ## Running the Analysis
 
 ```bash
