@@ -1,7 +1,8 @@
 # K(3,3) Circuit Generators
 
-An interactive tool for exploring a question about totally cyclic orientations of K(3,3):
-**if you can only reverse specific circuits, how many do you need?**
+**The question (Alex McDonough):** For K(3,3), if you can only reverse specific circuits, how many do you need to reach anything reachable by arbitrary reversals?
+
+**The answer:** 5 — one more than the cycle rank of K(3,3) predicts. For planar graphs the cycle rank always suffices; K(3,3) is the simplest case where it doesn't.
 
 **[Live demo →](https://mikeion.github.io/graph-problems/)**
 
@@ -70,6 +71,18 @@ The reversal operation studied here is an instance of what Gioan (2007) calls a 
 - **Class count = t(G; 0, 1)** (Corollary 4.11): the number of classes equals the Tutte polynomial evaluated at (0, 1). For K(3,3) this evaluates to 20, matching our count.
 
 **What Gioan doesn't address** — and what this project answers — is the **minimum generator question**: given the full circuit set generates the correct partition, what is the smallest subset that also generates it? For planar graphs the cycle rank E−V+1 always works; the exhaustive search here shows K(3,3) requires one more.
+
+---
+
+## Open Questions
+
+**Is R₁₀ the obstruction?** The natural conjecture: minimum generator size = cycle rank if and only if the graph's cycle matroid contains no R₁₀ minor. K(3,3) is the canonical case where the cycle matroid is the R₁₀ exceptional component in Seymour's decomposition. If the conjecture holds, this result would connect the cycle reversing system directly to Seymour decomposition — and explain why the failure shows up here and not for planar graphs.
+
+**Does K₅ also need 5?** K₅ is the other canonical non-planar graph. Its cycle rank is E−V+1 = 10−5+1 = 6. Does it also exceed the cycle rank by 1, or by more? Checking K₅ would test whether the gap is always exactly 1 for Seymour-exceptional graphs.
+
+**Why only C₄ cycles in minimal sets?** The 9 minimal generating sets use only 4-cycles — the hexagonal torus face cycles never appear. The exhaustive search confirms this but doesn't explain it. There's likely a structural reason tied to the bipartite geometry or the torus embedding.
+
+**What is the right general invariant?** The minimum generator count is computable but not obviously a matroid invariant. Is there a closed-form characterization, or does it require case-by-case computation for each graph?
 
 ---
 
