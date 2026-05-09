@@ -110,9 +110,9 @@ The reversal operation studied here is an instance of what Gioan (2007) calls a 
 | Planar graphs | ✓ | — | E−V+1 | = rank | holds |
 | K₅ | ✗ | ✗ | 6 | 6 | holds |
 | K(3,3) | ✗ | ✓ | 4 | 5 | **fails** |
-| K(3,4) | ✗ | ✓ | 6 | > 6 | **fails** |
+| K(3,4) | ✗ | ✓ | 6 | ≥ 8 | **fails** |
 
-All four cases verified by exhaustive search. K₅: all C(37,6) = 2,324,784 subsets of size 6 checked. K(3,4): all C(42,6) = 5,245,786 subsets of size 6 checked — zero generating sets found.
+All cases verified by exhaustive search. K₅: all C(37,6) = 2,324,784 subsets of size 6 checked. K(3,4): all C(42,6) = 5,245,786 subsets of size 6 and all C(42,7) = 26,978,328 subsets of size 7 checked — zero generating sets found. Minimum ≥ 8 = cycle rank + 2.
 
 **K₅ result.** K₅ has cycle rank 6, and exhaustive search finds exactly **5 minimal generating sets, each of size 6 = cycle rank**. The 5 sets have a clean structure: each consists of the 6 triangles (C₃ cycles) passing through a single vertex — one set per vertex of K₅. The triangles through any vertex span the full cycle space (there are exactly cycle rank = 6 of them), so the cycle rank bound is tight.
 

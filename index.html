@@ -13,20 +13,19 @@ h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
 
 .content{display:flex;flex:1;overflow:hidden;}
 
-/* ── Left: graph ── */
 .graph-col{width:320px;flex-shrink:0;border-right:1px solid #21262d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px;}
 .graph-caption{font-size:9px;color:#484f58;text-align:center;line-height:1.6;}
 .graph-caption strong{color:#8b949e;}
 
-/* ── Right: question ── */
 .main-col{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:14px 16px;gap:10px;}
 
-/* Callout: the question */
-.question-box{padding:10px 14px;background:#161b22;border:1px solid #30363d;border-radius:6px;font-size:11px;line-height:1.7;color:#8b949e;}
-.question-box .q{color:#ffa657;font-weight:600;}
+.graph-tabs{display:flex;gap:4px;flex-shrink:0;}
+.gtab{padding:5px 14px;font-size:10px;border-radius:4px;border:1px solid #30363d;background:#0d1117;color:#6e7681;cursor:pointer;transition:all .12s;}
+.gtab:hover{border-color:#58a6ff;color:#c9d1d9;}
+.gtab.active.fails{border-color:#ff7b72;color:#ff7b72;background:#1a0d0d;}
+.gtab.active.holds{border-color:#7ee787;color:#7ee787;background:#0d1a0d;}
 
-/* Metric */
-.metric{display:flex;align-items:center;gap:14px;padding:11px 16px;background:#161b22;border:1px solid #30363d;border-radius:8px;}
+.metric{display:flex;align-items:center;gap:14px;padding:11px 16px;background:#161b22;border:1px solid #30363d;border-radius:8px;flex-shrink:0;}
 .metric-num{font-size:48px;font-weight:700;font-family:monospace;line-height:1;min-width:70px;transition:color .25s;}
 .num-far{color:#ff7b72;}
 .num-close{color:#ffa657;}
@@ -43,7 +42,6 @@ h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
 .mact.success{border-color:#2ea043;color:#7ee787;}
 .mact.success:hover{background:#0d1a0d;}
 
-/* Grids */
 .grids{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:9px;}
 .grid-section{background:#161b22;border:1px solid #21262d;border-radius:6px;padding:9px 12px;}
 .grid-section h3{font-size:9px;font-weight:600;color:#6e7681;text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
@@ -55,12 +53,16 @@ h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
 .cyc-cell:hover{border-color:#58a6ff;color:#8b949e;}
 .cyc-cell.on{background:#0d1a0d;border-color:#2ea043;color:#7ee787;}
 .cyc-cell.on.hex{background:#0a0d1a;border-color:#1565c0;color:#79c0ff;}
+.cyc-cell.dim-type{opacity:.45;}
 
+.tri-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;}
 .hex-row{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;}
+.other-row{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin-top:3px;}
 
 .finding{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:9px 13px;font-size:10px;line-height:1.8;color:#484f58;}
 .finding strong{color:#8b949e;}
 .finding .key{color:#ffa657;font-weight:600;}
+.finding .keygood{color:#7ee787;font-weight:600;}
 
 .compare{width:100%;border-collapse:collapse;font-size:10px;margin-top:10px;}
 .compare th{font-size:9px;font-weight:600;color:#6e7681;text-transform:uppercase;letter-spacing:.5px;padding:4px 8px;border-bottom:1px solid #21262d;text-align:left;}
@@ -78,294 +80,460 @@ h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
 </header>
 
 <div class="content">
-
-  <!-- Left: K(3,3) on the torus -->
   <div class="graph-col">
-    <svg id="graph-svg" width="290" height="215"></svg>
-    <div class="graph-caption">
-      <strong>K(3,3) on the torus</strong> — one directed orientation shown.<br>
-      Green = left vertices · Blue = right vertices<br>
-      Hover any cycle cell to highlight its edges.
-    </div>
+    <svg id="graph-svg" width="290" height="230"></svg>
+    <div id="graph-caption" class="graph-caption"></div>
   </div>
 
-  <!-- Right -->
   <div class="main-col">
-
-    <div class="question-box">
-      For any graph, the <strong>cycle rank</strong> E−V+1 is the dimension of the cycle space. For planar graphs, a cycle basis of that size always suffices to generate all reachable moves. For non-planar graphs — does the bound still hold?<br><br>
-      <strong>K₅</strong> (non-planar, not bipartite): minimum = cycle rank = 6. The 6 triangles through any vertex form a minimal generating set — one per vertex, 5 sets total.<br>
-      <span class="q"><strong>K(3,3)</strong> (non-planar, bipartite, no triangles): explore below. The cycle rank is 4 — is that enough?</span>
+    <div class="graph-tabs">
+      <button class="gtab active fails" data-gid="k33" onclick="switchGraph('k33')">K(3,3) — bound fails</button>
+      <button class="gtab holds" data-gid="k5" onclick="switchGraph('k5')">K₅ — bound holds</button>
     </div>
 
     <div class="metric">
       <div class="metric-num num-far" id="metric-num">—</div>
       <div class="metric-right">
-        <div class="metric-label">groups out of 20 &nbsp;(<strong id="metric-n">0</strong> circuits selected)</div>
+        <div class="metric-label" id="metric-label"></div>
         <div class="metric-status" id="metric-status"></div>
-        <div class="metric-actions">
-          <button class="mact" onclick="genNone()">None</button>
-          <button class="mact primary" onclick="genTry4()">Try 4 circuits (cycle rank)</button>
-          <button class="mact" onclick="genMinimal()">Show minimal set (5)</button>
-          <button class="mact" onclick="genAll()">All 15</button>
-        </div>
+        <div class="metric-actions" id="metric-actions"></div>
       </div>
     </div>
 
-    <div class="grids">
-
-      <div class="grid-section">
-        <h3>4-cycles (C₄) — 9 total, indexed by which pair of left × right vertices they use</h3>
-        <div class="c4-table" id="c4-table">
-          <div></div>
-          <div class="c4-ax">R₀R₁</div>
-          <div class="c4-ax">R₀R₂</div>
-          <div class="c4-ax">R₁R₂</div>
-        </div>
-      </div>
-
-      <div class="grid-section">
-        <h3>6-cycles (C₆) — 6 total &nbsp;&nbsp; ⬡ = torus face</h3>
-        <div class="hex-row" id="hex-row"></div>
-      </div>
-
-      <div class="finding">
-        <strong>Cycle rank = 4.</strong> For planar graphs, 4 specific circuits always suffice.<br>
-        <span class="key">For K(3,3): the minimum is 5 — one more than the cycle rank.</span><br>
-        All 9 minimal sets use <strong>only C₄ cycles</strong>. The hexagonal torus faces never appear.<br>
-        <br>
-        <strong>How we know — proof by exhaustive search:</strong><br>
-        K(3,3) has exactly <strong>15 distinct cycle masks</strong> (9 four-cycles + 6 six-cycles).<br>
-        We checked every subset of those 15:<br>
-        <span style="font-family:monospace;font-size:10px;color:#555e6b;">
-        &nbsp; size 1: &nbsp;&nbsp;15 subsets checked → 0 generating sets<br>
-        &nbsp; size 2: &nbsp;105 subsets checked → 0 generating sets<br>
-        &nbsp; size 3: &nbsp;455 subsets checked → 0 generating sets<br>
-        &nbsp; size 4: 1365 subsets checked → 0 generating sets &nbsp;← 4 never suffices<br>
-        &nbsp; size 5: 3003 subsets checked → <strong style="color:#7ee787">9 generating sets</strong> &nbsp;← minimum is 5<br>
-        </span>
-        Verified in <a href="https://github.com/mikeion/graph-problems/blob/main/k33_flip_graph.py" target="_blank" style="color:#58a6ff">k33_flip_graph.py</a> —
-        <a href="proof.html" style="color:#58a6ff">view annotated proof output</a> or run it locally to reproduce.<br><br>
-        <strong>Prior work:</strong> This is the <em>cycle reversing system</em> on TCOs of K(3,3) studied by Gioan (2007). The 20 classes correspond to indegree sequences (Proposition 4.10); their count equals the Tutte polynomial t(K₃₃; 0, 1) = 20 (Corollary 4.11). The minimum generator question — answered here — is new.<br><br>
-        <strong>Across graphs:</strong>
-        <table class="compare">
-          <tr><th>Graph</th><th>Planar</th><th>Bipartite</th><th>Cycle rank</th><th>Minimum</th><th>Result</th></tr>
-          <tr><td class="dim">Planar graphs</td><td class="good">✓</td><td class="dim">—</td><td class="dim">E−V+1</td><td class="dim">= rank</td><td class="good">holds</td></tr>
-          <tr><td class="dim">K₅</td><td class="warn">✗</td><td class="warn">✗</td><td class="dim">6</td><td class="dim">6</td><td class="good">holds</td></tr>
-          <tr class="active"><td><strong>K(3,3)</strong></td><td class="warn">✗</td><td class="good">✓</td><td class="dim">4</td><td class="warn">5</td><td class="warn">fails ← you are here</td></tr>
-          <tr><td class="dim">K(3,4)</td><td class="warn">✗</td><td class="good">✓</td><td class="dim">6</td><td class="warn">&gt;6</td><td class="warn">fails</td></tr>
-        </table>
-        <span style="font-size:9px;color:#484f58;">Conjecture: minimum &gt; cycle rank iff non-planar AND bipartite. All four cases verified by exhaustive search.</span>
-      </div>
-
-    </div>
+    <div class="grids" id="grids-container"></div>
   </div>
-
 </div>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-// ── constants ─────────────────────────────────────────────────
-const EDGES=[[0,3],[0,4],[0,5],[1,3],[1,4],[1,5],[2,3],[2,4],[2,5]];
-const NV=6;
-const EIDX={};
-EDGES.forEach(([u,v],k)=>{EIDX[`${u},${v}`]=k;EIDX[`${v},${u}`]=k;});
-const FACES=[[0,3,2,4,1,5],[3,0,4,2,5,1],[4,0,5,2,3,1]];
-const NODE_LABELS=['L₀','L₁','L₂','R₀','R₁','R₂'];
-
-// Torus layout — 3×2 checkerboard:
-//   L₀  R₀  L₁      (top row)
-//   R₁  L₂  R₂      (bottom row)
-// Edges 2 and 4 are the long crossing diagonals (L₀–R₂ and L₁–R₁);
-// they cross at the center but are non-adjacent on the torus.
-const NP={
-  0:{x:35, y:35},   // L₀
-  3:{x:148,y:35},   // R₀
-  1:{x:260,y:35},   // L₁
-  4:{x:35, y:178},  // R₁
-  2:{x:148,y:178},  // L₂
-  5:{x:260,y:178}   // R₂
-};
-
-// ── math ──────────────────────────────────────────────────────
-function adj(o){const a=Array.from({length:NV},()=>[]);EDGES.forEach(([u,v],k)=>(o>>k)&1?a[v].push(u):a[u].push(v));return a;}
-function reach(a,s,d){if(s===d)return true;const vis=new Set([s]),q=[s];while(q.length){const n=q.shift();for(const nb of a[n]){if(nb===d)return true;if(!vis.has(nb)){vis.add(nb);q.push(nb);}}}return false;}
-function isTCO(o){const a=adj(o);for(let k=0;k<9;k++){const[u,v]=EDGES[k],[s,d]=(o>>k)&1?[v,u]:[u,v];if(!reach(a,d,s))return false;}return true;}
-function cycleMask(verts){let m=0,n=verts.length;for(let i=0;i<n;i++)m|=1<<EIDX[`${verts[i]},${verts[(i+1)%n]}`];return m;}
-function findCycles(o){
-  const a=adj(o),found=[],seen=new Set();
-  function dfs(st,cur,path,vis){for(const nb of a[cur]){if(nb===st&&path.length>1){const k=JSON.stringify(path);if(!seen.has(k)){seen.add(k);found.push([...path]);}}else if(!vis.has(nb)&&nb>st){vis.add(nb);path.push(nb);dfs(st,nb,path,vis);path.pop();vis.delete(nb);}}}
-  for(let s=0;s<NV;s++) dfs(s,s,[s],new Set([s]));
+// ── Generic graph math ────────────────────────────────────────
+function makeEIDX(edges){
+  const idx={};
+  edges.forEach(([u,v],k)=>{idx[`${u},${v}`]=k;idx[`${v},${u}`]=k;});
+  return idx;
+}
+function makeAdj(o,edges,nv){
+  const a=Array.from({length:nv},()=>[]);
+  edges.forEach(([u,v],k)=>(o>>k)&1?a[v].push(u):a[u].push(v));
+  return a;
+}
+function reach(a,s,d){
+  if(s===d)return true;
+  const vis=new Set([s]),q=[s];
+  while(q.length){const n=q.shift();for(const nb of a[n]){if(nb===d)return true;if(!vis.has(nb)){vis.add(nb);q.push(nb);}}}
+  return false;
+}
+function isTCO(o,edges,nv){
+  const a=makeAdj(o,edges,nv);
+  for(let k=0;k<edges.length;k++){
+    const[u,v]=edges[k],[s,d]=(o>>k)&1?[v,u]:[u,v];
+    if(!reach(a,d,s))return false;
+  }
+  return true;
+}
+function cycleMask(verts,eidx){
+  let m=0,n=verts.length;
+  for(let i=0;i<n;i++)m|=1<<eidx[`${verts[i]},${verts[(i+1)%n]}`];
+  return m;
+}
+function findCycles(o,edges,nv){
+  const a=makeAdj(o,edges,nv),found=[],seen=new Set();
+  function dfs(st,cur,path,vis){
+    for(const nb of a[cur]){
+      if(nb===st&&path.length>1){const k=path.join(',');if(!seen.has(k)){seen.add(k);found.push([...path]);}}
+      else if(!vis.has(nb)&&nb>st){vis.add(nb);path.push(nb);dfs(st,nb,path,vis);path.pop();vis.delete(nb);}
+    }
+  }
+  for(let s=0;s<nv;s++)dfs(s,s,[s],new Set([s]));
   return found;
 }
 
-// ── precompute ────────────────────────────────────────────────
-const TCOs=[],tcoSet=new Set();
-for(let o=0;o<512;o++) if(isTCO(o)){TCOs.push(o);tcoSet.add(o);}
+// ── Precompute ────────────────────────────────────────────────
+function precompute(G){
+  const{edges,nv,ne}=G;
+  G.eidx=makeEIDX(edges);
+  G.tcos=[];
+  for(let o=0;o<(1<<ne);o++)if(isTCO(o,edges,nv))G.tcos.push(o);
+  G.tcoSet=new Set(G.tcos);
+  G.tcoIdx=new Map(G.tcos.map((o,i)=>[o,i]));
+  G.N=G.tcos.length;
 
-const allCycleMasks=new Map();
-for(const o of TCOs) for(const c of findCycles(o)){const m=cycleMask(c);if(!allCycleMasks.has(m))allCycleMasks.set(m,c);}
+  G.allMasks=new Map();
+  const avail=new Map(G.tcos.map(o=>[o,new Set()]));
+  for(const o of G.tcos){
+    for(const c of findCycles(o,edges,nv)){
+      const m=cycleMask(c,G.eidx);
+      if(!G.allMasks.has(m))G.allMasks.set(m,c);
+      avail.get(o).add(m);
+    }
+  }
 
-const LEFT_PAIRS=[[0,1],[0,2],[1,2]];
-const RIGHT_PAIRS=[[3,4],[3,5],[4,5]];
-const C4_GRID=LEFT_PAIRS.map(lp=>RIGHT_PAIRS.map(rp=>{
-  for(const[m,c]of allCycleMasks)if(c.length===4&&lp.every(v=>c.includes(v))&&rp.every(v=>c.includes(v)))return m;
-  return null;
-}));
-const HEX_MASKS=[...allCycleMasks.keys()].filter(m=>allCycleMasks.get(m).length===6);
-const FACE_MASK_SET=new Set(FACES.map(f=>cycleMask(f)));
-
-function buildCustomNbrs(sel){
-  const allowed=new Set(sel),nbrs={};
-  for(const o of TCOs) nbrs[o]=new Set();
-  for(const o of TCOs) for(const c of findCycles(o)){const m=cycleMask(c);if(allowed.has(m)){const nb=o^m;if(tcoSet.has(nb)&&nb!==o){nbrs[o].add(nb);nbrs[nb].add(o);}}}
-  return nbrs;
+  G.maskList=[...G.allMasks.keys()];
+  G.maskIdx=new Map(G.maskList.map((m,i)=>[m,i]));
+  G.edgesByMask=G.maskList.map(()=>[]);
+  for(const o of G.tcos){
+    for(const m of avail.get(o)){
+      const nb=o^m;
+      if(G.tcoSet.has(nb)&&nb!==o&&G.tcoIdx.get(o)<G.tcoIdx.get(nb)){
+        G.edgesByMask[G.maskIdx.get(m)].push([G.tcoIdx.get(o),G.tcoIdx.get(nb)]);
+      }
+    }
+  }
+  G.edgesByMask=G.edgesByMask.map(arr=>{
+    const seen=new Set();
+    return arr.filter(([u,v])=>{const k=u*10000+v;if(seen.has(k))return false;seen.add(k);return true;});
+  });
+  G.target=countComps(G,G.maskList);
 }
-function countComps(nbrs){
-  const vis=new Set();let c=0;
-  for(const o of TCOs){if(!vis.has(o)){c++;const q=[o];vis.add(o);while(q.length){const n=q.shift();for(const nb of nbrs[n])if(!vis.has(nb)){vis.add(nb);q.push(nb);}}}}
-  return c;
+
+function countComps(G,selMasks){
+  const N=G.N,parent=Array.from({length:N},(_,i)=>i);
+  function find(x){while(parent[x]!==x){parent[x]=parent[parent[x]];x=parent[x];}return x;}
+  function union(a,b){a=find(a);b=find(b);if(a!==b)parent[a]=b;}
+  for(const m of selMasks){
+    const mi=G.maskIdx.get(m);
+    if(mi===undefined)continue;
+    for(const[u,v]of G.edgesByMask[mi])union(u,v);
+  }
+  return G.tcos.filter((_,i)=>find(i)===i).length;
 }
 
-// ── generator state ───────────────────────────────────────────
+// ── Graph configurations ──────────────────────────────────────
+const GRAPHS={
+  k33:{
+    name:'K(3,3)', nv:6, ne:9,
+    edges:[[0,3],[0,4],[0,5],[1,3],[1,4],[1,5],[2,3],[2,4],[2,5]],
+    nodePos:{0:{x:35,y:42},3:{x:148,y:42},1:{x:260,y:42},4:{x:35,y:188},2:{x:148,y:188},5:{x:260,y:188}},
+    nodeLabels:['L₀','L₁','L₂','R₀','R₁','R₂'],
+    nodeColor:v=>v<3?'#3fb950':'#79c0ff',
+    cycleRank:4, tryN:4, minimalN:5,
+    svgW:290, svgH:230,
+    border:{x:18,y:24,w:253,h:182},
+  },
+  k5:{
+    name:'K₅', nv:5, ne:10,
+    edges:[[0,1],[0,2],[0,3],[0,4],[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]],
+    nodePos:{0:{x:145,y:28},1:{x:258,y:110},2:{x:210,y:205},3:{x:80,y:205},4:{x:32,y:110}},
+    nodeLabels:['0','1','2','3','4'],
+    nodeColor:()=>'#d2a8ff',
+    cycleRank:6, tryN:5, minimalN:6,
+    svgW:290, svgH:230,
+    border:null,
+  }
+};
+
+// ── State ─────────────────────────────────────────────────────
+let activeId='k33';
 let customSel=new Set();
-let genNbrs=buildCustomNbrs([]);
 
-// Fixed reference orientation for the graph (the first TCO found)
-const refO=TCOs[0];
-
-// ── SVG: torus layout ─────────────────────────────────────────
-const svg=d3.select('#graph-svg');
-
-// Arrow markers
-const defs=svg.append('defs');
-defs.append('marker').attr('id','ar-dim').attr('viewBox','0 -4 9 8').attr('refX',9).attr('refY',0)
-  .attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto')
-  .append('path').attr('d','M0,-4L9,0L0,4Z').attr('fill','#3a4450');
-defs.append('marker').attr('id','ar-hl').attr('viewBox','0 -4 9 8').attr('refX',9).attr('refY',0)
-  .attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto')
-  .append('path').attr('d','M0,-4L9,0L0,4Z').attr('fill','#ffa657');
-
-// Fundamental domain border
-svg.append('rect').attr('x',18).attr('y',18).attr('width',253).attr('height',177)
-  .attr('fill','none').attr('stroke','#1e2530').attr('stroke-width',1).attr('rx',2);
-
-// Edges — drawn as directed lines based on refO
-function edgeCoords(k){
-  const[u,v]=EDGES[k],rev=(refO>>k)&1;
-  const[s,d]=rev?[v,u]:[u,v];
-  const{x:x1,y:y1}=NP[s],{x:x2,y:y2}=NP[d];
-  const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
-  return{x1:x1+13*dx/len,y1:y1+13*dy/len,x2:x2-20*dx/len,y2:y2-20*dy/len};
-}
-
-const edgeG=svg.append('g');
-const edgeSel=edgeG.selectAll('line').data(d3.range(9)).join('line');
-
-// Nodes
-const nodeG=svg.append('g');
-nodeG.selectAll('circle').data(d3.range(NV)).join('circle')
-  .attr('cx',d=>NP[d].x).attr('cy',d=>NP[d].y).attr('r',13)
-  .attr('fill','#0d1117').attr('stroke',d=>d<3?'#3fb950':'#79c0ff').attr('stroke-width',1.5);
-nodeG.selectAll('text').data(d3.range(NV)).join('text')
-  .attr('x',d=>NP[d].x).attr('y',d=>NP[d].y+1)
-  .attr('text-anchor','middle').attr('dominant-baseline','middle')
-  .attr('font-size',8).attr('font-family','monospace')
-  .attr('fill',d=>d<3?'#3fb950':'#79c0ff').attr('pointer-events','none')
-  .text(d=>NODE_LABELS[d]);
-
-function renderGraph(hlMask){
-  const c=k=>hlMask&&(hlMask>>k)&1;
-  edgeSel
-    .each(function(k){
-      const{x1,y1,x2,y2}=edgeCoords(k);
-      d3.select(this).attr('x1',x1).attr('y1',y1).attr('x2',x2).attr('y2',y2);
-    })
-    .attr('stroke',k=>c(k)?'#ffa657':'#3a4450')
-    .attr('stroke-width',k=>c(k)?2.5:1.5)
-    .attr('marker-end',k=>`url(#${c(k)?'ar-hl':'ar-dim'})`)
+// ── SVG rendering ─────────────────────────────────────────────
+function renderSVG(G,hlMask){
+  const svg=d3.select('#graph-svg').attr('width',G.svgW).attr('height',G.svgH);
+  svg.selectAll('*').remove();
+  const defs=svg.append('defs');
+  ['dim','hl'].forEach(id=>{
+    defs.append('marker').attr('id',`ar-${id}`).attr('viewBox','0 -4 9 8').attr('refX',9).attr('refY',0)
+      .attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto')
+      .append('path').attr('d','M0,-4L9,0L0,4Z').attr('fill',id==='hl'?'#ffa657':'#3a4450');
+  });
+  if(G.border){
+    const b=G.border;
+    svg.append('rect').attr('x',b.x).attr('y',b.y).attr('width',b.w).attr('height',b.h)
+      .attr('fill','none').attr('stroke','#1e2530').attr('stroke-width',1).attr('rx',2);
+  }
+  const refO=G.tcos[0];
+  const np=G.nodePos;
+  function edgePts(k){
+    const[u,v]=G.edges[k],rev=(refO>>k)&1,[s,d]=rev?[v,u]:[u,v];
+    const{x:x1,y:y1}=np[s],{x:x2,y:y2}=np[d];
+    const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+    return{x1:x1+13*dx/len,y1:y1+13*dy/len,x2:x2-20*dx/len,y2:y2-20*dy/len};
+  }
+  const eG=svg.append('g');
+  eG.selectAll('line').data(d3.range(G.ne)).join('line')
+    .each(function(k){const p=edgePts(k);d3.select(this).attr('x1',p.x1).attr('y1',p.y1).attr('x2',p.x2).attr('y2',p.y2);})
+    .attr('stroke',k=>hlMask&&(hlMask>>k)&1?'#ffa657':'#3a4450')
+    .attr('stroke-width',k=>hlMask&&(hlMask>>k)&1?2.5:1.5)
+    .attr('marker-end',k=>`url(#${hlMask&&(hlMask>>k)&1?'ar-hl':'ar-dim'})`)
     .attr('fill','none');
+  const nG=svg.append('g');
+  nG.selectAll('circle').data(d3.range(G.nv)).join('circle')
+    .attr('cx',d=>np[d].x).attr('cy',d=>np[d].y).attr('r',13)
+    .attr('fill','#0d1117').attr('stroke',G.nodeColor).attr('stroke-width',1.5);
+  nG.selectAll('text').data(d3.range(G.nv)).join('text')
+    .attr('x',d=>np[d].x).attr('y',d=>np[d].y+1)
+    .attr('text-anchor','middle').attr('dominant-baseline','middle')
+    .attr('font-size',8).attr('font-family','monospace')
+    .attr('fill',G.nodeColor).attr('pointer-events','none')
+    .text(d=>G.nodeLabels[d]);
 }
-renderGraph(null);
 
-// ── meter ─────────────────────────────────────────────────────
+// ── Meter ─────────────────────────────────────────────────────
 function updateMeter(){
-  const nc=countComps(genNbrs),n=customSel.size;
+  const G=GRAPHS[activeId];
+  const n=customSel.size;
+  const nc=n===0?G.target:countComps(G,[...customSel]);
   const el=document.getElementById('metric-num');
-  el.textContent=nc;
-  el.className='metric-num '+(nc===20?'num-good':nc<=50?'num-close':'num-far');
-  document.getElementById('metric-n').textContent=n;
+  el.textContent=n===0?'—':nc;
+  el.className='metric-num '+(nc===G.target?'num-good':nc<=G.target*2?'num-close':'num-far');
+  document.getElementById('metric-label').innerHTML=
+    `groups out of ${G.target} &nbsp;(<strong>${n}</strong> circuits selected)`;
   const st=document.getElementById('metric-status');
   if(n===0){
     st.style.color='#484f58';
-    st.textContent=`No circuits selected. Click "Try 4 circuits" to start — that's the cycle rank.`;
-  } else if(nc===20 && n<=5){
+    st.textContent=`No circuits selected — try "${activeId==='k33'?'Try 4 (cycle rank)':'Try 5 (cycle rank−1)'}" to start.`;
+  } else if(nc===G.target&&n<=G.minimalN){
     st.style.color='#7ee787';
-    st.textContent=`Minimal generating set — ${n} circuits preserve all 20 equivalence classes.`;
-  } else if(nc===20){
+    st.textContent=`✓ Minimal generating set — ${n} circuits suffice. Minimum = ${n}.`;
+  } else if(nc===G.target){
     st.style.color='#7ee787';
-    st.textContent=`Generating set: ${n} circuits preserve all 20 classes.`;
-  } else if(n===4){
+    st.textContent=`✓ Generating set: ${n} circuits preserve all ${G.target} groups.`;
+  } else if(activeId==='k33'&&n===4){
     st.style.color='#ffa657';
-    st.textContent=`4 circuits → ${nc} groups (need 20). The cycle rank isn't enough for K(3,3). Try adding one more.`;
+    st.textContent=`4 circuits (cycle rank) → ${nc} groups, need ${G.target}. Cycle rank isn't enough. Try 5.`;
+  } else if(activeId==='k5'&&n===5){
+    st.style.color='#ffa657';
+    st.textContent=`5 circuits (cycle rank−1) → ${nc} groups, need ${G.target}. Need one more.`;
   } else {
     st.style.color='#8b949e';
-    st.textContent=`${n} circuit${n===1?'':'s'} → ${nc} groups. Some TCOs in the same class can no longer reach each other.`;
+    st.textContent=`${n} circuit${n===1?'':'s'} → ${nc} groups. Some TCOs in the same class can't reach each other.`;
   }
 }
 
-// ── grid ──────────────────────────────────────────────────────
+// ── Grid builders ─────────────────────────────────────────────
 function buildGrid(){
-  const tbl=document.getElementById('c4-table');
+  const G=GRAPHS[activeId];
+  const container=document.getElementById('grids-container');
+  container.innerHTML='';
+  if(activeId==='k33') buildK33Grid(G,container);
+  else buildK5Grid(G,container);
+  container.appendChild(buildFindingBox());
+}
+
+function makeCell(m,label,tooltip,G,extraClass=''){
+  const cell=document.createElement('div');
+  cell.className='cyc-cell'+extraClass;
+  cell.dataset.mask=m;
+  cell.innerHTML=label;
+  cell.title=tooltip;
+  cell.onclick=()=>{
+    customSel.has(m)?customSel.delete(m):customSel.add(m);
+    cell.classList.toggle('on',customSel.has(m));
+    updateMeter();
+  };
+  cell.onmouseenter=()=>renderSVG(G,m);
+  cell.onmouseleave=()=>renderSVG(G,null);
+  return cell;
+}
+
+function buildK33Grid(G,container){
+  const LEFT_PAIRS=[[0,1],[0,2],[1,2]];
+  const RIGHT_PAIRS=[[3,4],[3,5],[4,5]];
   const rowLabels=['L₀L₁','L₀L₂','L₁L₂'];
+
+  const c4sec=document.createElement('div');c4sec.className='grid-section';
+  c4sec.innerHTML='<h3>4-cycles (C₄) — 9 total, indexed by left × right vertex pairs</h3>';
+  const tbl=document.createElement('div');tbl.className='c4-table';
+  // header row
+  tbl.appendChild(Object.assign(document.createElement('div'),{textContent:''}));
+  ['R₀R₁','R₀R₂','R₁R₂'].forEach(t=>{
+    const d=document.createElement('div');d.className='c4-ax';d.textContent=t;tbl.appendChild(d);
+  });
+  // rows
   LEFT_PAIRS.forEach((lp,r)=>{
     const ax=document.createElement('div');ax.className='c4-row-ax';ax.textContent=rowLabels[r];tbl.appendChild(ax);
     RIGHT_PAIRS.forEach((rp,c)=>{
-      const m=C4_GRID[r][c];
-      const cell=document.createElement('div');
-      cell.className='cyc-cell';cell.dataset.mask=m;
-      cell.innerHTML=`${rowLabels[r]}<br>R${rp.map(v=>v-3).join('')}`;
-      cell.title='C₄: '+allCycleMasks.get(m).map(v=>NODE_LABELS[v]).join('–');
-      cell.onclick=()=>{customSel.has(m)?customSel.delete(m):customSel.add(m);cell.classList.toggle('on',customSel.has(m));onSel();};
-      cell.onmouseenter=()=>renderGraph(m);
-      cell.onmouseleave=()=>renderGraph(null);
-      tbl.appendChild(cell);
+      let m=null;
+      for(const[mk,cv]of G.allMasks)
+        if(cv.length===4&&lp.every(v=>cv.includes(v))&&rp.every(v=>cv.includes(v))){m=mk;break;}
+      const label=`${rowLabels[r]}<br>R${rp.map(v=>v-3).join('')}`;
+      const tip='C₄: '+G.allMasks.get(m).map(v=>G.nodeLabels[v]).join('–');
+      tbl.appendChild(makeCell(m,label,tip,G));
     });
   });
+  c4sec.appendChild(tbl);container.appendChild(c4sec);
 
-  const hexRow=document.getElementById('hex-row');
-  HEX_MASKS.forEach(m=>{
-    const isFace=FACE_MASK_SET.has(m);
-    const cell=document.createElement('div');
-    cell.className='cyc-cell hex';cell.dataset.mask=m;
-    cell.innerHTML=isFace?'⬡<br>face':'C₆';
-    cell.title=(isFace?'[torus face] ':'')+allCycleMasks.get(m).map(v=>NODE_LABELS[v]).join('–');
-    cell.onclick=()=>{customSel.has(m)?customSel.delete(m):customSel.add(m);cell.classList.toggle('on',customSel.has(m));onSel();};
-    cell.onmouseenter=()=>renderGraph(m);
-    cell.onmouseleave=()=>renderGraph(null);
-    hexRow.appendChild(cell);
+  const FACES=[[0,3,2,4,1,5],[3,0,4,2,5,1],[4,0,5,2,3,1]];
+  const FACE_SET=new Set(FACES.map(f=>cycleMask(f,G.eidx)));
+  const hexMasks=[...G.allMasks.keys()].filter(m=>G.allMasks.get(m).length===6);
+  const hexsec=document.createElement('div');hexsec.className='grid-section';
+  hexsec.innerHTML='<h3>6-cycles (C₆) — 6 total &nbsp;&nbsp; ⬡ = torus face</h3>';
+  const hexrow=document.createElement('div');hexrow.className='hex-row';
+  hexMasks.forEach(m=>{
+    const isFace=FACE_SET.has(m);
+    const tip=(isFace?'[torus face] ':'')+G.allMasks.get(m).map(v=>G.nodeLabels[v]).join('–');
+    hexrow.appendChild(makeCell(m,isFace?'⬡<br>face':'C₆',tip,G,' hex'));
   });
+  hexsec.appendChild(hexrow);container.appendChild(hexsec);
 }
 
-function onSel(){genNbrs=buildCustomNbrs([...customSel]);updateMeter();}
-function genNone(){customSel=new Set();document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.remove('on'));onSel();}
-function genAll(){customSel=new Set([...allCycleMasks.keys()]);document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.add('on'));onSel();}
-function genTry4(){
-  // The top-left 2×2 of the C₄ grid: a natural first attempt at 4 cycles
-  const ms=[C4_GRID[0][0],C4_GRID[0][1],C4_GRID[1][0],C4_GRID[1][1]];
-  customSel=new Set(ms);
-  document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.toggle('on',customSel.has(+c.dataset.mask)));
-  onSel();
-}
-function genMinimal(){
-  const ms=[C4_GRID[0][0],C4_GRID[0][1],C4_GRID[1][0],C4_GRID[1][1],C4_GRID[2][2]];
-  customSel=new Set(ms);
-  document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.toggle('on',customSel.has(+c.dataset.mask)));
-  onSel();
+function buildK5Grid(G,container){
+  const triMasks=[...G.allMasks.keys()].filter(m=>G.allMasks.get(m).length===3);
+  const otherMasks=[...G.allMasks.keys()].filter(m=>G.allMasks.get(m).length!==3);
+
+  const trisec=document.createElement('div');trisec.className='grid-section';
+  trisec.innerHTML='<h3>Triangles (C₃) — 10 total — the only cycles that appear in minimal sets</h3>';
+  const trigrid=document.createElement('div');trigrid.className='tri-grid';
+  triMasks.forEach(m=>{
+    const verts=G.allMasks.get(m);
+    const label=verts.join('·');
+    const tip='Triangle: '+verts.join('–');
+    trigrid.appendChild(makeCell(m,label,tip,G));
+  });
+  trisec.appendChild(trigrid);container.appendChild(trisec);
+
+  const othsec=document.createElement('div');othsec.className='grid-section';
+  othsec.innerHTML='<h3>Other cycles (C₄ + C₅) — 27 total — never in a minimal set</h3>';
+  const othrow=document.createElement('div');othrow.className='other-row';
+  otherMasks.forEach(m=>{
+    const verts=G.allMasks.get(m);
+    const label=`C${verts.length}`;
+    const tip=`C${verts.length}: `+verts.join('–');
+    othrow.appendChild(makeCell(m,label,tip,G,' dim-type'));
+  });
+  othsec.appendChild(othrow);container.appendChild(othsec);
 }
 
-buildGrid();
-genTry4(); // Start with 4 circuits selected — shows the failure state immediately
+function buildFindingBox(){
+  const G=GRAPHS[activeId];
+  const div=document.createElement('div');div.className='finding';
+  if(activeId==='k33'){
+    div.innerHTML=`
+<strong>Cycle rank = 4.</strong> For planar graphs, 4 specific circuits always suffice.<br>
+<span class="key">For K(3,3): the minimum is 5 — one more than the cycle rank.</span><br>
+All 9 minimal sets use <strong>only C₄ cycles</strong>. The hexagonal torus faces never appear.<br>
+<br>
+<strong>How we know — proof by exhaustive search:</strong><br>
+K(3,3) has exactly <strong>15 distinct cycle masks</strong> (9 four-cycles + 6 six-cycles).<br>
+<span style="font-family:monospace;font-size:10px;color:#555e6b;">
+&nbsp; size 1: &nbsp;&nbsp;15 subsets → 0 generating sets<br>
+&nbsp; size 2: &nbsp;105 subsets → 0 generating sets<br>
+&nbsp; size 3: &nbsp;455 subsets → 0 generating sets<br>
+&nbsp; size 4: 1365 subsets → 0 generating sets &nbsp;← cycle rank never suffices<br>
+&nbsp; size 5: 3003 subsets → <strong style="color:#7ee787">9 generating sets</strong> &nbsp;← minimum is 5<br>
+</span>
+<a href="proof.html" style="color:#58a6ff">Annotated proof output</a> ·
+<a href="https://github.com/mikeion/graph-problems" target="_blank" style="color:#58a6ff">source</a><br><br>
+${compTable()}`;
+  } else {
+    div.innerHTML=`
+<span class="keygood">For K₅: the minimum equals the cycle rank = 6.</span><br>
+K₅ is non-planar but <strong>not bipartite</strong> — it has triangles. This changes everything.<br>
+<br>
+The <strong>5 minimal generating sets</strong> each consist of the 6 triangles through a single vertex:<br>
+<span style="font-family:monospace;font-size:10px;color:#555e6b;">
+&nbsp; Vertex 0: triangles 012, 013, 014, 023, 024, 034<br>
+&nbsp; Vertex 1: triangles 012, 013, 014, 123, 124, 134<br>
+&nbsp; Vertex 2: triangles 012, 023, 024, 123, 124, 234<br>
+&nbsp; Vertex 3: triangles 013, 023, 034, 123, 134, 234<br>
+&nbsp; Vertex 4: triangles 014, 024, 034, 124, 134, 234<br>
+</span>
+<strong>How we know:</strong> checked all C(37,6) = 2,324,784 subsets of size 6. Exactly 5 worked.<br>
+Sizes 1–5 all give 0 generating sets — confirming minimum = 6 = cycle rank.<br><br>
+${compTable()}`;
+  }
+  return div;
+}
+
+function compTable(){
+  return `<strong>Across graphs:</strong>
+<table class="compare">
+  <tr><th>Graph</th><th>Planar</th><th>Bipartite</th><th>Cycle rank</th><th>Minimum</th><th>Result</th></tr>
+  <tr><td class="dim">Planar graphs</td><td class="good">✓</td><td class="dim">—</td><td class="dim">E−V+1</td><td class="dim">= rank</td><td class="good">holds</td></tr>
+  <tr class="${activeId==='k5'?'active':''}"><td${activeId==='k5'?'><strong>K₅</strong>':' class="dim">K₅'}</td><td class="warn">✗</td><td class="warn">✗</td><td class="dim">6</td><td class="dim">6</td><td class="good">holds</td></tr>
+  <tr class="${activeId==='k33'?'active':''}"><td${activeId==='k33'?'><strong>K(3,3)</strong>':' class="dim">K(3,3)'}</td><td class="warn">✗</td><td class="good">✓</td><td class="dim">4</td><td class="warn">5</td><td class="warn">fails</td></tr>
+  <tr><td class="dim">K(3,4)</td><td class="warn">✗</td><td class="good">✓</td><td class="dim">6</td><td class="warn">&gt;7</td><td class="warn">fails</td></tr>
+</table>
+<span style="font-size:9px;color:#484f58;">Conjecture: minimum &gt; cycle rank iff non-planar AND bipartite. All four cases verified by exhaustive search.</span>`;
+}
+
+// ── Button actions ────────────────────────────────────────────
+function buildActions(){
+  const G=GRAPHS[activeId];
+  const el=document.getElementById('metric-actions');
+  el.innerHTML='';
+  function btn(label,fn,cls=''){
+    const b=document.createElement('button');
+    b.className='mact '+cls;b.textContent=label;b.onclick=fn;el.appendChild(b);
+  }
+  btn('None',()=>{customSel=new Set();syncCells();updateMeter();});
+  if(activeId==='k33'){
+    btn(`Try 4 (cycle rank)`,()=>selectMasks(tryK33()),true,'primary');
+    btn('Show minimal set (5)',()=>selectMasks(minimalK33()));
+  } else {
+    btn('Try 5 (cycle rank−1)',()=>selectMasks(tryK5()),'primary');
+    btn('Show minimal set (6)',()=>selectMasks(minimalK5()));
+  }
+  btn('All',()=>{customSel=new Set(GRAPHS[activeId].maskList);syncCells();updateMeter();});
+}
+
+function tryK33(){
+  const G=GRAPHS.k33;
+  const lp=[[0,1],[0,2],[1,2]],rp=[[3,4],[3,5],[4,5]];
+  const ms=[];
+  [[0,0],[0,1],[1,0],[1,1]].forEach(([r,c])=>{
+    for(const[m,cv]of G.allMasks)
+      if(cv.length===4&&lp[r].every(v=>cv.includes(v))&&rp[c].every(v=>cv.includes(v))){ms.push(m);break;}
+  });
+  return ms;
+}
+function minimalK33(){
+  const G=GRAPHS.k33;
+  const lp=[[0,1],[0,2],[1,2]],rp=[[3,4],[3,5],[4,5]];
+  const ms=[];
+  [[0,0],[0,1],[1,0],[1,1],[2,2]].forEach(([r,c])=>{
+    for(const[m,cv]of G.allMasks)
+      if(cv.length===4&&lp[r].every(v=>cv.includes(v))&&rp[c].every(v=>cv.includes(v))){ms.push(m);break;}
+  });
+  return ms;
+}
+function tryK5(){
+  const G=GRAPHS.k5;
+  const tris=[...G.allMasks.keys()].filter(m=>G.allMasks.get(m).length===3);
+  return tris.filter(m=>G.allMasks.get(m).includes(0)).slice(0,5);
+}
+function minimalK5(){
+  const G=GRAPHS.k5;
+  const tris=[...G.allMasks.keys()].filter(m=>G.allMasks.get(m).length===3);
+  return tris.filter(m=>G.allMasks.get(m).includes(0));
+}
+
+function selectMasks(ms){
+  customSel=new Set(ms);syncCells();updateMeter();
+}
+function syncCells(){
+  document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.toggle('on',customSel.has(+c.dataset.mask)));
+}
+
+// ── Switch graph ──────────────────────────────────────────────
+function switchGraph(id){
+  activeId=id;customSel=new Set();
+  document.querySelectorAll('.gtab').forEach(t=>{
+    const active=t.dataset.gid===id;
+    t.classList.toggle('active',active);
+    if(active) t.classList.add(id==='k33'?'fails':'holds');
+  });
+  renderSVG(GRAPHS[id],null);
+  updateCaption();
+  buildGrid();
+  buildActions();
+  updateMeter();
+}
+
+function updateCaption(){
+  const G=GRAPHS[activeId];
+  const el=document.getElementById('graph-caption');
+  if(activeId==='k33'){
+    el.innerHTML='<strong>K(3,3) on the torus</strong> — one directed orientation shown.<br>Green = left vertices · Blue = right vertices<br>Hover any cycle cell to highlight its edges.';
+  } else {
+    el.innerHTML='<strong>K₅</strong> — complete graph on 5 vertices, one directed orientation shown.<br>Purple = all vertices (not bipartite)<br>Hover any cycle cell to highlight its edges.';
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────
+precompute(GRAPHS.k33);
+precompute(GRAPHS.k5);
+switchGraph('k33');
 </script>
 </body>
 </html>
