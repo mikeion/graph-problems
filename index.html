@@ -465,8 +465,7 @@ K(3,4) has <strong>906 TCOs</strong> in <strong>96 permanent components</strong>
 </span>
 For K(3,3) and R₁₀, all minimal sets consist entirely of 4-element circuits; it is an open question
 whether the same holds for K(3,4).
-See <a href="https://github.com/mikeion/graph-problems/blob/main/k34_search_size8.py" target="_blank" style="color:#58a6ff">k34_search_size8.py</a> ·
-<a href="r10.html" style="color:#58a6ff">R₁₀ results (γ = 7 &gt; 5)</a>.<br><br>
+See <a href="https://github.com/mikeion/graph-problems/blob/main/k34_search_size8.py" target="_blank" style="color:#58a6ff">k34_search_size8.py</a>.<br><br>
 ${compTable()}`;
   } else if(activeId==='k33'){
     div.innerHTML=`
@@ -483,7 +482,6 @@ independently by Mike and Dave.<br>
 &nbsp; All 9 minimal sets use only C₄ cycles. Torus faces (C₆) never appear.<br>
 </span>
 <a href="proof.html" style="color:#58a6ff">Full annotated output</a> ·
-<a href="r10.html" style="color:#58a6ff">R₁₀ results (γ = 7 &gt; 5)</a> ·
 <a href="https://github.com/mikeion/graph-problems" target="_blank" style="color:#58a6ff">source</a><br><br>
 ${compTable()}`;
   } else {
@@ -513,7 +511,7 @@ function compTable(){
   <tr class="${activeId==='k34'?'active':''}"><td${activeId==='k34'?'><strong>K(3,4)</strong>':' class="dim">K(3,4)'}</td><td class="good">✓</td><td class="warn">✗</td><td class="dim">6</td><td class="warn">8</td><td class="warn">+2</td><td class="warn">extends Prop 4</td></tr>
   <tr><td class="dim">R₁₀ matroid</td><td class="warn">✗</td><td class="warn">✗</td><td class="dim">5</td><td class="warn">7</td><td class="warn">+2</td><td class="warn">new result</td></tr>
 </table>
-<span style="font-size:9px;color:#484f58;">Cographic (= planar) guarantees equality. K₅ shows non-cographic is not sufficient to break it. K(3,3), K(3,4), R₁₀ show it does break — open: what is the full characterization?</span>`;
+<span style="font-size:9px;color:#484f58;">Cographic (= planar) guarantees equality. K₅ shows non-cographic alone doesn't break it. K(3,3), K(3,4), R₁₀ show it does break — open: what is the full characterization? <a href="r10.html" style="color:#58a6ff">R₁₀ →</a></span>`;
 }
 
 // ── Button actions ────────────────────────────────────────────
