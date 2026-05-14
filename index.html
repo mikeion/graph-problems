@@ -76,8 +76,8 @@ h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
 </head>
 <body>
 <header>
-  <h1>Circuit Generators</h1>
-  <span class="hdr-q">For planar graphs, <em>cycle rank</em> circuits always suffice. Does that bound hold for non-planar graphs?</span>
+  <h1>Circuit Reversal Rank</h1>
+  <span class="hdr-q">γ(G) ≥ <em>cycle rank</em> always (Prop 1). Equality holds for planar graphs (faces) and K<sub>n</sub> (triangles). When does it fail?</span>
 </header>
 
 <div class="content">
@@ -453,7 +453,8 @@ function buildFindingBox(){
   const div=document.createElement('div');div.className='finding';
   if(activeId==='k34'){
     div.innerHTML=`
-<span class="key">For K(3,4): the minimum is 8 — two more than the cycle rank of 6.</span><br>
+<span class="key">Extends Prop 4: γ(K(3,4)) = 8 &gt; 6 = cycle rank, gap now +2.</span><br>
+K(3,4) is also non-planar and bipartite — no triangles. The gap grows: cycle rank fails by 2, not 1.<br>
 K(3,4) has <strong>906 TCOs</strong> in <strong>96 permanent components</strong>, indexed by vertex out-degree sequences.<br>
 <br>
 <strong>How we know — exhaustive search in Python:</strong><br>
@@ -464,57 +465,55 @@ K(3,4) has <strong>906 TCOs</strong> in <strong>96 permanent components</strong>
 </span>
 For K(3,3) and R₁₀, all minimal sets consist entirely of 4-element circuits; it is an open question
 whether the same holds for K(3,4).
-See <a href="https://github.com/mikeion/graph-problems/blob/main/k34_search_size8.py" target="_blank" style="color:#58a6ff">k34_search_size8.py</a>.<br><br>
+See <a href="https://github.com/mikeion/graph-problems/blob/main/k34_search_size8.py" target="_blank" style="color:#58a6ff">k34_search_size8.py</a> ·
+<a href="r10.html" style="color:#58a6ff">R₁₀ results (γ = 7 &gt; 5)</a>.<br><br>
 ${compTable()}`;
   } else if(activeId==='k33'){
     div.innerHTML=`
-<strong>Cycle rank = 4.</strong> For planar graphs, 4 specific circuits always suffice.<br>
-<span class="key">For K(3,3): the minimum is 5 — one more than the cycle rank.</span><br>
-All 9 minimal sets use <strong>only C₄ cycles</strong>. The hexagonal torus faces never appear.<br>
+<span class="key">Paper Prop 4: γ(K(3,3)) = 5 &gt; 4 = cycle rank.</span><br>
+K(3,3) is the first case where the cycle rank bound fails. Unlike K₅, K(3,3) is
+<strong>bipartite</strong> — no triangles, only 4-cycles and 6-cycles. The face cycles of the
+torus embedding (the natural analog of planar faces) turn out to be useless.<br>
 <br>
-<strong>How we know — proof by exhaustive search:</strong><br>
-K(3,3) has exactly <strong>15 distinct cycle masks</strong> (9 four-cycles + 6 six-cycles).<br>
+<strong>Status in paper:</strong> no combinatorial proof yet — confirmed by exhaustive search
+independently by Mike and Dave.<br>
 <span style="font-family:monospace;font-size:10px;color:#555e6b;">
-&nbsp; size 1: &nbsp;&nbsp;15 subsets → 0 generating sets<br>
-&nbsp; size 2: &nbsp;105 subsets → 0 generating sets<br>
-&nbsp; size 3: &nbsp;455 subsets → 0 generating sets<br>
 &nbsp; size 4: 1365 subsets → 0 generating sets &nbsp;← cycle rank never suffices<br>
 &nbsp; size 5: 3003 subsets → <strong style="color:#7ee787">9 generating sets</strong> &nbsp;← minimum is 5<br>
+&nbsp; All 9 minimal sets use only C₄ cycles. Torus faces (C₆) never appear.<br>
 </span>
-<a href="proof.html" style="color:#58a6ff">Annotated proof output</a> ·
+<a href="proof.html" style="color:#58a6ff">Full annotated output</a> ·
+<a href="r10.html" style="color:#58a6ff">R₁₀ results (γ = 7 &gt; 5)</a> ·
 <a href="https://github.com/mikeion/graph-problems" target="_blank" style="color:#58a6ff">source</a><br><br>
 ${compTable()}`;
   } else {
     div.innerHTML=`
-<span class="keygood">For K₅: the minimum equals the cycle rank = 6.</span><br>
-K₅ is non-planar but <strong>not bipartite</strong> — it has triangles. This changes everything.<br>
+<span class="keygood">Paper Prop 3: γ(Kₙ) = cycle rank for all n.</span><br>
+K₅ is <strong>non-planar</strong> (not cographic), yet the minimum still equals the cycle rank.<br>
+The key: K₅ has triangles. The proof uses the <em>6 triangles through a fixed vertex</em> as generators.<br>
 <br>
-The <strong>5 minimal generating sets</strong> each consist of the 6 triangles through a single vertex:<br>
 <span style="font-family:monospace;font-size:10px;color:#555e6b;">
-&nbsp; Vertex 0: triangles 012, 013, 014, 023, 024, 034<br>
-&nbsp; Vertex 1: triangles 012, 013, 014, 123, 124, 134<br>
-&nbsp; Vertex 2: triangles 012, 023, 024, 123, 124, 234<br>
-&nbsp; Vertex 3: triangles 013, 023, 034, 123, 134, 234<br>
-&nbsp; Vertex 4: triangles 014, 024, 034, 124, 134, 234<br>
+&nbsp; Fix vertex 0. Generators = {012, 013, 014, 023, 024, 034} — the 6 triangles through 0.<br>
+&nbsp; Any other cycle can be decomposed into reversals of these triangles.<br>
 </span>
-<strong>How we know:</strong> checked all C(37,6) = 2,324,784 subsets of size 6. Exactly 5 worked.<br>
-Sizes 1–5 all give 0 generating sets — confirming minimum = 6 = cycle rank.<br><br>
+<strong>Computationally confirmed:</strong> all 5 minimal sets have exactly this structure —
+one vertex's triangles. Sizes 1–5 give 0 sets; C(37,6) = 2,324,784 subsets at size 6 → exactly 5.<br><br>
 ${compTable()}`;
   }
   return div;
 }
 
 function compTable(){
-  return `<strong>Across graphs and matroids:</strong>
+  return `<strong>Where each case sits in the paper's Venn diagram:</strong>
 <table class="compare">
-  <tr><th>Graph/Matroid</th><th>Planar</th><th>Bipartite</th><th>Cycle rank</th><th>Min γ</th><th>Gap</th><th>Result</th></tr>
-  <tr><td class="dim">Planar graphs</td><td class="good">✓</td><td class="dim">—</td><td class="dim">E−V+1</td><td class="dim">= rank</td><td class="dim">0</td><td class="good">holds</td></tr>
-  <tr class="${activeId==='k5'?'active':''}"><td${activeId==='k5'?'><strong>K₅</strong>':' class="dim">K₅'}</td><td class="warn">✗</td><td class="warn">✗</td><td class="dim">6</td><td class="dim">6</td><td class="dim">0</td><td class="good">holds</td></tr>
-  <tr class="${activeId==='k33'?'active':''}"><td${activeId==='k33'?'><strong>K(3,3)</strong>':' class="dim">K(3,3)'}</td><td class="warn">✗</td><td class="good">✓</td><td class="dim">4</td><td class="warn">5</td><td class="warn">+1</td><td class="warn">fails</td></tr>
-  <tr class="${activeId==='k34'?'active':''}"><td${activeId==='k34'?'><strong>K(3,4)</strong>':' class="dim">K(3,4)'}</td><td class="warn">✗</td><td class="good">✓</td><td class="dim">6</td><td class="warn">8</td><td class="warn">+2</td><td class="warn">fails</td></tr>
-  <tr><td class="dim">R₁₀ matroid</td><td class="dim">—</td><td class="dim">—</td><td class="dim">5</td><td class="warn">7</td><td class="warn">+2</td><td class="warn">fails</td></tr>
+  <tr><th>Graph/Matroid</th><th>Graphic</th><th>Cographic</th><th>Cycle rank</th><th>Min γ</th><th>Gap</th><th>Result</th></tr>
+  <tr><td class="dim">Planar graphs</td><td class="good">✓</td><td class="good">✓</td><td class="dim">E−V+1</td><td class="dim">= rank</td><td class="dim">0</td><td class="good">Prop 2</td></tr>
+  <tr class="${activeId==='k5'?'active':''}"><td${activeId==='k5'?'><strong>K₅</strong>':' class="dim">K₅'}</td><td class="good">✓</td><td class="warn">✗</td><td class="dim">6</td><td class="dim">6</td><td class="dim">0</td><td class="good">Prop 3</td></tr>
+  <tr class="${activeId==='k33'?'active':''}"><td${activeId==='k33'?'><strong>K(3,3)</strong>':' class="dim">K(3,3)'}</td><td class="good">✓</td><td class="warn">✗</td><td class="dim">4</td><td class="warn">5</td><td class="warn">+1</td><td class="warn">Prop 4</td></tr>
+  <tr class="${activeId==='k34'?'active':''}"><td${activeId==='k34'?'><strong>K(3,4)</strong>':' class="dim">K(3,4)'}</td><td class="good">✓</td><td class="warn">✗</td><td class="dim">6</td><td class="warn">8</td><td class="warn">+2</td><td class="warn">extends Prop 4</td></tr>
+  <tr><td class="dim">R₁₀ matroid</td><td class="warn">✗</td><td class="warn">✗</td><td class="dim">5</td><td class="warn">7</td><td class="warn">+2</td><td class="warn">new result</td></tr>
 </table>
-<span style="font-size:9px;color:#484f58;">All results verified by exhaustive search. R₁₀ is the unique non-graphic, non-cographic regular matroid in Seymour's decomposition. <a href="r10.html" style="color:#58a6ff">R₁₀ results →</a></span>`;
+<span style="font-size:9px;color:#484f58;">Cographic (= planar) guarantees equality. K₅ shows non-cographic is not sufficient to break it. K(3,3), K(3,4), R₁₀ show it does break — open: what is the full characterization?</span>`;
 }
 
 // ── Button actions ────────────────────────────────────────────
