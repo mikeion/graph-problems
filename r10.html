@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>R₁₀ Matroid — Circuit Reversal Rank</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0d1117;color:#c9d1d9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6;padding:32px 24px;max-width:760px;margin:0 auto;}
+h1{font-size:16px;font-weight:600;color:#ff7b72;margin-bottom:4px;}
+.subtitle{font-size:12px;color:#8b949e;margin-bottom:32px;}
+.subtitle a{color:#58a6ff;text-decoration:none;}
+.subtitle a:hover{text-decoration:underline;}
+
+.step{margin-bottom:32px;}
+.step-label{font-size:10px;font-weight:600;color:#6e7681;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
+.step h2{font-size:13px;font-weight:600;color:#c9d1d9;margin-bottom:6px;}
+.step p{font-size:12px;color:#8b949e;margin-bottom:10px;line-height:1.7;}
+.step p strong{color:#c9d1d9;}
+.step p em{color:#ffa657;font-style:normal;}
+
+pre{background:#161b22;border:1px solid #21262d;border-radius:6px;padding:14px 16px;font-size:11px;font-family:'SF Mono',Consolas,'Liberation Mono',monospace;color:#8b949e;overflow-x:auto;line-height:1.7;margin-bottom:10px;}
+pre .hl{color:#7ee787;}
+pre .warn{color:#ffa657;}
+pre .dim{color:#484f58;}
+pre .key{color:#ff7b72;font-weight:600;}
+
+.note{background:#161b22;border-left:3px solid #30363d;border-radius:0 4px 4px 0;padding:10px 14px;font-size:11px;color:#8b949e;margin-bottom:10px;line-height:1.7;}
+.note strong{color:#c9d1d9;}
+.note.green{border-left-color:#2ea043;}
+.note.orange{border-left-color:#9a6700;}
+.note.red{border-left-color:#da3633;}
+
+.matrix{font-family:'SF Mono',Consolas,monospace;font-size:11px;color:#79c0ff;margin:10px 0;padding:10px 14px;background:#161b22;border:1px solid #21262d;border-radius:6px;overflow-x:auto;}
+
+hr{border:none;border-top:1px solid #21262d;margin:32px 0;}
+.back{font-size:11px;color:#58a6ff;text-decoration:none;}
+.back:hover{text-decoration:underline;}
+
+.compare{width:100%;border-collapse:collapse;font-size:11px;margin:10px 0;}
+.compare th{font-size:9px;font-weight:600;color:#6e7681;text-transform:uppercase;letter-spacing:.5px;padding:4px 8px;border-bottom:1px solid #21262d;text-align:left;}
+.compare td{padding:5px 8px;border-bottom:1px solid #161b22;color:#8b949e;}
+.compare td.good{color:#7ee787;}
+.compare td.warn{color:#ffa657;}
+.compare td.key{color:#ff7b72;font-weight:600;}
+.compare tr.active td{color:#c9d1d9;}
+</style>
+</head>
+<body>
+
+<h1>R₁₀ Matroid — Minimum Circuit Generating Set</h1>
+<div class="subtitle">
+  Output of <code>python r10_analysis.py</code> — annotated. &nbsp;
+  <a href="https://github.com/mikeion/graph-problems/blob/main/r10_analysis.py">View source</a> &nbsp;·&nbsp;
+  <a href="index.html">← Back to app</a>
+</div>
+
+<!-- Step 1 -->
+<div class="step">
+  <div class="step-label">Step 1</div>
+  <h2>What is R₁₀?</h2>
+  <p>
+    By Seymour's 1980 decomposition theorem, every regular matroid can be built from
+    graphic matroids, cographic matroids, and one specific 10-element rank-5 matroid
+    called <strong>R₁₀</strong>. It is the unique regular matroid that is neither graphic
+    nor cographic, and understanding chip-firing on R₁₀ is the key to understanding
+    chip-firing on all regular matroids.
+  </p>
+  <p>
+    R₁₀ is represented by the totally unimodular matrix
+    <strong>A = [I₅ | D]</strong> where D<sub>ij</sub> = 1 if i = j, and −1 if
+    (i − j) mod 5 ∈ {1, 4}:
+  </p>
+  <div class="matrix">
+A = [[ 1  0  0  0  0 |  1 -1  0  0 -1]
+     [ 0  1  0  0  0 | -1  1 -1  0  0]
+     [ 0  0  1  0  0 |  0 -1  1 -1  0]
+     [ 0  0  0  1  0 |  0  0 -1  1 -1]
+     [ 0  0  0  0  1 | -1  0  0 -1  1]]
+  </div>
+  <div class="note">
+    This matrix has 10 columns (ground set elements 0–9) and rank 5.
+    The cycle rank = 10 − 5 = <strong>5</strong>. For comparison: a spanning tree of R₁₀
+    corresponds to a basis (5-element independent set), and R₁₀ has 162 bases —
+    equal to the order of the sandpile group S(R₁₀) = (ℤ/3ℤ)⁴ ⊕ (ℤ/2ℤ).
+  </div>
+</div>
+
+<!-- Step 2 -->
+<div class="step">
+  <div class="step-label">Step 2</div>
+  <h2>Circuits of R₁₀</h2>
+  <p>
+    A <strong>circuit</strong> of R₁₀ is a minimal linearly dependent set of columns of A.
+    We enumerate all 2¹⁰ = 1024 subsets and check rank.
+  </p>
+<pre>
+Enumerating circuits...
+<span class="hl">Found 30 circuits: {4: 15, 6: 15}</span>
+</pre>
+  <div class="note">
+    R₁₀ has exactly <strong>30 circuits</strong>: 15 of size 4 and 15 of size 6. This matches
+    the known circuit structure of R₁₀ (see e.g. Oxley, Matroid Theory §2.1).
+    The 4-element circuits correspond to the "short" dependencies in the pentagonal
+    structure of the matrix; the 6-element circuits are the "long" ones.
+    <br><br>
+    Compare to K(3,3): 15 distinct cycle masks (9 C₄ + 6 C₆). R₁₀ has a richer
+    circuit structure — twice as many — with a perfectly symmetric 15+15 split.
+  </div>
+</div>
+
+<!-- Step 3 -->
+<div class="step">
+  <div class="step-label">Step 3</div>
+  <h2>Totally cyclic orientations</h2>
+  <p>
+    An <strong>orientation</strong> of R₁₀ assigns a sign (±1) to each of the 10 ground
+    set elements. An orientation is <strong>totally cyclic</strong> if every element lies in
+    some signed circuit (positive circuit of the orientation). We check all 2¹⁰ = 1024
+    orientations.
+  </p>
+<pre>
+Enumerating TCOs...
+<span class="hl">N = 332</span> totally cyclic orientations
+M = 30 distinct circuit support masks
+</pre>
+  <div class="note">
+    332 TCOs out of 1024 total orientations (≈ 32%). For context, K(3,3) had 102 TCOs
+    out of 512 (≈ 20%), and K(3,4) had 906 out of 4096 (≈ 22%).
+  </div>
+</div>
+
+<!-- Step 4 -->
+<div class="step">
+  <div class="step-label">Step 4</div>
+  <h2>Flip graph structure — 51 permanent components</h2>
+  <p>
+    Build the full flip graph: nodes = 332 TCOs, edges = one circuit reversal apart
+    using any of the 30 circuits. Count connected components.
+  </p>
+<pre>
+Full flip graph components: <span class="hl">51</span>
+Flip graph edges per mask: min=16, max=46, total=930
+</pre>
+  <div class="note green">
+    <strong>51 components.</strong> By Gioan–Yuen (2018) Theorem 3.3, for any regular matroid M,
+    the number of totally cyclic circuit reversal classes equals t(M; 0, 1), a Tutte polynomial
+    evaluation. So <em>t(R₁₀; 0, 1) = 51</em>.
+    <br><br>
+    These 51 classes are <em>permanent</em> — no circuit reversal can move a TCO from one class
+    to another. They are indexed by an orientation invariant analogous to the out-degree
+    sequence invariant for graphs.
+  </div>
+</div>
+
+<!-- Step 5 -->
+<div class="step">
+  <div class="step-label">Step 5</div>
+  <h2>Exhaustive search for the minimum generating set</h2>
+  <p>
+    We ask: what is the smallest set <strong>C</strong> of circuits such that the restricted
+    flip graph (using only circuits in <strong>C</strong>) has exactly 51 components?
+    We check all subsets of the 30 circuit masks in increasing size.
+  </p>
+<pre>
+Searching for minimum circuit generating set (cycle rank = 5)...
+  size 1: checking        30 subsets... <span class="dim">found 0</span>
+  size 2: checking       435 subsets... <span class="dim">found 0</span>
+  size 3: checking     4,060 subsets... <span class="dim">found 0</span>
+  size 4: checking    27,405 subsets... <span class="dim">found 0</span>
+  size 5: checking   142,506 subsets... <span class="dim">found 0</span>  ← cycle rank — never suffices
+  size 6: checking   593,775 subsets... <span class="dim">found 0</span>
+  size 7: checking 2,035,800 subsets... <span class="hl">found 180</span>
+
+<span class="key">γ(R₁₀) = 7 &gt; 5 = cycle rank</span>
+Total generating sets of minimum size: 180
+</pre>
+  <div class="note red">
+    <strong>γ(R₁₀) = 7 &gt; cycle rank = 5.</strong> The minimum exceeds the cycle rank by 2.
+    This confirms the pattern observed for K(3,3) (gap +1) and K(3,4) (gap +2) extends
+    beyond graphic matroids to the non-graphic, non-cographic regular matroid R₁₀.
+    The result validates the paper's framing: the failure of cycle rank to suffice is a
+    property of the matroid class, not an accident of graph structure.
+  </div>
+</div>
+
+<!-- Step 6 -->
+<div class="step">
+  <div class="step-label">Step 6</div>
+  <h2>The 180 minimal generating sets</h2>
+  <p>
+    Each of the 180 minimal sets consists of exactly <strong>7 circuits of size 4</strong>
+    (4-element circuits). The 15 six-element circuits never appear in any minimal set —
+    directly analogous to K(3,3) where the 6-cycles never appeared.
+  </p>
+<pre>
+Sample sets (first 3):
+
+  Set 1: <span class="hl">circuit sizes [4, 4, 4, 4, 4, 4, 4]</span>
+    {0,1,4,5}  {0,1,2,6}  {1,2,3,7}  {2,3,4,8}
+    {3,5,6,8}  {4,6,7,9}  {0,2,8,9}
+
+  Set 2: <span class="hl">circuit sizes [4, 4, 4, 4, 4, 4, 4]</span>
+    {0,1,4,5}  {0,1,2,6}  {1,2,3,7}  {2,3,4,8}
+    {0,5,7,8}  {1,3,5,9}  {4,6,7,9}
+
+  Set 3: <span class="hl">circuit sizes [4, 4, 4, 4, 4, 4, 4]</span>
+    {0,1,4,5}  {0,1,2,6}  {1,2,3,7}  {3,5,6,8}
+    {1,4,7,8}  {0,3,4,9}  {2,5,7,9}
+</pre>
+  <div class="note">
+    <strong>Observation:</strong> The circuit {0,1,4,5} appears in all three sample sets
+    (and likely in many of the 180 total). The first two circuits in each set —
+    {0,1,4,5} and {0,1,2,6} — share elements 0 and 1. The 15 four-element circuits of
+    R₁₀ have a pentagonal symmetry (they are the "chords" of the Petersen-graph structure),
+    and the minimal generating sets appear to select circuits that together cover this
+    structure efficiently.
+  </div>
+</div>
+
+<hr>
+
+<!-- Summary table -->
+<div class="step">
+  <div class="step-label">Summary</div>
+  <h2>Across all cases verified</h2>
+  <table class="compare">
+    <tr><th>Graph/Matroid</th><th>Planar</th><th>Graphic</th><th>Cographic</th><th>Cycle rank</th><th>γ</th><th>Gap</th></tr>
+    <tr><td>Planar graphs</td><td class="good">✓</td><td class="good">✓</td><td class="good">✓</td><td>E−V+1</td><td class="good">= rank</td><td class="good">0</td></tr>
+    <tr><td>K₅</td><td class="warn">✗</td><td class="good">✓</td><td class="warn">✗</td><td>6</td><td class="good">6</td><td class="good">0</td></tr>
+    <tr><td>K(3,3)</td><td class="warn">✗</td><td class="good">✓</td><td class="warn">✗</td><td>4</td><td class="warn">5</td><td class="warn">+1</td></tr>
+    <tr><td>K(3,4)</td><td class="warn">✗</td><td class="good">✓</td><td class="warn">✗</td><td>6</td><td class="warn">8</td><td class="warn">+2</td></tr>
+    <tr class="active"><td><strong>R₁₀ matroid</strong></td><td class="warn">—</td><td class="warn">✗</td><td class="warn">✗</td><td>5</td><td class="key">7</td><td class="warn">+2</td></tr>
+  </table>
+  <p style="margin-top:10px;font-size:11px;color:#484f58;">
+    The K(3,3) and K(3,4) failures are for non-planar bipartite graphs (graphic but not cographic).
+    The R₁₀ failure extends the phenomenon to a matroid that is neither graphic nor cographic —
+    confirming it is a property of the matroid class, not of graph structure alone.
+    Open question: what is the correct characterization of when γ equals the cycle rank?
+  </p>
+</div>
+
+<hr>
+
+<a class="back" href="index.html">← Back to interactive app</a>
+&nbsp;·&nbsp;
+<a class="back" href="proof.html">K(3,3) detailed proof →</a>
+
+</body>
+</html>

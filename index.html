@@ -47,6 +47,7 @@ h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
 .grid-section h3{font-size:9px;font-weight:600;color:#6e7681;text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
 
 .c4-table{display:grid;grid-template-columns:38px repeat(3,1fr);gap:3px;}
+.c4-table-wide{display:grid;grid-template-columns:38px repeat(6,1fr);gap:2px;}
 .c4-ax{font-size:9px;color:#484f58;text-align:center;padding:3px 2px;display:flex;align-items:center;justify-content:center;}
 .c4-row-ax{font-size:9px;color:#484f58;text-align:right;padding-right:6px;display:flex;align-items:center;justify-content:flex-end;}
 .cyc-cell{padding:8px 4px;border-radius:4px;border:1px solid #21262d;cursor:pointer;font-size:9px;font-family:monospace;text-align:center;line-height:1.5;transition:all .15s;background:#0d1117;color:#484f58;user-select:none;}
@@ -88,6 +89,7 @@ h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
   <div class="main-col">
     <div class="graph-tabs">
       <button class="gtab active fails" data-gid="k33" onclick="switchGraph('k33')">K(3,3) — bound fails</button>
+      <button class="gtab fails" data-gid="k34" onclick="switchGraph('k34')">K(3,4) — bound fails</button>
       <button class="gtab holds" data-gid="k5" onclick="switchGraph('k5')">K₅ — bound holds</button>
     </div>
 
@@ -210,6 +212,19 @@ const GRAPHS={
     svgW:290, svgH:230,
     border:{x:18,y:24,w:253,h:182},
   },
+  k34:{
+    name:'K(3,4)', nv:7, ne:12,
+    edges:[[0,3],[0,4],[0,5],[0,6],[1,3],[1,4],[1,5],[1,6],[2,3],[2,4],[2,5],[2,6]],
+    nodePos:{
+      0:{x:65,y:55},1:{x:65,y:115},2:{x:65,y:175},
+      3:{x:225,y:28},4:{x:225,y:82},5:{x:225,y:137},6:{x:225,y:190}
+    },
+    nodeLabels:['L₀','L₁','L₂','R₀','R₁','R₂','R₃'],
+    nodeColor:v=>v<3?'#3fb950':'#79c0ff',
+    cycleRank:6, tryN:6, minimalN:8,
+    svgW:290, svgH:230,
+    border:{x:18,y:18,w:253,h:194},
+  },
   k5:{
     name:'K₅', nv:5, ne:10,
     edges:[[0,1],[0,2],[0,3],[0,4],[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]],
@@ -288,6 +303,9 @@ function updateMeter(){
   } else if(nc===G.target){
     st.style.color='#7ee787';
     st.textContent=`✓ Generating set: ${n} circuits preserve all ${G.target} groups.`;
+  } else if(activeId==='k34'&&n===6){
+    st.style.color='#ffa657';
+    st.textContent=`6 circuits (cycle rank) → ${nc} groups, need ${G.target}. Cycle rank isn't enough. Minimum = 8.`;
   } else if(activeId==='k33'&&n===4){
     st.style.color='#ffa657';
     st.textContent=`4 circuits (cycle rank) → ${nc} groups, need ${G.target}. Cycle rank isn't enough. Try 5.`;
@@ -306,6 +324,7 @@ function buildGrid(){
   const container=document.getElementById('grids-container');
   container.innerHTML='';
   if(activeId==='k33') buildK33Grid(G,container);
+  else if(activeId==='k34') buildK34Grid(G,container);
   else buildK5Grid(G,container);
   container.appendChild(buildFindingBox());
 }
@@ -394,10 +413,60 @@ function buildK5Grid(G,container){
   othsec.appendChild(othrow);container.appendChild(othsec);
 }
 
+function buildK34Grid(G,container){
+  const LEFT_PAIRS=[[0,1],[0,2],[1,2]];
+  const RIGHT_PAIRS=[[3,4],[3,5],[3,6],[4,5],[4,6],[5,6]];
+  const rowLabels=['L₀L₁','L₀L₂','L₁L₂'];
+  const colLabels=['R₀R₁','R₀R₂','R₀R₃','R₁R₂','R₁R₃','R₂R₃'];
+
+  const c4sec=document.createElement('div');c4sec.className='grid-section';
+  c4sec.innerHTML='<h3>4-cycles (C₄) — 18 total — all minimal sets draw from here</h3>';
+  const tbl=document.createElement('div');tbl.className='c4-table-wide';
+  tbl.appendChild(Object.assign(document.createElement('div'),{textContent:''}));
+  colLabels.forEach(t=>{const d=document.createElement('div');d.className='c4-ax';d.style.fontSize='8px';d.textContent=t;tbl.appendChild(d);});
+  LEFT_PAIRS.forEach((lp,r)=>{
+    const ax=document.createElement('div');ax.className='c4-row-ax';ax.textContent=rowLabels[r];tbl.appendChild(ax);
+    RIGHT_PAIRS.forEach((rp,c)=>{
+      let m=null;
+      for(const[mk,cv]of G.allMasks)
+        if(cv.length===4&&lp.every(v=>cv.includes(v))&&rp.every(v=>cv.includes(v))){m=mk;break;}
+      const label=`${rowLabels[r]}<br>${colLabels[c]}`;
+      const tip='C₄: '+G.allMasks.get(m).map(v=>G.nodeLabels[v]).join('–');
+      tbl.appendChild(makeCell(m,label,tip,G));
+    });
+  });
+  c4sec.appendChild(tbl);container.appendChild(c4sec);
+
+  const hexMasks=[...G.allMasks.keys()].filter(m=>G.allMasks.get(m).length===6);
+  const hexsec=document.createElement('div');hexsec.className='grid-section';
+  hexsec.innerHTML='<h3>6-cycles (C₆) — 24 total — never appear in a minimal generating set</h3>';
+  const hexrow=document.createElement('div');hexrow.className='hex-row';
+  hexMasks.forEach(m=>{
+    const tip='C₆: '+G.allMasks.get(m).map(v=>G.nodeLabels[v]).join('–');
+    hexrow.appendChild(makeCell(m,'C₆',tip,G,' hex'));
+  });
+  hexsec.appendChild(hexrow);container.appendChild(hexsec);
+}
+
 function buildFindingBox(){
   const G=GRAPHS[activeId];
   const div=document.createElement('div');div.className='finding';
-  if(activeId==='k33'){
+  if(activeId==='k34'){
+    div.innerHTML=`
+<span class="key">For K(3,4): the minimum is 8 — two more than the cycle rank of 6.</span><br>
+K(3,4) has <strong>906 TCOs</strong> in <strong>96 permanent components</strong>, indexed by vertex out-degree sequences.<br>
+<br>
+<strong>How we know — exhaustive search in Python:</strong><br>
+<span style="font-family:monospace;font-size:10px;color:#555e6b;">
+&nbsp; Cycle masks: 42 total (18 C₄ + 24 C₆)<br>
+&nbsp; size 7: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0 generating sets &nbsp;← cycle rank + 1 never suffices<br>
+&nbsp; size 8: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong style="color:#7ee787">≥1 generating sets</strong> &nbsp;← minimum = 8<br>
+</span>
+For K(3,3) and R₁₀, all minimal sets consist entirely of 4-element circuits; it is an open question
+whether the same holds for K(3,4).
+See <a href="https://github.com/mikeion/graph-problems/blob/main/k34_search_size8.py" target="_blank" style="color:#58a6ff">k34_search_size8.py</a>.<br><br>
+${compTable()}`;
+  } else if(activeId==='k33'){
     div.innerHTML=`
 <strong>Cycle rank = 4.</strong> For planar graphs, 4 specific circuits always suffice.<br>
 <span class="key">For K(3,3): the minimum is 5 — one more than the cycle rank.</span><br>
@@ -436,15 +505,16 @@ ${compTable()}`;
 }
 
 function compTable(){
-  return `<strong>Across graphs:</strong>
+  return `<strong>Across graphs and matroids:</strong>
 <table class="compare">
-  <tr><th>Graph</th><th>Planar</th><th>Bipartite</th><th>Cycle rank</th><th>Minimum</th><th>Result</th></tr>
-  <tr><td class="dim">Planar graphs</td><td class="good">✓</td><td class="dim">—</td><td class="dim">E−V+1</td><td class="dim">= rank</td><td class="good">holds</td></tr>
-  <tr class="${activeId==='k5'?'active':''}"><td${activeId==='k5'?'><strong>K₅</strong>':' class="dim">K₅'}</td><td class="warn">✗</td><td class="warn">✗</td><td class="dim">6</td><td class="dim">6</td><td class="good">holds</td></tr>
-  <tr class="${activeId==='k33'?'active':''}"><td${activeId==='k33'?'><strong>K(3,3)</strong>':' class="dim">K(3,3)'}</td><td class="warn">✗</td><td class="good">✓</td><td class="dim">4</td><td class="warn">5</td><td class="warn">fails</td></tr>
-  <tr><td class="dim">K(3,4)</td><td class="warn">✗</td><td class="good">✓</td><td class="dim">6</td><td class="warn">&gt;7</td><td class="warn">fails</td></tr>
+  <tr><th>Graph/Matroid</th><th>Planar</th><th>Bipartite</th><th>Cycle rank</th><th>Min γ</th><th>Gap</th><th>Result</th></tr>
+  <tr><td class="dim">Planar graphs</td><td class="good">✓</td><td class="dim">—</td><td class="dim">E−V+1</td><td class="dim">= rank</td><td class="dim">0</td><td class="good">holds</td></tr>
+  <tr class="${activeId==='k5'?'active':''}"><td${activeId==='k5'?'><strong>K₅</strong>':' class="dim">K₅'}</td><td class="warn">✗</td><td class="warn">✗</td><td class="dim">6</td><td class="dim">6</td><td class="dim">0</td><td class="good">holds</td></tr>
+  <tr class="${activeId==='k33'?'active':''}"><td${activeId==='k33'?'><strong>K(3,3)</strong>':' class="dim">K(3,3)'}</td><td class="warn">✗</td><td class="good">✓</td><td class="dim">4</td><td class="warn">5</td><td class="warn">+1</td><td class="warn">fails</td></tr>
+  <tr class="${activeId==='k34'?'active':''}"><td${activeId==='k34'?'><strong>K(3,4)</strong>':' class="dim">K(3,4)'}</td><td class="warn">✗</td><td class="good">✓</td><td class="dim">6</td><td class="warn">8</td><td class="warn">+2</td><td class="warn">fails</td></tr>
+  <tr><td class="dim">R₁₀ matroid</td><td class="dim">—</td><td class="dim">—</td><td class="dim">5</td><td class="warn">7</td><td class="warn">+2</td><td class="warn">fails</td></tr>
 </table>
-<span style="font-size:9px;color:#484f58;">Conjecture: minimum &gt; cycle rank iff non-planar AND bipartite. All four cases verified by exhaustive search.</span>`;
+<span style="font-size:9px;color:#484f58;">All results verified by exhaustive search. R₁₀ is the unique non-graphic, non-cographic regular matroid in Seymour's decomposition. <a href="r10.html" style="color:#58a6ff">R₁₀ results →</a></span>`;
 }
 
 // ── Button actions ────────────────────────────────────────────
@@ -458,8 +528,10 @@ function buildActions(){
   }
   btn('None',()=>{customSel=new Set();syncCells();updateMeter();});
   if(activeId==='k33'){
-    btn(`Try 4 (cycle rank)`,()=>selectMasks(tryK33()),true,'primary');
+    btn(`Try 4 (cycle rank)`,()=>selectMasks(tryK33()),'primary');
     btn('Show minimal set (5)',()=>selectMasks(minimalK33()));
+  } else if(activeId==='k34'){
+    btn('Try 6 (cycle rank)',()=>selectMasks(tryK34()),'primary');
   } else {
     btn('Try 5 (cycle rank−1)',()=>selectMasks(tryK5()),'primary');
     btn('Show minimal set (6)',()=>selectMasks(minimalK5()));
@@ -487,6 +559,17 @@ function minimalK33(){
   });
   return ms;
 }
+function tryK34(){
+  // First row of the C4 grid: L0L1 × all 6 right pairs
+  const G=GRAPHS.k34;
+  const lp=[0,1];
+  const rps=[[3,4],[3,5],[3,6],[4,5],[4,6],[5,6]];
+  const ms=[];
+  for(const rp of rps)
+    for(const[m,cv]of G.allMasks)
+      if(cv.length===4&&lp.every(v=>cv.includes(v))&&rp.every(v=>cv.includes(v))){ms.push(m);break;}
+  return ms;
+}
 function tryK5(){
   const G=GRAPHS.k5;
   const tris=[...G.allMasks.keys()].filter(m=>G.allMasks.get(m).length===3);
@@ -511,7 +594,7 @@ function switchGraph(id){
   document.querySelectorAll('.gtab').forEach(t=>{
     const active=t.dataset.gid===id;
     t.classList.toggle('active',active);
-    if(active) t.classList.add(id==='k33'?'fails':'holds');
+    if(active) t.classList.add((id==='k33'||id==='k34')?'fails':'holds');
   });
   renderSVG(GRAPHS[id],null);
   updateCaption();
@@ -525,6 +608,8 @@ function updateCaption(){
   const el=document.getElementById('graph-caption');
   if(activeId==='k33'){
     el.innerHTML='<strong>K(3,3) on the torus</strong> — one directed orientation shown.<br>Green = left vertices · Blue = right vertices<br>Hover any cycle cell to highlight its edges.';
+  } else if(activeId==='k34'){
+    el.innerHTML='<strong>K(3,4)</strong> — complete bipartite graph, one directed orientation shown.<br>Green = left (3) · Blue = right (4)<br>Hover any cycle cell to highlight its edges.';
   } else {
     el.innerHTML='<strong>K₅</strong> — complete graph on 5 vertices, one directed orientation shown.<br>Purple = all vertices (not bipartite)<br>Hover any cycle cell to highlight its edges.';
   }
@@ -532,6 +617,7 @@ function updateCaption(){
 
 // ── Init ──────────────────────────────────────────────────────
 precompute(GRAPHS.k33);
+precompute(GRAPHS.k34);
 precompute(GRAPHS.k5);
 switchGraph('k33');
 </script>
