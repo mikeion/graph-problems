@@ -6,83 +6,147 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#0d1117;color:#c9d1d9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-header{background:#161b22;border-bottom:1px solid #30363d;padding:8px 18px;flex-shrink:0;display:flex;align-items:baseline;gap:10px;}
+header{background:#161b22;border-bottom:1px solid #30363d;padding:7px 18px;flex-shrink:0;display:flex;align-items:baseline;gap:10px;}
 h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
 .hdr-q{font-size:11px;color:#8b949e;}
 .hdr-q em{color:#ffa657;font-style:normal;font-weight:600;}
 
 .content{display:flex;flex:1;overflow:hidden;}
 
-.graph-col{width:320px;flex-shrink:0;border-right:1px solid #21262d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px;}
+/* Left column: graph SVG */
+.graph-col{width:220px;flex-shrink:0;border-right:1px solid #21262d;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;padding:12px 10px;}
 .graph-caption{font-size:9px;color:#484f58;text-align:center;line-height:1.6;}
 .graph-caption strong{color:#8b949e;}
 
-.main-col{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:14px 16px;gap:10px;}
+/* Main column */
+.main-col{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:10px 14px;gap:8px;}
 
 .graph-tabs{display:flex;gap:4px;flex-shrink:0;}
-.gtab{padding:5px 14px;font-size:10px;border-radius:4px;border:1px solid #30363d;background:#0d1117;color:#6e7681;cursor:pointer;transition:all .12s;}
+.gtab{padding:4px 12px;font-size:10px;border-radius:4px;border:1px solid #30363d;background:#0d1117;color:#6e7681;cursor:pointer;transition:all .12s;}
 .gtab:hover{border-color:#58a6ff;color:#c9d1d9;}
 .gtab.active.fails{border-color:#ff7b72;color:#ff7b72;background:#1a0d0d;}
 .gtab.active.holds{border-color:#7ee787;color:#7ee787;background:#0d1a0d;}
 
-.metric{display:flex;align-items:center;gap:14px;padding:11px 16px;background:#161b22;border:1px solid #30363d;border-radius:8px;flex-shrink:0;}
-.metric-num{font-size:48px;font-weight:700;font-family:monospace;line-height:1;min-width:70px;transition:color .25s;}
-.num-far{color:#ff7b72;}
-.num-close{color:#ffa657;}
-.num-good{color:#7ee787;}
-.metric-right{flex:1;}
-.metric-label{font-size:11px;color:#8b949e;margin-bottom:6px;}
-.metric-label strong{color:#c9d1d9;}
-.metric-status{font-size:10px;color:#484f58;margin-bottom:9px;min-height:14px;}
-.metric-actions{display:flex;gap:5px;flex-wrap:wrap;}
-.mact{padding:5px 12px;font-size:10px;border-radius:4px;border:1px solid #30363d;background:#0d1117;color:#8b949e;cursor:pointer;transition:all .12s;}
-.mact:hover{border-color:#58a6ff;color:#c9d1d9;}
-.mact.primary{border-color:#ffa657;color:#ffa657;}
-.mact.primary:hover{background:#1a1200;color:#ffb87a;}
-.mact.success{border-color:#2ea043;color:#7ee787;}
-.mact.success:hover{background:#0d1a0d;}
+/* Two-column workspace */
+.workspace{display:flex;flex:1;overflow:hidden;gap:10px;}
 
-.grids{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:9px;}
-.grid-section{background:#161b22;border:1px solid #21262d;border-radius:6px;padding:9px 12px;}
-.grid-section h3{font-size:9px;font-weight:600;color:#6e7681;text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
+/* Component panel: left side of workspace */
+.comp-panel{width:380px;flex-shrink:0;display:flex;flex-direction:column;gap:7px;overflow:hidden;}
+.comp-panel-header{display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.comp-panel-title{font-size:10px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.6px;}
+.comp-summary{font-size:10px;color:#484f58;transition:color .2s;}
+.comp-summary.all-ok{color:#7ee787;}
+.comp-summary.some-broken{color:#ff7b72;}
+
+/* Component grid */
+.comp-grid-wrap{flex:1;overflow-y:auto;background:#161b22;border:1px solid #21262d;border-radius:7px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;}
+.comp-row-label{font-size:9px;color:#484f58;text-align:left;padding:2px 0 1px;letter-spacing:.3px;}
+.comp-row{display:flex;gap:5px;flex-wrap:wrap;}
+
+.comp-node{width:34px;height:34px;border-radius:5px;border:2px solid #30363d;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;font-family:monospace;color:#8b949e;transition:all .15s;position:relative;flex-shrink:0;line-height:1.2;}
+.comp-node:hover{border-color:#58a6ff !important;}
+.comp-node.ok{background:#0a1a0a;border-color:#2ea043;color:#7ee787;}
+.comp-node.broken{background:#1a0a0a;border-color:#f85149;color:#ff7b72;}
+.comp-node.broken.selected{background:#250a0a;border-color:#ff7b72;box-shadow:0 0 0 2px #ff7b7260;}
+.comp-node.ok.selected{background:#0d1f0d;border-color:#7ee787;box-shadow:0 0 0 2px #7ee78760;}
+.comp-node.neutral{background:#0d1117;border-color:#30363d;color:#484f58;}
+.comp-node .cn-size{position:absolute;bottom:2px;right:3px;font-size:7px;color:inherit;opacity:.7;}
+
+/* Detail panel: right side of workspace */
+.detail-panel{flex:1;display:flex;flex-direction:column;gap:7px;overflow:hidden;}
+
+/* Circuit selector */
+.circuit-area{flex-shrink:0;}
+.grid-section{background:#161b22;border:1px solid #21262d;border-radius:6px;padding:8px 11px;}
+.grid-section h3{font-size:9px;font-weight:600;color:#6e7681;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;}
 
 .c4-table{display:grid;grid-template-columns:38px repeat(3,1fr);gap:3px;}
-.c4-table-wide{display:grid;grid-template-columns:38px repeat(6,1fr);gap:2px;}
-.c4-ax{font-size:9px;color:#484f58;text-align:center;padding:3px 2px;display:flex;align-items:center;justify-content:center;}
+.c4-ax{font-size:9px;color:#484f58;text-align:center;padding:2px;display:flex;align-items:center;justify-content:center;}
 .c4-row-ax{font-size:9px;color:#484f58;text-align:right;padding-right:6px;display:flex;align-items:center;justify-content:flex-end;}
-.cyc-cell{padding:8px 4px;border-radius:4px;border:1px solid #21262d;cursor:pointer;font-size:9px;font-family:monospace;text-align:center;line-height:1.5;transition:all .15s;background:#0d1117;color:#484f58;user-select:none;}
+.cyc-cell{padding:7px 3px;border-radius:4px;border:1px solid #21262d;cursor:pointer;font-size:9px;font-family:monospace;text-align:center;line-height:1.4;transition:all .15s;background:#0d1117;color:#484f58;user-select:none;}
 .cyc-cell:hover{border-color:#58a6ff;color:#8b949e;}
 .cyc-cell.on{background:#0d1a0d;border-color:#2ea043;color:#7ee787;}
 .cyc-cell.on.hex{background:#0a0d1a;border-color:#1565c0;color:#79c0ff;}
 .cyc-cell.dim-type{opacity:.45;}
 
-.tri-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;}
 .hex-row{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;}
+.tri-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;}
 .other-row{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin-top:3px;}
 
-.finding{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:9px 13px;font-size:10px;line-height:1.8;color:#484f58;}
+/* Action bar */
+.action-bar{display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0;}
+.mact{padding:4px 11px;font-size:10px;border-radius:4px;border:1px solid #30363d;background:#0d1117;color:#8b949e;cursor:pointer;transition:all .12s;}
+.mact:hover{border-color:#58a6ff;color:#c9d1d9;}
+.mact.primary{border-color:#ffa657;color:#ffa657;}
+.mact.primary:hover{background:#1a1200;color:#ffb87a;}
+.mact.success{border-color:#2ea043;color:#7ee787;}
+.mact.success:hover{background:#0d1a0d;}
+.sel-count{font-size:10px;color:#484f58;display:flex;align-items:center;padding:0 4px;}
+
+/* Component detail box */
+.comp-detail{flex:1;overflow-y:auto;background:#161b22;border:1px solid #21262d;border-radius:7px;padding:10px 13px;font-size:10px;line-height:1.75;color:#484f58;}
+.comp-detail .dh{font-size:10px;font-weight:600;color:#8b949e;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.comp-detail .dh .badge{font-size:9px;padding:2px 7px;border-radius:3px;font-weight:400;}
+.comp-detail .dh .badge.ok{background:#0a1a0a;border:1px solid #2ea043;color:#7ee787;}
+.comp-detail .dh .badge.broken{background:#1a0a0a;border:1px solid #f85149;color:#ff7b72;}
+.comp-detail .dh .badge.neutral{background:#161b22;border:1px solid #30363d;color:#484f58;}
+.comp-detail strong{color:#c9d1d9;}
+.comp-detail .key{color:#ffa657;font-weight:600;}
+.comp-detail .keygood{color:#7ee787;font-weight:600;}
+.comp-detail .keyred{color:#ff7b72;font-weight:600;}
+
+.tco-pair{display:flex;align-items:flex-start;gap:10px;margin:5px 0;padding:6px 9px;background:#0d1117;border:1px solid #21262d;border-radius:5px;}
+.tco-pair .lbl{font-size:9px;color:#6e7681;margin-bottom:3px;}
+.tco-pair .bits{font-family:monospace;font-size:10px;letter-spacing:1px;color:#c9d1d9;}
+.tco-pair .arrow{color:#484f58;font-size:14px;align-self:center;}
+
+.fix-hint{margin-top:6px;padding:5px 9px;background:#0d1117;border:1px solid #21262d;border-radius:5px;font-size:10px;}
+.fix-hint .fh-label{font-size:9px;color:#6e7681;margin-bottom:2px;}
+.fix-hint .fh-masks{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px;}
+.fix-mask{padding:3px 8px;border-radius:3px;border:1px solid #30363d;background:#0d1117;font-size:9px;font-family:monospace;color:#79c0ff;cursor:pointer;transition:all .12s;}
+.fix-mask:hover{border-color:#58a6ff;background:#0a0d1a;}
+
+/* Simple metric for K5/K34 */
+.metric{display:flex;align-items:center;gap:14px;padding:10px 16px;background:#161b22;border:1px solid #30363d;border-radius:8px;flex-shrink:0;}
+.metric-num{font-size:44px;font-weight:700;font-family:monospace;line-height:1;min-width:60px;transition:color .25s;}
+.num-far{color:#ff7b72;}
+.num-close{color:#ffa657;}
+.num-good{color:#7ee787;}
+.metric-right{flex:1;}
+.metric-label{font-size:11px;color:#8b949e;margin-bottom:4px;}
+.metric-label strong{color:#c9d1d9;}
+.metric-status{font-size:10px;color:#484f58;min-height:14px;}
+
+/* Finding box for K5/K34 */
+.finding{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:8px 13px;font-size:10px;line-height:1.8;color:#484f58;}
 .finding strong{color:#8b949e;}
 .finding .key{color:#ffa657;font-weight:600;}
 .finding .keygood{color:#7ee787;font-weight:600;}
 
-.compare{width:100%;border-collapse:collapse;font-size:10px;margin-top:10px;}
-.compare th{font-size:9px;font-weight:600;color:#6e7681;text-transform:uppercase;letter-spacing:.5px;padding:4px 8px;border-bottom:1px solid #21262d;text-align:left;}
-.compare td{padding:4px 8px;border-bottom:1px solid #161b22;color:#8b949e;}
+.compare{width:100%;border-collapse:collapse;font-size:10px;margin-top:8px;}
+.compare th{font-size:9px;font-weight:600;color:#6e7681;text-transform:uppercase;letter-spacing:.5px;padding:3px 7px;border-bottom:1px solid #21262d;text-align:left;}
+.compare td{padding:3px 7px;border-bottom:1px solid #161b22;color:#8b949e;}
 .compare td.good{color:#7ee787;}
 .compare td.warn{color:#ffa657;}
 .compare td.dim{color:#484f58;}
 .compare tr.active td{color:#c9d1d9;}
+
+/* C4-table highlight for K33 */
+.c4-cell-hi{border-color:#ffa657 !important;color:#ffa657 !important;}
+
+.grids{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+.c4-table-wide{display:grid;grid-template-columns:38px repeat(6,1fr);gap:2px;}
 </style>
 </head>
 <body>
 <header>
   <h1>Circuit Reversal Rank</h1>
-  <span class="hdr-q">γ(G) ≥ <em>cycle rank</em> always (Prop 1). Equality holds for planar graphs (faces) and K<sub>n</sub> (triangles). When does it fail?</span>
+  <span class="hdr-q">γ(G) ≥ <em>cycle rank</em> always (Prop 1). Equality holds for planar graphs and K<sub>n</sub>. When does it fail, and why?</span>
 </header>
 
 <div class="content">
   <div class="graph-col">
-    <svg id="graph-svg" width="290" height="230"></svg>
+    <svg id="graph-svg" width="200" height="180"></svg>
     <div id="graph-caption" class="graph-caption"></div>
   </div>
 
@@ -93,16 +157,51 @@ h1{font-size:13px;font-weight:600;color:#7ee787;white-space:nowrap;}
       <button class="gtab holds" data-gid="k5" onclick="switchGraph('k5')">K₅ — bound holds</button>
     </div>
 
-    <div class="metric">
-      <div class="metric-num num-far" id="metric-num">—</div>
-      <div class="metric-right">
-        <div class="metric-label" id="metric-label"></div>
-        <div class="metric-status" id="metric-status"></div>
-        <div class="metric-actions" id="metric-actions"></div>
+    <!-- K33 workspace -->
+    <div id="k33-workspace" class="workspace">
+      <div class="comp-panel">
+        <div class="comp-panel-header">
+          <span class="comp-panel-title">20 permanent components</span>
+          <span class="comp-summary neutral" id="comp-summary">no circuits selected</span>
+        </div>
+        <div class="comp-grid-wrap" id="comp-grid"></div>
+      </div>
+      <div class="detail-panel">
+        <div class="action-bar" id="k33-actions">
+          <!-- built by JS -->
+        </div>
+        <div class="circuit-area">
+          <div class="grid-section" id="c4-section">
+            <h3>4-cycles (C₄) — 9 total, indexed by left × right vertex pairs</h3>
+            <div class="c4-table" id="c4-table"><!-- built by JS --></div>
+          </div>
+          <div class="grid-section" style="margin-top:7px;" id="c6-section">
+            <h3>6-cycles (C₆) — 6 total &nbsp;&nbsp; ⬡ = torus face</h3>
+            <div class="hex-row" id="c6-row"><!-- built by JS --></div>
+          </div>
+        </div>
+        <div class="comp-detail" id="comp-detail">
+          <div class="dh">
+            <span>Component detail</span>
+            <span class="badge neutral" id="detail-badge">—</span>
+          </div>
+          <span style="color:#30363d;">Click a component node to inspect it.</span>
+        </div>
       </div>
     </div>
 
-    <div class="grids" id="grids-container"></div>
+    <!-- K34 / K5 workspace (simpler) -->
+    <div id="other-workspace" style="display:none;flex:1;flex-direction:column;gap:8px;overflow:hidden;">
+      <div class="metric">
+        <div class="metric-num num-far" id="metric-num">—</div>
+        <div class="metric-right">
+          <div class="metric-label" id="metric-label"></div>
+          <div class="metric-status" id="metric-status"></div>
+        </div>
+      </div>
+      <div class="action-bar" id="other-actions"></div>
+      <div class="grids" id="other-grids"></div>
+    </div>
   </div>
 </div>
 
@@ -200,39 +299,132 @@ function countComps(G,selMasks){
   return G.tcos.filter((_,i)=>find(i)===i).length;
 }
 
+// ── K33-specific component analysis ──────────────────────────
+// Each TCO has an out-degree sequence: for K(3,3) each vertex has degree 3,
+// so out-deg is 0,1,2,or 3. The permanent component is determined by which
+// vertices have out-degree 2 (or equivalently ≥ the mean).
+// For K(3,3): each vertex has total degree 3, average out = 1.5.
+// The "heavy" vertices (out-deg ≥ 2) are the invariant.
+
+function outDegSeq(o,edges,nv){
+  const deg=new Array(nv).fill(0);
+  edges.forEach(([u,v],k)=>{if((o>>k)&1)deg[v]++;else deg[u]++;});
+  return deg;
+}
+
+function compKey(o,G){
+  // Key = sorted list of vertices with out-degree 2 (heavy vertices)
+  // For K(3,3): 9 edges, each vertex has degree 3. TCOs have out-deg ∈ {1,2}.
+  // Wait: degree 3 total, TCO requires each edge reversible => both ends reachable.
+  // Actually out-deg can be 0,1,2,3 in principle but for K(3,3) TCOs it's 1 or 2.
+  const deg=outDegSeq(o,G.edges,G.nv);
+  // Use vertices with out-degree > average as the signature
+  // For K33: average out-deg = 9/6 = 1.5, so heavy = out-deg >= 2
+  return deg.map((d,i)=>d>=2?i:-1).filter(v=>v>=0).sort((a,b)=>a-b).join(',');
+}
+
+function buildComponents(G){
+  // Group TCOs by their component key (out-degree signature)
+  const compMap=new Map();
+  for(const o of G.tcos){
+    const key=compKey(o,G);
+    if(!compMap.has(key))compMap.set(key,[]);
+    compMap.get(key).push(o);
+  }
+  // Convert to array, sort for stable ordering, and parse heavy vertex list
+  G.components=[...compMap.entries()].map(([key,tcos])=>{
+    const heavy=key===''?[]:key.split(',').map(Number);
+    return{key,tcos,id:key,heavy};
+  });
+  G.components.sort((a,b)=>a.key.localeCompare(b.key));
+  G.compByKey=compMap;
+
+  // For each component × each mask, record which pairs (by tco index) are connected
+  // comp.edgesByMask[maskIdx] = list of [tcoIdxA, tcoIdxB] within comp
+  for(const comp of G.components){
+    const tcoSet=new Set(comp.tcos);
+    const localIdx=new Map(comp.tcos.map((o,i)=>[o,i]));
+    comp.localIdx=localIdx;
+    comp.edgesByMask=G.maskList.map(()=>[]);
+    for(const o of comp.tcos){
+      const li=localIdx.get(o);
+      for(let mi=0;mi<G.maskList.length;mi++){
+        const m=G.maskList[mi];
+        const nb=o^m;
+        if(tcoSet.has(nb)&&nb!==o&&localIdx.get(o)<localIdx.get(nb)){
+          comp.edgesByMask[mi].push([li,localIdx.get(nb)]);
+        }
+      }
+    }
+  }
+}
+
+// Check if a component is connected under a given set of mask indices
+function compConnected(comp,selMaskIdxs){
+  const n=comp.tcos.length;
+  if(n<=1)return{ok:true,disconnected:null};
+  const parent=Array.from({length:n},(_,i)=>i);
+  function find(x){while(parent[x]!==x){parent[x]=parent[parent[x]];x=parent[x];}return x;}
+  function union(a,b){a=find(a);b=find(b);if(a!==b){parent[a]=b;return true;}return false;}
+  for(const mi of selMaskIdxs){
+    for(const[u,v]of comp.edgesByMask[mi])union(u,v);
+  }
+  // Check if all connected
+  const root=find(0);
+  for(let i=1;i<n;i++)if(find(i)!==root){
+    // Find a pair that's disconnected
+    return{ok:false,disconnected:[comp.tcos[0],comp.tcos[i]]};
+  }
+  return{ok:true,disconnected:null};
+}
+
+// Find which masks (from ALL masks, not just selected) would fix a broken pair
+function fixingMasks(comp,selMaskIdxs,brokenPair,G){
+  const[oa,ob]=brokenPair;
+  const selSet=new Set(selMaskIdxs);
+  const fixes=[];
+  for(let mi=0;mi<G.maskList.length;mi++){
+    if(selSet.has(mi))continue;
+    // Check if adding this mask connects oa and ob within the component
+    const test=compConnected(comp,[...selMaskIdxs,mi]);
+    if(test.ok)fixes.push(G.maskList[mi]);
+  }
+  return fixes;
+}
+
 // ── Graph configurations ──────────────────────────────────────
 const GRAPHS={
   k33:{
     name:'K(3,3)', nv:6, ne:9,
     edges:[[0,3],[0,4],[0,5],[1,3],[1,4],[1,5],[2,3],[2,4],[2,5]],
-    nodePos:{0:{x:35,y:42},3:{x:148,y:42},1:{x:260,y:42},4:{x:35,y:188},2:{x:148,y:188},5:{x:260,y:188}},
+    nodePos:{0:{x:30,y:35},3:{x:100,y:35},1:{x:170,y:35},4:{x:30,y:145},2:{x:100,y:145},5:{x:170,y:145}},
     nodeLabels:['L₀','L₁','L₂','R₀','R₁','R₂'],
     nodeColor:v=>v<3?'#3fb950':'#79c0ff',
     cycleRank:4, tryN:4, minimalN:5,
-    svgW:290, svgH:230,
-    border:{x:18,y:24,w:253,h:182},
+    svgW:200, svgH:180,
+    border:{x:10,y:16,w:180,h:148},
   },
   k34:{
     name:'K(3,4)', nv:7, ne:12,
     edges:[[0,3],[0,4],[0,5],[0,6],[1,3],[1,4],[1,5],[1,6],[2,3],[2,4],[2,5],[2,6]],
     nodePos:{
-      0:{x:65,y:55},1:{x:65,y:115},2:{x:65,y:175},
-      3:{x:225,y:28},4:{x:225,y:82},5:{x:225,y:137},6:{x:225,y:190}
+      0:{x:55,y:45},1:{x:55,y:90},2:{x:55,y:135},
+      3:{x:155,y:22},4:{x:155,y:67},5:{x:155,y:112},6:{x:155,y:157}
     },
     nodeLabels:['L₀','L₁','L₂','R₀','R₁','R₂','R₃'],
     nodeColor:v=>v<3?'#3fb950':'#79c0ff',
     cycleRank:6, tryN:6, minimalN:8,
-    svgW:290, svgH:230,
-    border:{x:18,y:18,w:253,h:194},
+    svgW:200, svgH:180,
+    border:{x:10,y:10,w:180,h:160},
   },
   k5:{
     name:'K₅', nv:5, ne:10,
     edges:[[0,1],[0,2],[0,3],[0,4],[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]],
-    nodePos:{0:{x:145,y:28},1:{x:258,y:110},2:{x:210,y:205},3:{x:80,y:205},4:{x:32,y:110}},
+    nodePos:{0:{x:100,y:18},1:{x:182,y:75},2:{x:152,y:165},3:{x:48,y:165},4:{x:18,y:75}},
     nodeLabels:['0','1','2','3','4'],
     nodeColor:()=>'#d2a8ff',
     cycleRank:6, tryN:5, minimalN:6,
-    svgW:290, svgH:230,
+    svgW:200, svgH:180,
     border:null,
   }
 };
@@ -240,6 +432,7 @@ const GRAPHS={
 // ── State ─────────────────────────────────────────────────────
 let activeId='k33';
 let customSel=new Set();
+let selectedCompKey=null; // which component node is clicked in K33 view
 
 // ── SVG rendering ─────────────────────────────────────────────
 function renderSVG(G,hlMask){
@@ -262,7 +455,7 @@ function renderSVG(G,hlMask){
     const[u,v]=G.edges[k],rev=(refO>>k)&1,[s,d]=rev?[v,u]:[u,v];
     const{x:x1,y:y1}=np[s],{x:x2,y:y2}=np[d];
     const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
-    return{x1:x1+13*dx/len,y1:y1+13*dy/len,x2:x2-20*dx/len,y2:y2-20*dy/len};
+    return{x1:x1+12*dx/len,y1:y1+12*dy/len,x2:x2-16*dx/len,y2:y2-16*dy/len};
   }
   const eG=svg.append('g');
   eG.selectAll('line').data(d3.range(G.ne)).join('line')
@@ -273,17 +466,324 @@ function renderSVG(G,hlMask){
     .attr('fill','none');
   const nG=svg.append('g');
   nG.selectAll('circle').data(d3.range(G.nv)).join('circle')
-    .attr('cx',d=>np[d].x).attr('cy',d=>np[d].y).attr('r',13)
+    .attr('cx',d=>np[d].x).attr('cy',d=>np[d].y).attr('r',11)
     .attr('fill','#0d1117').attr('stroke',G.nodeColor).attr('stroke-width',1.5);
   nG.selectAll('text').data(d3.range(G.nv)).join('text')
     .attr('x',d=>np[d].x).attr('y',d=>np[d].y+1)
     .attr('text-anchor','middle').attr('dominant-baseline','middle')
-    .attr('font-size',8).attr('font-family','monospace')
+    .attr('font-size',7).attr('font-family','monospace')
     .attr('fill',G.nodeColor).attr('pointer-events','none')
     .text(d=>G.nodeLabels[d]);
 }
 
-// ── Meter ─────────────────────────────────────────────────────
+// ── K33 component grid ─────────────────────────────────────────
+// Layout the 20 components by number of "heavy" left vertices (out-deg ≥ 2)
+// among {0,1,2} and number of heavy right vertices among {3,4,5}.
+// Each component key encodes exactly which vertices are heavy.
+// Rows: 0L3R (1), 1L2R (9), 2L1R (9), 3L0R (1)
+
+function getCompLayout(G){
+  // Count left-heavy vs right-heavy vertices for layout grouping
+  return G.components.map(comp=>{
+    const leftHeavy=comp.heavy.filter(v=>v<3).length;
+    const rightHeavy=comp.heavy.filter(v=>v>=3).length;
+    return{...comp,leftHeavy,rightHeavy};
+  });
+}
+
+function buildCompGrid(G){
+  const grid=document.getElementById('comp-grid');
+  grid.innerHTML='';
+  const comps=getCompLayout(G);
+
+  // Group by (leftHeavy, rightHeavy) row label
+  const rows=[
+    {lh:0,rh:3,label:'0L · 3R  (1 component · 6 TCOs)'},
+    {lh:1,rh:2,label:'1L · 2R  (9 components · 5 TCOs each)'},
+    {lh:2,rh:1,label:'2L · 1R  (9 components · 5 TCOs each)'},
+    {lh:3,rh:0,label:'3L · 0R  (1 component · 6 TCOs)'},
+  ];
+  for(const row of rows){
+    const rowComps=comps.filter(c=>c.leftHeavy===row.lh&&c.rightHeavy===row.rh);
+    if(rowComps.length===0)continue;
+
+    const lbl=document.createElement('div');
+    lbl.className='comp-row-label';
+    lbl.textContent=row.label;
+    grid.appendChild(lbl);
+
+    const rowEl=document.createElement('div');
+    rowEl.className='comp-row';
+    for(const comp of rowComps){
+      const node=document.createElement('div');
+      node.className='comp-node neutral';
+      node.id=`cn-${comp.key.replace(/,/g,'-')}`;
+      node.dataset.key=comp.key;
+      // Two-line label: left-heavy on top (L-indices), right-heavy on bottom (R-indices)
+      const lh=comp.heavy.filter(v=>v<3).map(v=>v.toString()).join('');
+      const rh=comp.heavy.filter(v=>v>=3).map(v=>(v-3).toString()).join('');
+      const line1=lh?'L'+lh:'';
+      const line2=rh?'R'+rh:'';
+      node.innerHTML=`<span>${line1||'·'}</span><span>${line2||'·'}</span><span class="cn-size">${comp.tcos.length}</span>`;
+      node.title=`Component: heavy = {${comp.heavy.map(v=>GRAPHS.k33.nodeLabels[v]).join(', ')}}\n${comp.tcos.length} TCOs — click to inspect`;
+      node.onclick=()=>selectComp(comp.key);
+      rowEl.appendChild(node);
+    }
+    grid.appendChild(rowEl);
+  }
+}
+
+function updateCompGrid(){
+  const G=GRAPHS.k33;
+  if(!G.components)return;
+  const selMaskIdxs=[...customSel].map(m=>G.maskIdx.get(m)).filter(i=>i!==undefined);
+  let nBroken=0,nOk=0,nNeutral=0;
+
+  for(const comp of G.components){
+    const node=document.getElementById(`cn-${comp.key.replace(/,/g,'-')}`);
+    if(!node)continue;
+    if(customSel.size===0){
+      node.className='comp-node neutral'+(selectedCompKey===comp.key?' selected':'');
+      nNeutral++;
+      continue;
+    }
+    const res=compConnected(comp,selMaskIdxs);
+    if(res.ok){
+      node.className='comp-node ok'+(selectedCompKey===comp.key?' selected':'');
+      nOk++;
+    } else {
+      node.className='comp-node broken'+(selectedCompKey===comp.key?' selected':'');
+      nBroken++;
+    }
+    comp._lastResult=res;
+  }
+
+  const sumEl=document.getElementById('comp-summary');
+  if(customSel.size===0){
+    sumEl.className='comp-summary neutral';
+    sumEl.textContent='no circuits selected';
+  } else if(nBroken===0){
+    sumEl.className='comp-summary all-ok';
+    sumEl.textContent=`all ${nOk} connected ✓`;
+  } else {
+    sumEl.className='comp-summary some-broken';
+    sumEl.textContent=`${nBroken} broken, ${nOk} ok`;
+  }
+
+  // Refresh detail if a component is selected
+  if(selectedCompKey)showCompDetail(selectedCompKey);
+}
+
+function selectComp(key){
+  selectedCompKey=key;
+  // Update visual selection state on nodes
+  document.querySelectorAll('.comp-node').forEach(n=>{
+    n.classList.toggle('selected',n.dataset.key===key);
+  });
+  showCompDetail(key);
+}
+
+function showCompDetail(key){
+  const G=GRAPHS.k33;
+  const comp=G.components.find(c=>c.key===key);
+  if(!comp)return;
+
+  const selMaskIdxs=[...customSel].map(m=>G.maskIdx.get(m)).filter(i=>i!==undefined);
+  const detail=document.getElementById('comp-detail');
+
+  const heavyNames=comp.heavy.map(v=>G.nodeLabels[v]).join(', ');
+  const leftHeavy=comp.heavy.filter(v=>v<3).map(v=>G.nodeLabels[v]).join('');
+  const rightHeavy=comp.heavy.filter(v=>v>=3).map(v=>G.nodeLabels[v]).join('');
+
+  let statusClass='neutral';
+  let statusText='—';
+  let bodyHtml='';
+
+  if(customSel.size===0){
+    statusClass='neutral';
+    statusText='no selection';
+    bodyHtml=`<p>No circuits selected. Select circuits from the grid to see connectivity.</p>`;
+  } else {
+    const res=compConnected(comp,selMaskIdxs);
+    if(res.ok){
+      statusClass='ok';
+      statusText='connected';
+      bodyHtml=`<p><span class="keygood">All ${comp.tcos.length} TCOs can reach each other</span> via the selected circuits.</p>`;
+      // Show internal edges provided by selected masks
+      bodyHtml+=`<p style="margin-top:6px;color:#6e7681;">Internal edges from selected circuits:</p>`;
+      bodyHtml+=`<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:3px;">`;
+      for(const m of customSel){
+        const mi=G.maskIdx.get(m);
+        if(mi===undefined)continue;
+        const internalEdges=comp.edgesByMask[mi];
+        if(internalEdges.length>0){
+          const verts=G.allMasks.get(m);
+          bodyHtml+=`<span style="padding:2px 7px;border-radius:3px;background:#0d1117;border:1px solid #2ea043;font-size:9px;font-family:monospace;color:#7ee787;">C${verts.length}:${verts.map(v=>G.nodeLabels[v]).join('')} (${internalEdges.length} edge${internalEdges.length>1?'s':''})</span>`;
+        }
+      }
+      bodyHtml+=`</div>`;
+    } else {
+      statusClass='broken';
+      statusText='broken';
+      const[oa,ob]=res.disconnected;
+      const degA=outDegSeq(oa,G.edges,G.nv);
+      const degB=outDegSeq(ob,G.edges,G.nv);
+      bodyHtml=`<p><span class="keyred">Disconnected</span> — these two TCOs cannot reach each other within this component:</p>`;
+
+      // Show the disconnected pair as out-degree sequences
+      bodyHtml+=`<div class="tco-pair">
+        <div>
+          <div class="lbl">TCO A — out-degrees</div>
+          <div class="bits">${G.nodeLabels.map((l,i)=>l+':'+degA[i]).join(' &nbsp; ')}</div>
+        </div>
+        <div class="arrow">⟷</div>
+        <div>
+          <div class="lbl">TCO B — out-degrees</div>
+          <div class="bits">${G.nodeLabels.map((l,i)=>l+':'+degB[i]).join(' &nbsp; ')}</div>
+        </div>
+      </div>`;
+
+      // Which masks within this component are missing (would help)?
+      const fixes=fixingMasks(comp,selMaskIdxs,res.disconnected,G);
+      if(fixes.length>0){
+        bodyHtml+=`<div class="fix-hint">
+          <div class="fh-label">Circuits that would fix this component (click to add):</div>
+          <div class="fh-masks">`;
+        for(const m of fixes){
+          const verts=G.allMasks.get(m);
+          const isC4=verts.length===4;
+          bodyHtml+=`<span class="fix-mask" data-mask="${m}" title="${isC4?'C₄':'C₆'}: ${verts.map(v=>G.nodeLabels[v]).join('–')}">C${verts.length}:${verts.map(v=>G.nodeLabels[v]).join('')}</span>`;
+        }
+        bodyHtml+=`</div></div>`;
+      } else if(selMaskIdxs.length>0){
+        bodyHtml+=`<p style="margin-top:6px;color:#484f58;font-size:9px;">No single additional circuit fixes this. Need 2+.</p>`;
+      }
+
+      // Show all masks that provide internal edges in this component
+      bodyHtml+=`<p style="margin-top:8px;color:#6e7681;">All circuits with edges inside this component:</p>
+        <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:3px;">`;
+      for(let mi=0;mi<G.maskList.length;mi++){
+        const internalEdges=comp.edgesByMask[mi];
+        if(internalEdges.length>0){
+          const m=G.maskList[mi];
+          const verts=G.allMasks.get(m);
+          const isSelected=customSel.has(m);
+          bodyHtml+=`<span style="padding:2px 7px;border-radius:3px;background:#0d1117;border:1px solid ${isSelected?'#2ea043':'#30363d'};font-size:9px;font-family:monospace;color:${isSelected?'#7ee787':'#484f58'};">C${verts.length}:${verts.map(v=>G.nodeLabels[v]).join('')}</span>`;
+        }
+      }
+      bodyHtml+=`</div>`;
+    }
+  }
+
+  detail.innerHTML=`
+    <div class="dh">
+      <span>Component: heavy = {${heavyNames}}</span>
+      <span class="badge ${statusClass}" >${statusText}</span>
+    </div>
+    <div style="font-size:9px;color:#484f58;margin-bottom:8px;">
+      ${comp.tcos.length} TCOs &nbsp;·&nbsp; left-heavy: ${leftHeavy||'none'} &nbsp;·&nbsp; right-heavy: ${rightHeavy||'none'}
+    </div>
+    ${bodyHtml}`;
+
+  // Wire up fix-mask click handlers
+  detail.querySelectorAll('.fix-mask').forEach(el=>{
+    el.onclick=()=>{
+      const m=+el.dataset.mask;
+      customSel.add(m);
+      syncCells();
+      updateCompGrid();
+      showCompDetail(key);
+    };
+  });
+}
+
+// ── Build K33 circuit selector ────────────────────────────────
+function buildK33Circuits(){
+  const G=GRAPHS.k33;
+  const LEFT_PAIRS=[[0,1],[0,2],[1,2]];
+  const RIGHT_PAIRS=[[3,4],[3,5],[4,5]];
+  const rowLabels=['L₀L₁','L₀L₂','L₁L₂'];
+
+  const tbl=document.getElementById('c4-table');
+  tbl.innerHTML='';
+  // Header
+  tbl.appendChild(Object.assign(document.createElement('div'),{textContent:''}));
+  ['R₀R₁','R₀R₂','R₁R₂'].forEach(t=>{
+    const d=document.createElement('div');d.className='c4-ax';d.textContent=t;tbl.appendChild(d);
+  });
+  // Rows
+  LEFT_PAIRS.forEach((lp,r)=>{
+    const ax=document.createElement('div');ax.className='c4-row-ax';ax.textContent=rowLabels[r];tbl.appendChild(ax);
+    RIGHT_PAIRS.forEach((rp)=>{
+      let m=null;
+      for(const[mk,cv]of G.allMasks)
+        if(cv.length===4&&lp.every(v=>cv.includes(v))&&rp.every(v=>cv.includes(v))){m=mk;break;}
+      const label=`${rowLabels[r]}<br>R${rp.map(v=>v-3).join('')}`;
+      const tip='C₄: '+G.allMasks.get(m).map(v=>G.nodeLabels[v]).join('–');
+      tbl.appendChild(makeCell(m,label,tip,G));
+    });
+  });
+
+  const FACES=[[0,3,2,4,1,5],[3,0,4,2,5,1],[4,0,5,2,3,1]];
+  const FACE_SET=new Set(FACES.map(f=>cycleMask(f,G.eidx)));
+  const hexMasks=[...G.allMasks.keys()].filter(m=>G.allMasks.get(m).length===6);
+  const hexrow=document.getElementById('c6-row');
+  hexrow.innerHTML='';
+  hexMasks.forEach(m=>{
+    const isFace=FACE_SET.has(m);
+    const tip=(isFace?'[torus face] ':'')+G.allMasks.get(m).map(v=>G.nodeLabels[v]).join('–');
+    hexrow.appendChild(makeCell(m,isFace?'⬡<br>face':'C₆',tip,G,' hex'));
+  });
+}
+
+function makeCell(m,label,tooltip,G,extraClass=''){
+  const cell=document.createElement('div');
+  cell.className='cyc-cell'+extraClass;
+  cell.dataset.mask=m;
+  cell.innerHTML=label;
+  cell.title=tooltip;
+  cell.onclick=()=>{
+    customSel.has(m)?customSel.delete(m):customSel.add(m);
+    cell.classList.toggle('on',customSel.has(m));
+    if(activeId==='k33'){updateCompGrid();}
+    else{updateMeter();}
+  };
+  cell.onmouseenter=()=>renderSVG(G,m);
+  cell.onmouseleave=()=>renderSVG(G,null);
+  return cell;
+}
+
+// ── K33 action buttons ─────────────────────────────────────────
+function buildK33Actions(){
+  const el=document.getElementById('k33-actions');
+  el.innerHTML='';
+  function btn(label,fn,cls=''){
+    const b=document.createElement('button');
+    b.className='mact '+cls;b.textContent=label;b.onclick=fn;el.appendChild(b);
+  }
+  btn('None',()=>{customSel=new Set();syncCells();updateCompGrid();});
+  btn('Try 4 (cycle rank)',()=>selectMasks(tryK33()),'primary');
+  btn('Show minimal set (5)',()=>selectMasks(minimalK33()),'success');
+  btn('All C₄',()=>{
+    const G=GRAPHS.k33;
+    const c4s=[...G.allMasks.keys()].filter(m=>G.allMasks.get(m).length===4);
+    selectMasks(c4s);
+  });
+
+  // Selection count display
+  const sc=document.createElement('span');
+  sc.className='sel-count';
+  sc.id='sel-count';
+  sc.textContent='0 selected';
+  el.appendChild(sc);
+}
+
+function updateSelCount(){
+  const el=document.getElementById('sel-count');
+  if(el)el.textContent=`${customSel.size} selected`;
+}
+
+// ── Other graph (K5, K34) meter ────────────────────────────────
 function updateMeter(){
   const G=GRAPHS[activeId];
   const n=customSel.size;
@@ -296,94 +796,33 @@ function updateMeter(){
   const st=document.getElementById('metric-status');
   if(n===0){
     st.style.color='#484f58';
-    st.textContent=`No circuits selected — try "${activeId==='k33'?'Try 4 (cycle rank)':'Try 5 (cycle rank−1)'}" to start.`;
+    st.textContent=`No circuits selected.`;
   } else if(nc===G.target&&n<=G.minimalN){
     st.style.color='#7ee787';
-    st.textContent=`✓ Minimal generating set — ${n} circuits suffice. Minimum = ${n}.`;
+    st.textContent=`✓ Minimal generating set — ${n} circuits suffice.`;
   } else if(nc===G.target){
     st.style.color='#7ee787';
-    st.textContent=`✓ Generating set: ${n} circuits preserve all ${G.target} groups.`;
+    st.textContent=`✓ Generating set: ${n} circuits preserve all ${G.target} components.`;
   } else if(activeId==='k34'&&n===6){
     st.style.color='#ffa657';
     st.textContent=`6 circuits (cycle rank) → ${nc} groups, need ${G.target}. Cycle rank isn't enough. Minimum = 8.`;
-  } else if(activeId==='k33'&&n===4){
-    st.style.color='#ffa657';
-    st.textContent=`4 circuits (cycle rank) → ${nc} groups, need ${G.target}. Cycle rank isn't enough. Try 5.`;
   } else if(activeId==='k5'&&n===5){
     st.style.color='#ffa657';
     st.textContent=`5 circuits (cycle rank−1) → ${nc} groups, need ${G.target}. Need one more.`;
   } else {
     st.style.color='#8b949e';
-    st.textContent=`${n} circuit${n===1?'':'s'} → ${nc} groups. Some TCOs in the same class can't reach each other.`;
+    st.textContent=`${n} circuit${n===1?'':'s'} → ${nc} groups. Some components are broken.`;
   }
 }
 
-// ── Grid builders ─────────────────────────────────────────────
-function buildGrid(){
+// ── Grid builders for K5 / K34 ────────────────────────────────
+function buildOtherGrid(){
   const G=GRAPHS[activeId];
-  const container=document.getElementById('grids-container');
+  const container=document.getElementById('other-grids');
   container.innerHTML='';
-  if(activeId==='k33') buildK33Grid(G,container);
-  else if(activeId==='k34') buildK34Grid(G,container);
+  if(activeId==='k34') buildK34Grid(G,container);
   else buildK5Grid(G,container);
   container.appendChild(buildFindingBox());
-}
-
-function makeCell(m,label,tooltip,G,extraClass=''){
-  const cell=document.createElement('div');
-  cell.className='cyc-cell'+extraClass;
-  cell.dataset.mask=m;
-  cell.innerHTML=label;
-  cell.title=tooltip;
-  cell.onclick=()=>{
-    customSel.has(m)?customSel.delete(m):customSel.add(m);
-    cell.classList.toggle('on',customSel.has(m));
-    updateMeter();
-  };
-  cell.onmouseenter=()=>renderSVG(G,m);
-  cell.onmouseleave=()=>renderSVG(G,null);
-  return cell;
-}
-
-function buildK33Grid(G,container){
-  const LEFT_PAIRS=[[0,1],[0,2],[1,2]];
-  const RIGHT_PAIRS=[[3,4],[3,5],[4,5]];
-  const rowLabels=['L₀L₁','L₀L₂','L₁L₂'];
-
-  const c4sec=document.createElement('div');c4sec.className='grid-section';
-  c4sec.innerHTML='<h3>4-cycles (C₄) — 9 total, indexed by left × right vertex pairs</h3>';
-  const tbl=document.createElement('div');tbl.className='c4-table';
-  // header row
-  tbl.appendChild(Object.assign(document.createElement('div'),{textContent:''}));
-  ['R₀R₁','R₀R₂','R₁R₂'].forEach(t=>{
-    const d=document.createElement('div');d.className='c4-ax';d.textContent=t;tbl.appendChild(d);
-  });
-  // rows
-  LEFT_PAIRS.forEach((lp,r)=>{
-    const ax=document.createElement('div');ax.className='c4-row-ax';ax.textContent=rowLabels[r];tbl.appendChild(ax);
-    RIGHT_PAIRS.forEach((rp,c)=>{
-      let m=null;
-      for(const[mk,cv]of G.allMasks)
-        if(cv.length===4&&lp.every(v=>cv.includes(v))&&rp.every(v=>cv.includes(v))){m=mk;break;}
-      const label=`${rowLabels[r]}<br>R${rp.map(v=>v-3).join('')}`;
-      const tip='C₄: '+G.allMasks.get(m).map(v=>G.nodeLabels[v]).join('–');
-      tbl.appendChild(makeCell(m,label,tip,G));
-    });
-  });
-  c4sec.appendChild(tbl);container.appendChild(c4sec);
-
-  const FACES=[[0,3,2,4,1,5],[3,0,4,2,5,1],[4,0,5,2,3,1]];
-  const FACE_SET=new Set(FACES.map(f=>cycleMask(f,G.eidx)));
-  const hexMasks=[...G.allMasks.keys()].filter(m=>G.allMasks.get(m).length===6);
-  const hexsec=document.createElement('div');hexsec.className='grid-section';
-  hexsec.innerHTML='<h3>6-cycles (C₆) — 6 total &nbsp;&nbsp; ⬡ = torus face</h3>';
-  const hexrow=document.createElement('div');hexrow.className='hex-row';
-  hexMasks.forEach(m=>{
-    const isFace=FACE_SET.has(m);
-    const tip=(isFace?'[torus face] ':'')+G.allMasks.get(m).map(v=>G.nodeLabels[v]).join('–');
-    hexrow.appendChild(makeCell(m,isFace?'⬡<br>face':'C₆',tip,G,' hex'));
-  });
-  hexsec.appendChild(hexrow);container.appendChild(hexsec);
 }
 
 function buildK5Grid(G,container){
@@ -453,89 +892,58 @@ function buildFindingBox(){
   const div=document.createElement('div');div.className='finding';
   if(activeId==='k34'){
     div.innerHTML=`
-<span class="key">Extends Prop 4: γ(K(3,4)) = 8 &gt; 6 = cycle rank, gap now +2.</span><br>
-K(3,4) is also non-planar and bipartite — no triangles. The gap grows: cycle rank fails by 2, not 1.<br>
-K(3,4) has <strong>906 TCOs</strong> in <strong>96 permanent components</strong>, indexed by vertex out-degree sequences.<br>
-<br>
-<strong>How we know — exhaustive search in Python:</strong><br>
+<span class="key">γ(K(3,4)) = 8 &gt; 6 = cycle rank, gap = +2.</span><br>
+906 TCOs in 96 permanent components. Cycle rank fails by 2, not 1. All minimal sets use only C₄ cycles (open conjecture).<br>
 <span style="font-family:monospace;font-size:10px;color:#555e6b;">
-&nbsp; Cycle masks: 42 total (18 C₄ + 24 C₆)<br>
-&nbsp; size 7: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0 generating sets &nbsp;← cycle rank + 1 never suffices<br>
-&nbsp; size 8: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong style="color:#7ee787">≥1 generating sets</strong> &nbsp;← minimum = 8<br>
+&nbsp; size 7: 0 generating sets &nbsp;← cycle rank + 1 never suffices<br>
+&nbsp; size 8: <strong style="color:#7ee787">≥1 generating sets</strong> &nbsp;← minimum = 8<br>
 </span>
-For K(3,3) and R₁₀, all minimal sets consist entirely of 4-element circuits; it is an open question
-whether the same holds for K(3,4).
 See <a href="https://github.com/mikeion/graph-problems/blob/main/k34_search_size8.py" target="_blank" style="color:#58a6ff">k34_search_size8.py</a>.<br><br>
-${compTable()}`;
-  } else if(activeId==='k33'){
-    div.innerHTML=`
-<span class="key">Paper Prop 4: γ(K(3,3)) = 5 &gt; 4 = cycle rank.</span><br>
-K(3,3) is the first case where the cycle rank bound fails. Unlike K₅, K(3,3) is
-<strong>bipartite</strong> — no triangles, only 4-cycles and 6-cycles. The face cycles of the
-torus embedding (the natural analog of planar faces) turn out to be useless.<br>
-<br>
-<strong>Status in paper:</strong> no combinatorial proof yet — confirmed by exhaustive search
-independently by Mike and Dave.<br>
-<span style="font-family:monospace;font-size:10px;color:#555e6b;">
-&nbsp; size 4: 1365 subsets → 0 generating sets &nbsp;← cycle rank never suffices<br>
-&nbsp; size 5: 3003 subsets → <strong style="color:#7ee787">9 generating sets</strong> &nbsp;← minimum is 5<br>
-&nbsp; All 9 minimal sets use only C₄ cycles. Torus faces (C₆) never appear.<br>
-</span>
-<a href="proof.html" style="color:#58a6ff">Full annotated output</a> ·
-<a href="https://github.com/mikeion/graph-problems" target="_blank" style="color:#58a6ff">source</a><br><br>
 ${compTable()}`;
   } else {
     div.innerHTML=`
-<span class="keygood">Paper Prop 3: γ(Kₙ) = cycle rank for all n.</span><br>
-K₅ is <strong>non-planar</strong> (not cographic), yet the minimum still equals the cycle rank.<br>
-The key: K₅ has triangles. The proof uses the <em>6 triangles through a fixed vertex</em> as generators.<br>
-<br>
+<span class="keygood">γ(Kₙ) = cycle rank for all n (Prop 3).</span><br>
+K₅ has triangles. Minimal sets = all 6 triangles through a fixed vertex.
+5 such sets exist; each uses all of them.<br>
 <span style="font-family:monospace;font-size:10px;color:#555e6b;">
-&nbsp; Fix vertex 0. Generators = {012, 013, 014, 023, 024, 034} — the 6 triangles through 0.<br>
-&nbsp; Any other cycle can be decomposed into reversals of these triangles.<br>
+&nbsp; Fix vertex 0: generators = {012, 013, 014, 023, 024, 034}<br>
 </span>
-<strong>Computationally confirmed:</strong> all 5 minimal sets have exactly this structure —
-one vertex's triangles. Sizes 1–5 give 0 sets; C(37,6) = 2,324,784 subsets at size 6 → exactly 5.<br><br>
-${compTable()}`;
+<br>${compTable()}`;
   }
   return div;
 }
 
-function compTable(){
-  return `<strong>Where each case sits in the paper's Venn diagram:</strong>
-<table class="compare">
-  <tr><th>Graph/Matroid</th><th>Graphic</th><th>Cographic</th><th>Cycle rank</th><th>Min γ</th><th>Gap</th><th>Result</th></tr>
-  <tr><td class="dim">Planar graphs</td><td class="good">✓</td><td class="good">✓</td><td class="dim">E−V+1</td><td class="dim">= rank</td><td class="dim">0</td><td class="good">Prop 2</td></tr>
-  <tr class="${activeId==='k5'?'active':''}"><td${activeId==='k5'?'><strong>K₅</strong>':' class="dim">K₅'}</td><td class="good">✓</td><td class="warn">✗</td><td class="dim">6</td><td class="dim">6</td><td class="dim">0</td><td class="good">Prop 3</td></tr>
-  <tr class="${activeId==='k33'?'active':''}"><td${activeId==='k33'?'><strong>K(3,3)</strong>':' class="dim">K(3,3)'}</td><td class="good">✓</td><td class="warn">✗</td><td class="dim">4</td><td class="warn">5</td><td class="warn">+1</td><td class="warn">Prop 4</td></tr>
-  <tr class="${activeId==='k34'?'active':''}"><td${activeId==='k34'?'><strong>K(3,4)</strong>':' class="dim">K(3,4)'}</td><td class="good">✓</td><td class="warn">✗</td><td class="dim">6</td><td class="warn">8</td><td class="warn">+2</td><td class="warn">extends Prop 4</td></tr>
-  <tr><td class="dim">R₁₀ matroid</td><td class="warn">✗</td><td class="warn">✗</td><td class="dim">5</td><td class="warn">7</td><td class="warn">+2</td><td class="warn">new result</td></tr>
-</table>
-<span style="font-size:9px;color:#484f58;">Cographic (= planar) guarantees equality. K₅ shows non-cographic alone doesn't break it. K(3,3), K(3,4), R₁₀ show it does break — open: what is the full characterization? <a href="r10.html" style="color:#58a6ff">R₁₀ →</a></span>`;
-}
-
-// ── Button actions ────────────────────────────────────────────
-function buildActions(){
-  const G=GRAPHS[activeId];
-  const el=document.getElementById('metric-actions');
+function buildOtherActions(){
+  const el=document.getElementById('other-actions');
   el.innerHTML='';
   function btn(label,fn,cls=''){
     const b=document.createElement('button');
     b.className='mact '+cls;b.textContent=label;b.onclick=fn;el.appendChild(b);
   }
   btn('None',()=>{customSel=new Set();syncCells();updateMeter();});
-  if(activeId==='k33'){
-    btn(`Try 4 (cycle rank)`,()=>selectMasks(tryK33()),'primary');
-    btn('Show minimal set (5)',()=>selectMasks(minimalK33()));
-  } else if(activeId==='k34'){
+  if(activeId==='k34'){
     btn('Try 6 (cycle rank)',()=>selectMasks(tryK34()),'primary');
   } else {
     btn('Try 5 (cycle rank−1)',()=>selectMasks(tryK5()),'primary');
-    btn('Show minimal set (6)',()=>selectMasks(minimalK5()));
+    btn('Show minimal set (6)',()=>selectMasks(minimalK5()),'success');
   }
   btn('All',()=>{customSel=new Set(GRAPHS[activeId].maskList);syncCells();updateMeter();});
 }
 
+function compTable(){
+  return `<strong>Where each case sits:</strong>
+<table class="compare">
+  <tr><th>Graph</th><th>Graphic</th><th>Cographic</th><th>Cycle rank</th><th>Min γ</th><th>Gap</th><th>Result</th></tr>
+  <tr><td class="dim">Planar</td><td class="good">✓</td><td class="good">✓</td><td class="dim">E−V+1</td><td class="dim">= rank</td><td class="dim">0</td><td class="good">Prop 2</td></tr>
+  <tr class="${activeId==='k5'?'active':''}"><td${activeId==='k5'?'><strong>K₅</strong>':' class="dim">K₅'}</td><td class="good">✓</td><td class="warn">✗</td><td class="dim">6</td><td class="dim">6</td><td class="dim">0</td><td class="good">Prop 3</td></tr>
+  <tr class="${activeId==='k33'?'active':''}"><td${activeId==='k33'?'><strong>K(3,3)</strong>':' class="dim">K(3,3)'}</td><td class="good">✓</td><td class="warn">✗</td><td class="dim">4</td><td class="warn">5</td><td class="warn">+1</td><td class="warn">Prop 4</td></tr>
+  <tr class="${activeId==='k34'?'active':''}"><td${activeId==='k34'?'><strong>K(3,4)</strong>':' class="dim">K(3,4)'}</td><td class="good">✓</td><td class="warn">✗</td><td class="dim">6</td><td class="warn">8</td><td class="warn">+2</td><td class="warn">extends Prop 4</td></tr>
+  <tr><td class="dim">R₁₀</td><td class="warn">✗</td><td class="warn">✗</td><td class="dim">5</td><td class="warn">7</td><td class="warn">+2</td><td class="warn">new result</td></tr>
+</table>
+<span style="font-size:9px;color:#484f58;"><a href="r10.html" style="color:#58a6ff">R₁₀ →</a> &nbsp; <a href="proof.html" style="color:#58a6ff">K(3,3) proof notes →</a></span>`;
+}
+
+// ── Preset selections ─────────────────────────────────────────
 function tryK33(){
   const G=GRAPHS.k33;
   const lp=[[0,1],[0,2],[1,2]],rp=[[3,4],[3,5],[4,5]];
@@ -557,7 +965,6 @@ function minimalK33(){
   return ms;
 }
 function tryK34(){
-  // First row of the C4 grid: L0L1 × all 6 right pairs
   const G=GRAPHS.k34;
   const lp=[0,1];
   const rps=[[3,4],[3,5],[3,6],[4,5],[4,6],[5,6]];
@@ -579,41 +986,65 @@ function minimalK5(){
 }
 
 function selectMasks(ms){
-  customSel=new Set(ms);syncCells();updateMeter();
+  customSel=new Set(ms);
+  syncCells();
+  if(activeId==='k33'){updateCompGrid();}
+  else{updateMeter();}
 }
 function syncCells(){
   document.querySelectorAll('.cyc-cell').forEach(c=>c.classList.toggle('on',customSel.has(+c.dataset.mask)));
+  updateSelCount();
 }
 
 // ── Switch graph ──────────────────────────────────────────────
 function switchGraph(id){
-  activeId=id;customSel=new Set();
+  activeId=id;
+  customSel=new Set();
+  selectedCompKey=null;
+
   document.querySelectorAll('.gtab').forEach(t=>{
     const active=t.dataset.gid===id;
     t.classList.toggle('active',active);
-    if(active) t.classList.add((id==='k33'||id==='k34')?'fails':'holds');
+    if(active)t.classList.add((id==='k33'||id==='k34')?'fails':'holds');
+    else{t.classList.remove('fails');t.classList.remove('holds');}
   });
+
   renderSVG(GRAPHS[id],null);
   updateCaption();
-  buildGrid();
-  buildActions();
-  updateMeter();
+
+  const k33ws=document.getElementById('k33-workspace');
+  const otherws=document.getElementById('other-workspace');
+
+  if(id==='k33'){
+    k33ws.style.display='flex';
+    otherws.style.display='none';
+    buildK33Circuits();
+    buildCompGrid(GRAPHS.k33);
+    buildK33Actions();
+    updateCompGrid();
+  } else {
+    k33ws.style.display='none';
+    otherws.style.display='flex';
+    buildOtherGrid();
+    buildOtherActions();
+    updateMeter();
+  }
 }
 
 function updateCaption(){
-  const G=GRAPHS[activeId];
   const el=document.getElementById('graph-caption');
   if(activeId==='k33'){
-    el.innerHTML='<strong>K(3,3) on the torus</strong> — one directed orientation shown.<br>Green = left vertices · Blue = right vertices<br>Hover any cycle cell to highlight its edges.';
+    el.innerHTML='<strong>K(3,3)</strong> on the torus<br>Green = left · Blue = right<br>Hover a cell to highlight edges';
   } else if(activeId==='k34'){
-    el.innerHTML='<strong>K(3,4)</strong> — complete bipartite graph, one directed orientation shown.<br>Green = left (3) · Blue = right (4)<br>Hover any cycle cell to highlight its edges.';
+    el.innerHTML='<strong>K(3,4)</strong><br>Green = left (3) · Blue = right (4)<br>Hover a cell to highlight edges';
   } else {
-    el.innerHTML='<strong>K₅</strong> — complete graph on 5 vertices, one directed orientation shown.<br>Purple = all vertices (not bipartite)<br>Hover any cycle cell to highlight its edges.';
+    el.innerHTML='<strong>K₅</strong><br>Purple = all vertices<br>Hover a cell to highlight edges';
   }
 }
 
 // ── Init ──────────────────────────────────────────────────────
 precompute(GRAPHS.k33);
+buildComponents(GRAPHS.k33);
 precompute(GRAPHS.k34);
 precompute(GRAPHS.k5);
 switchGraph('k33');
